@@ -1,5 +1,6 @@
 package backupbuddies;
 
+import backupbuddies.gui.GuiMain;
 
 public class Main {
   
