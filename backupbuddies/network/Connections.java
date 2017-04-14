@@ -1,4 +1,6 @@
 
+package backupbuddies.network;
+
 import java.io.File;
 
 public class Connections {
