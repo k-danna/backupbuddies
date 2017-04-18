@@ -31,9 +31,6 @@ public class Peer {
 		this(new Socket(url, Properties.DEFAULT_PORT), password, true);
 	}
 
-	/**
-	 * Call to create a socket from a server connection only
-	 */
 	Peer(Socket socket, String password, boolean sendHandshake) {
 		this.password=password;
 		this.url=socket.getInetAddress().toString();
@@ -53,7 +50,7 @@ public class Peer {
 		}
 	}
 	
-	//Sends a handshake
+	//Sends a handshake message
 	private void sendHandshake(String password) throws IOException {
 		outbound.writeUTF(Properties.HANDSHAKE + "\n");
 		outbound.writeUTF(password+"\n");
@@ -63,16 +60,20 @@ public class Peer {
 		return isDead;
 	}
 	
-	
-	// If this ever becomes invalid, we call this.
-	// Locks this Peer globally
+	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(){
 		peerServicer=null;
+		try{
+			outbound.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		try {
 			socket.close();
 		} catch (IOException|NullPointerException e) {
 			e.printStackTrace();
 		}
+
 		isDead=true;
 	}
 	

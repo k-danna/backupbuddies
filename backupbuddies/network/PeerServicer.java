@@ -29,9 +29,11 @@ final class PeerServicer implements Runnable {
 				switch(command){
 				//TODO this is where messages are handled
 				
-				//Invalid command messages = kill the connection
+				//If an invalid command is sent, kill the connection
+				//It's incompatible with us
 				default:
 					connection.kill();
+					break;
 				}
 			}
 		}catch(IOException e){
