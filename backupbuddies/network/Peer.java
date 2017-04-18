@@ -10,12 +10,14 @@ import backupbuddies.Properties;
 
 public class Peer {
 	
-	private boolean hasFailed=false;
+	boolean hasFailed=false;
 	
 	private Socket socket;
 	
 	private DataOutputStream outbound;
 	private BufferedReader inbound;
+	
+	private Thread peerServicer;
 	
 	public final String url;
 	
@@ -31,7 +33,7 @@ public class Peer {
 			url=url.substring(0, url.lastIndexOf(':'));
 		}
 		try {
-			init(new Socket(url, port));
+			init(new Socket(url, port), password);
 			sendHandshake(password);
 		} catch (IOException e) {
 			hasFailed=true;
@@ -45,17 +47,18 @@ public class Peer {
 		this.url=socket.getInetAddress().toString();
 		
 		try{
-			init(socket);
-			checkHandshake(password);
+			init(socket, password);
 		} catch(Exception e) {
 			hasFailed=true;
 		}
 	}
 	
 	//Sets up the fields
-	private void init(Socket socket) throws IOException{
+	private void init(Socket socket, String password) throws IOException{
 		outbound = new DataOutputStream(socket.getOutputStream());
 		inbound = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		peerServicer = new Thread(new PeerServicer(this, password));
 	}
 	
 	//Sends a handshake
@@ -64,22 +67,4 @@ public class Peer {
 		outbound.writeUTF(password+"\n");
 	}
 	
-	//Receives a handshake
-	private boolean checkHandshake(String password) throws IOException {
-		//Check handshake first part
-		String line=inbound.readLine();
-		System.out.println(line);
-		if(!line.equals(Properties.HANDSHAKE))
-			return false;
-		
-		//Check password
-		line=inbound.readLine();
-		System.out.println(line);
-		if(!line.equals(password))
-			return false;
-		
-		//All checks passed = we're good
-		return true;
-	}
-
 }

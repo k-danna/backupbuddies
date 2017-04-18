@@ -29,7 +29,7 @@ public class Network {
 	private class IncomingConnectionHandler implements Runnable {
 
 		//Server socket stays open for the life of the program
-		//We don't care if it leaks
+		//We don't care if it leaks, until (unless) we support multiple nets
 		@SuppressWarnings("resource")
 		@Override
 		public void run() {
