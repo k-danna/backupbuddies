@@ -10,61 +10,70 @@ import backupbuddies.Properties;
 
 public class Peer {
 	
-	boolean hasFailed=false;
+	private boolean isDead=false;
 	
 	private Socket socket;
 	
 	private DataOutputStream outbound;
-	private BufferedReader inbound;
+	BufferedReader inbound;
 	
 	private Thread peerServicer;
 	
 	public final String url;
+
+	boolean requireHandshake;
+	String password;
 	
 	/**
-	 * Call to create a socket from a client
+	 * This always opens a new Socket, so it always has to send the handshake
 	 */
-	Peer(String url, String password){
-		this.url=url;
-		
-		int port = Properties.DEFAULT_PORT;
-		if(url.contains(":")) {
-			port = Integer.parseInt(url.substring(0, url.lastIndexOf(':')));
-			url=url.substring(0, url.lastIndexOf(':'));
-		}
-		try {
-			init(new Socket(url, port), password);
-			sendHandshake(password);
-		} catch (IOException e) {
-			hasFailed=true;
-		}
+	Peer(String url, String password) throws IOException{
+		this(new Socket(url, Properties.DEFAULT_PORT), password, true);
 	}
 
 	/**
 	 * Call to create a socket from a server connection only
 	 */
-	Peer(Socket socket, String password) {
+	Peer(Socket socket, String password, boolean sendHandshake) {
+		this.password=password;
 		this.url=socket.getInetAddress().toString();
 		
 		try{
-			init(socket, password);
+			outbound = new DataOutputStream(socket.getOutputStream());
+			inbound = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			
+			requireHandshake = !sendHandshake;
+			if(sendHandshake)
+				sendHandshake(password);
+			
+			peerServicer = new Thread(new PeerServicer(this));
+			peerServicer.start();
 		} catch(Exception e) {
-			hasFailed=true;
+			this.kill();
 		}
-	}
-	
-	//Sets up the fields
-	private void init(Socket socket, String password) throws IOException{
-		outbound = new DataOutputStream(socket.getOutputStream());
-		inbound = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		
-		peerServicer = new Thread(new PeerServicer(this, password));
 	}
 	
 	//Sends a handshake
 	private void sendHandshake(String password) throws IOException {
 		outbound.writeUTF(Properties.HANDSHAKE + "\n");
 		outbound.writeUTF(password+"\n");
+	}
+	
+	public boolean isDead(){
+		return isDead;
+	}
+	
+	
+	// If this ever becomes invalid, we call this.
+	// Locks this Peer globally
+	public synchronized void kill(){
+		peerServicer=null;
+		try {
+			socket.close();
+		} catch (IOException|NullPointerException e) {
+			e.printStackTrace();
+		}
+		isDead=true;
 	}
 	
 }

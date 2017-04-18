@@ -11,18 +11,28 @@ public class Network {
 	
 	private final String password;
 	
+	//You can look up peers by their IP
+	//TODO is this what the GUI team needs?
 	private HashMap<String, Peer> connections;
 	
 	public Network(String password){
 		this.password=password;
 		new Thread(new IncomingConnectionHandler()).start();
 	}
-	
-	public void connect(String url){
-		Peer peer=new Peer(url, password);
-		//We have to lock connections so that no new peer overwrites it
-		synchronized(connections){
-			connections.put(url,peer);
+	/*
+	 * Returns null if all is well, or the IOException if we failed to
+	 * open the connection
+	 */
+	public IOException connect(String url){
+		try{
+			Peer peer=new Peer(url, password);
+			//We have to lock connections so that no new peer overwrites it
+			synchronized(connections){
+				connections.put(url,peer);
+			}
+			return null;
+		}catch(IOException e){
+			return e;
 		}
 	}
 	
@@ -44,9 +54,9 @@ public class Network {
 			{
 				try {
 					Socket incomingSocket = serverSocket.accept();
-					Peer conn=new Peer(incomingSocket, password);
+					Peer peer=new Peer(incomingSocket, password, false);
 					synchronized(connections){
-						connections.put(conn.url, conn);
+						connections.put(peer.url, peer);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
