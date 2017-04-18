@@ -82,8 +82,4 @@ public class Peer {
 		return true;
 	}
 
-	public void 
-	
-	
-
 }
