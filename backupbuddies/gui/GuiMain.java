@@ -6,21 +6,20 @@ import java.awt.Container;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 
+import javax.swing.*;
+
 public class GuiMain {
   
   public static void startGui() {
-    //TODO set up the GUI
-    //pineapple are fum
-	JFrame frame = new JFrame("Hello world!");
-	frame.setSize(500,500);
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	frame.setVisible(true);
-	
-	JButton button = new JButton("Click");
-	
-	Container c = 
-	
-	c.add(button, BorderLayout.CENTER);
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JFrame frame = new JFrame("BackupBuds");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(1000, 500);
+                frame.setVisible(true);
+
+            }
+        });
   }
   
 }
