@@ -1,0 +1,4 @@
+
+javac -sourcepath .. Main.java
+java -cp .. backupbuddies.Main
+
