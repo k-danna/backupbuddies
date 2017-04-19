@@ -13,12 +13,7 @@ package backupbuddies.gui;
         file status
 */
 
-import javax.swing.JFrame;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-
+import java.awt.*;
 import javax.swing.*;
 
 public class GuiMain {
@@ -28,10 +23,24 @@ public class GuiMain {
             public void run() {
                 JFrame frame = new JFrame("BackupBuds");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(1000, 500);
+                frame.setSize(1000, 700);
                 frame.setVisible(true);
 
-
+                
+                JPanel panel = new JPanel();
+                panel.setLayout(null);
+                frame.add(panel);
+                
+                
+                // upload button
+                JButton up = new JButton("Upload");
+                up.setBounds(270, 550, 175, 50);
+                panel.add(up);
+                
+                // download button
+                JButton down = new JButton("Download");
+                down.setBounds(500, 550, 175, 50);
+                panel.add(down);
             }
         });
   }
