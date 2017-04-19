@@ -19,7 +19,7 @@ import javax.swing.*;
 public class GuiMain {
   
   public static void startGui() {
-      new SetupGui().setVisible(true);
+      new SetupGui();
   }
   
 }
