@@ -1,5 +1,18 @@
 package backupbuddies.gui;
 
+/*TODO:
+    high priority:
+        upload button
+        download button
+        username input
+        password input
+    
+    low priority
+        list of peers
+        file list
+        file status
+*/
+
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -17,6 +30,7 @@ public class GuiMain {
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setSize(1000, 500);
                 frame.setVisible(true);
+
 
             }
         });
