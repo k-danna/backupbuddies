@@ -1,3 +1,2 @@
 # backupbuddies
-provides buinsnesses with easy to use backup software
-cs115 project
+peer to peer buisness solution for backing up files
