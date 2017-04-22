@@ -35,7 +35,7 @@ public class GuiMain extends JFrame {
     }
     public static String[] fetchUserList(){
     	String[] list = {"user1","user2","user3"};
-    	System.out.printf("fetching->complete\n  users are:\n");
+    	System.out.printf("fetchingUsers->complete\n  users are:\n");
     	int i=0;
     	while(i<list.length){
     		System.out.printf("     %s\n", list[i]);
@@ -43,9 +43,16 @@ public class GuiMain extends JFrame {
     	}
     	return list;
     }
-    //public status void fetchFileList(????){
-    	
-    //}
+    public static String[] fetchFileList(){
+    	String[] list = {"file1","file2","file3"};
+    	System.out.printf("fetchingFiles->complete\n  files are:\n");
+    	int i=0;
+    	while(i<list.length){
+    		System.out.printf("     %s\n", list[i]);
+    		i++;
+    	}
+    	return list;
+    }
 
     //////////////////////////////////////////////////////////////////////
 
@@ -173,6 +180,7 @@ public class GuiMain extends JFrame {
     	JPanel userListPanel = new JPanel();
     	JLabel userLabel = new JLabel("users in network:");
     	JButton userListRefresh = new JButton("refresh");
+    	JScrollPane userScroll = new JScrollPane();
     	
     	//using DefaultListModel for easy overwriting
     	DefaultListModel<String> model = new DefaultListModel<String>();
@@ -193,9 +201,10 @@ public class GuiMain extends JFrame {
             }
         });
    	
+    	userScroll.setViewportView(userList);
        	userListPanel.add(userLabel);
-    	userListPanel.add(userList);
        	userListPanel.add(userListRefresh);
+       	userListPanel.add(userScroll);
     	
     	return userListPanel;
     }
@@ -203,14 +212,32 @@ public class GuiMain extends JFrame {
     public static JPanel fileListPanel() {
     	JPanel fileListPanel = new JPanel();
     	JLabel fileLabel = new JLabel("files:");
+    	JButton fileListRefresh = new JButton("refresh");
+    	JScrollPane fileScroll = new JScrollPane();
     	
-    	String[] list = {"file1", "file2", "file3"};
-    	JList<String> fileList = new JList<String>(list);
+    	//using DefaultListModel for easy overwriting
+    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	JList<String> fileList = new JList<String>(model);
+   	
+    	fileListRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String[] newList = fetchFileList();
+                int i=0;
+                
+                model.removeAllElements();
+                while (i < newList.length){
+                    model.addElement(newList[i]);
+                    i++;
+                }    
+            }
+        });
     	
-    	
+     	fileScroll.setViewportView(fileList);    	
     	fileListPanel.add(fileLabel);
-    	fileListPanel.add(fileList);
-    	
+    	fileListPanel.add(fileListRefresh);
+    	fileListPanel.add(fileScroll);
+      	
     	return fileListPanel;
     }
 
