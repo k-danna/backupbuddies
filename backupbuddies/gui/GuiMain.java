@@ -33,6 +33,14 @@ public class GuiMain extends JFrame {
         System.out.printf("[+] downloading '%s' to '%s'\n", 
                 fileName, fileDir);
     }
+    public static String[] fetchUserList(){
+    	System.out.printf("fetching->complete\n");
+    	String[] list = {"user1","user2","user3"};
+    	return list;
+    }
+    //public status void fetchFileList(????){
+    	
+    //}
 
     //////////////////////////////////////////////////////////////////////
 
@@ -160,12 +168,25 @@ public class GuiMain extends JFrame {
     	JPanel userListPanel = new JPanel();
     	JLabel userLabel = new JLabel("users in network:");
     	
-    	String[] list = {"user1", "user2", "user3"};
-    	JList<String> userList = new JList<String>(list);
+    	//String[] list = {"hi","ho","ha"};
+    	//JList<String> userList = new JList<String>(list);
+    	JButton userListRefresh = new JButton("refresh");  
+    	//JButton userButton = new JButton("button");
+
+    	userListPanel.add(userListRefresh);
+    	//userListPanel.add(userList);
     	
+    	userListRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(fetchUserList()[1]);
+                JList<String> userList = new JList<String>(fetchUserList());
+                userListPanel.add(userList);
+            }
+        });
     	
-    	userListPanel.add(userLabel);
-    	userListPanel.add(userList);
+       	userListPanel.add(userLabel);
+    	//userListPanel.add(userList);
     	
     	return userListPanel;
     }
