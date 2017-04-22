@@ -40,7 +40,7 @@ public class GuiMain extends JFrame {
                 fileName, fileDir);
     }
     public static String[] fetchUserList(){
-    	String[] list = {"user1","user2","user3"};
+    	String[] list = {"user1","user2","user3","user4"};
     	System.out.printf("fetchingUsers->complete\n  users are:\n");
     	int i=0;
     	while(i<list.length){
@@ -50,7 +50,7 @@ public class GuiMain extends JFrame {
     	return list;
     }
     public static String[] fetchFileList(){
-    	String[] list = {"file1","file2","file3"};
+    	String[] list = {"file1","file2","file3","file4"};
     	System.out.printf("fetchingFiles->complete\n  files are:\n");
     	int i=0;
     	while(i<list.length){
