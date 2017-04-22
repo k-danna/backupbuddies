@@ -192,7 +192,7 @@ public class GuiMain extends JFrame {
                 }    
             }
         });
-    	
+   	
        	userListPanel.add(userLabel);
     	userListPanel.add(userList);
        	userListPanel.add(userListRefresh);
