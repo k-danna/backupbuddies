@@ -26,7 +26,7 @@ public abstract class Debug {
 	}
 
 	public static void exception(Throwable t) {
-		dbg(t.toString());
+		dbg_delegate(t.toString());
 	}
 	
 	@Deprecated

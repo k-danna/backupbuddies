@@ -13,7 +13,7 @@ public class Network {
 	
 	//You can look up peers by their IP
 	//TODO is this what the GUI team needs?
-	private HashMap<String, Peer> connections;
+	private HashMap<String, Peer> connections = new HashMap<>();
 	
 	public Network(String password){
 		this.password=password;

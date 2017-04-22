@@ -17,13 +17,19 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import backupbuddies.network.Network;
+
 public class GuiMain extends JFrame {
   
+	private static Network network;
+	
     //////////////////////////////////////////////////////////////////////
     //FIXME: these methods need to be in the interface class
         //so we can call them on user input events
     public static void login(String ip, String pass) {
         System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
+        network = new Network(pass);
+        network.connect(ip);
     }
     public static void uploadFile(String fileName, String fileDir) {
         System.out.printf("[+] uploading '%s' from '%s'\n", 
