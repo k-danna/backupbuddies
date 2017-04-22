@@ -34,8 +34,13 @@ public class GuiMain extends JFrame {
                 fileName, fileDir);
     }
     public static String[] fetchUserList(){
-    	System.out.printf("fetching->complete\n");
     	String[] list = {"user1","user2","user3"};
+    	System.out.printf("fetching->complete\n  users are:\n");
+    	int i=0;
+    	while(i<list.length){
+    		System.out.printf("     %s\n", list[i]);
+    		i++;
+    	}
     	return list;
     }
     //public status void fetchFileList(????){
@@ -167,33 +172,37 @@ public class GuiMain extends JFrame {
     public static JPanel userListPanel() {
     	JPanel userListPanel = new JPanel();
     	JLabel userLabel = new JLabel("users in network:");
+    	JButton userListRefresh = new JButton("refresh");
     	
-    	//String[] list = {"hi","ho","ha"};
-    	//JList<String> userList = new JList<String>(list);
-    	JButton userListRefresh = new JButton("refresh");  
-    	//JButton userButton = new JButton("button");
-
-    	userListPanel.add(userListRefresh);
-    	//userListPanel.add(userList);
-    	
+    	//using DefaultListModel for easy overwriting
+    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	//model.addElement("please join a network");    	
+    	JList<String> userList = new JList<String>(model);
+   	
     	userListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(fetchUserList()[1]);
-                JList<String> userList = new JList<String>(fetchUserList());
-                userListPanel.add(userList);
+            	String[] newList = fetchUserList();
+                int i=0;
+                
+                model.removeAllElements();
+                while (i < newList.length){
+                    model.addElement(newList[i]);
+                    i++;
+                }    
             }
         });
     	
        	userListPanel.add(userLabel);
-    	//userListPanel.add(userList);
+    	userListPanel.add(userList);
+       	userListPanel.add(userListRefresh);
     	
     	return userListPanel;
     }
     
     public static JPanel fileListPanel() {
     	JPanel fileListPanel = new JPanel();
-    	JLabel fileLabel = new JLabel("users in network:");
+    	JLabel fileLabel = new JLabel("files:");
     	
     	String[] list = {"file1", "file2", "file3"};
     	JList<String> fileList = new JList<String>(list);
