@@ -11,7 +11,8 @@ public abstract class Interface {
 
 	public static void login(String ip, String pass) {
 	    System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
-	    network = new Network(pass);
+	    if(network == null || !pass.equals(network.password))
+	    	network = new Network(pass);
 	    network.connect(ip);
 	}
 

@@ -1,6 +1,7 @@
 package backupbuddies.network;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import backupbuddies.Properties;
 import static backupbuddies.Debug.*;
@@ -54,14 +55,27 @@ final class PeerServicer implements Runnable {
 		String line=connection.inbound.readLine();
 		if(line==null)
 			return false;
-		line=line.replaceAll("\r", "").replaceAll("\n", "");
+
+		//Eat all the non-printable characters
+		//I don't know why they get in, but they do.
+		line=line.replaceAll("\\p{C}", "");
+		
+		dbg(Arrays.toString(line.getBytes()));
+		dbg(line);
+		dbg(Arrays.toString(Properties.HANDSHAKE.getBytes()));
+
 		if(!(line.equals(Properties.HANDSHAKE)))
 			return false;
 
 		//Check password
 		line=connection.inbound.readLine();
+
 		if(line==null)
 			return false;
+		
+		dbg(Arrays.toString(line.getBytes()));
+		dbg(Arrays.toString(connection.password.getBytes()));
+		
 		line=line.replaceAll("\r", "").replaceAll("\n", "");
 		if(!line.equals(connection.password))
 			return false;

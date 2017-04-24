@@ -26,15 +26,18 @@ public class Peer {
 	boolean requireHandshake;
 	String password;
 	
+	Network network;
+	
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
-	Peer(String url, String password) throws IOException{
-		this(new Socket(url, Properties.DEFAULT_PORT), password, true);
+	Peer(String url, String password, Network net) throws IOException{
+		this(new Socket(url, Properties.DEFAULT_PORT), password, true, net);
 	}
 
-	Peer(Socket socket, String password, boolean sendHandshake) {
+	Peer(Socket socket, String password, boolean sendHandshake, Network net) {
 		this.password=password;
+		this.network=net;
 		this.url=socket.getInetAddress().toString();
 		
 		try{
@@ -65,6 +68,7 @@ public class Peer {
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(){
 		new Exception().printStackTrace();
+		network.onConnectionDie(this);
 		peerServicer=null;
 		try{
 			outbound.close();
@@ -78,6 +82,7 @@ public class Peer {
 		}
 
 		isDead=true;
+		
 	}
 	
 }
