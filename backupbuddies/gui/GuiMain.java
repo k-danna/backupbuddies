@@ -39,6 +39,26 @@ public class GuiMain extends JFrame {
         System.out.printf("[+] downloading '%s' to '%s'\n", 
                 fileName, fileDir);
     }
+    public static String[] fetchUserList(){
+    	String[] list = {"user1","user2","user3","user4"};
+    	System.out.printf("fetchingUsers->complete\n  users are:\n");
+    	int i=0;
+    	while(i<list.length){
+    		System.out.printf("     %s\n", list[i]);
+    		i++;
+    	}
+    	return list;
+    }
+    public static String[] fetchFileList(){
+    	String[] list = {"file1","file2","file3","file4"};
+    	System.out.printf("fetchingFiles->complete\n  files are:\n");
+    	int i=0;
+    	while(i<list.length){
+    		System.out.printf("     %s\n", list[i]);
+    		i++;
+    	}
+    	return list;
+    }
 
     //////////////////////////////////////////////////////////////////////
 
@@ -161,6 +181,71 @@ public class GuiMain extends JFrame {
 
         return loginPanel;    
     }
+    
+    public static JPanel userListPanel() {
+    	JPanel userListPanel = new JPanel();
+    	JLabel userLabel = new JLabel("users in network:");
+    	JButton userListRefresh = new JButton("refresh");
+    	JScrollPane userScroll = new JScrollPane();
+    	
+    	//using DefaultListModel for easy overwriting
+    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	//model.addElement("please join a network");    	
+    	JList<String> userList = new JList<String>(model);
+   	
+    	userListRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String[] newList = fetchUserList();
+                int i=0;
+                
+                model.removeAllElements();
+                while (i < newList.length){
+                    model.addElement(newList[i]);
+                    i++;
+                }    
+            }
+        });
+   	
+    	userScroll.setViewportView(userList);
+       	userListPanel.add(userLabel);
+       	userListPanel.add(userListRefresh);
+       	userListPanel.add(userScroll);
+    	
+    	return userListPanel;
+    }
+    
+    public static JPanel fileListPanel() {
+    	JPanel fileListPanel = new JPanel();
+    	JLabel fileLabel = new JLabel("files:");
+    	JButton fileListRefresh = new JButton("refresh");
+    	JScrollPane fileScroll = new JScrollPane();
+    	
+    	//using DefaultListModel for easy overwriting
+    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	JList<String> fileList = new JList<String>(model);
+   	
+    	fileListRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String[] newList = fetchFileList();
+                int i=0;
+                
+                model.removeAllElements();
+                while (i < newList.length){
+                    model.addElement(newList[i]);
+                    i++;
+                }    
+            }
+        });
+    	
+     	fileScroll.setViewportView(fileList);    	
+    	fileListPanel.add(fileLabel);
+    	fileListPanel.add(fileListRefresh);
+    	fileListPanel.add(fileScroll);
+      	
+    	return fileListPanel;
+    }
 
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -181,6 +266,8 @@ public class GuiMain extends JFrame {
                 //populate the window
                 frame.add(loginPanel(), BorderLayout.NORTH);
                 frame.add(filePanel(), BorderLayout.SOUTH);
+                frame.add(userListPanel(), BorderLayout.WEST);
+                frame.add(fileListPanel(), BorderLayout.EAST);
     
                 //display the window
                     //pack - layout manager auto sizes and auto locates
