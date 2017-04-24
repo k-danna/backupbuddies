@@ -1,5 +1,8 @@
 package backupbuddies.network;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -8,9 +11,12 @@ import static backupbuddies.Debug.*;
 final class PeerServicer implements Runnable {
 
 	private final Peer connection;
+	
+	private final DataInputStream inbound;
 
-	PeerServicer(Peer peer) {
+	PeerServicer(Peer peer, DataInputStream inbound) {
 		this.connection = peer;
+		this.inbound = inbound;
 	}
 
 	@Override
@@ -26,22 +32,26 @@ final class PeerServicer implements Runnable {
 			}
 
 			while(!connection.isDead()){
-				String command=connection.inbound.readLine();
+				String command=inbound.readUTF();
 				if(command==null){
 					connection.kill();
 					return;
 				}
 				switch(command){
-				//TODO this is where messages are handled
+				case Protocol.REQUEST_BACKUP:
+					handleBackupRequest();
+					break;
 				
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
 				default:
+					
 					connection.kill();
 					break;
 				}
 			}
 		}catch(IOException e){
+			e.printStackTrace();
 			connection.kill();
 			return;
 		}
@@ -49,15 +59,13 @@ final class PeerServicer implements Runnable {
 
 	//Receives a handshake
 	private boolean checkHandshake() throws IOException {
-		//Check handshake first part
-		//TODO this seems broken
-		String line=connection.inbound.readLine();
+		String line=inbound.readUTF();
 		if(line==null)
 			return false;
 
 		//Eat all the non-printable characters
 		//I don't know why they get in, but they do.
-		line=line.replaceAll("\\p{C}", "");
+		//line=line.replaceAll("\\p{C}", "");
 		
 		dbg(Arrays.toString(line.getBytes()));
 		dbg(line);
@@ -67,7 +75,7 @@ final class PeerServicer implements Runnable {
 			return false;
 
 		//Check password
-		line=connection.inbound.readLine();
+		line=inbound.readUTF();
 
 		if(line==null)
 			return false;
@@ -75,11 +83,30 @@ final class PeerServicer implements Runnable {
 		dbg(Arrays.toString(line.getBytes()));
 		dbg(Arrays.toString(connection.password.getBytes()));
 		
-		line=line.replaceAll("\r", "").replaceAll("\n", "");
 		if(!line.equals(connection.password))
 			return false;
 
 		//All checks passed = we're good
 		return true;
+	}
+	
+	private void handleBackupRequest() throws IOException{
+		String fileName=inbound.readUTF();
+		long length=inbound.readLong();
+		File file=new File(connection.getStoragePath() + "/" + fileName);
+		//You can overwrite existing backups
+		if(file.exists())
+			file.delete();
+		
+		file.getParentFile().mkdirs();
+		
+		file.createNewFile();
+		FileOutputStream out=new FileOutputStream(file);
+		
+		for(long i=0; i<length; i++){
+			out.write(inbound.readByte());
+		}
+		out.close();
+		
 	}
 }

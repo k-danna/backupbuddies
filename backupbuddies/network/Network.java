@@ -1,7 +1,10 @@
 package backupbuddies.network;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import static backupbuddies.Debug.*;
 
@@ -45,6 +48,15 @@ public class Network {
 		synchronized(connections){
 			connections.remove(peer.url);
 		}
+	}
+	
+	public Collection<Peer> getPeers(){
+		return connections.values();
+	}
+	
+	public String getPath() {
+		//TODO can change this
+		return "/home/planetguy/backupbuddies";
 	}
 
 }

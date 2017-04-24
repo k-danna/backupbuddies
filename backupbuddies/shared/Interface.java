@@ -1,8 +1,12 @@
 package backupbuddies.shared;
 
 import backupbuddies.network.Network;
+import backupbuddies.network.Peer;
 
 import static backupbuddies.Debug.*;
+
+import java.io.File;
+import java.nio.file.Path;
 
 
 public abstract class Interface {
@@ -19,6 +23,12 @@ public abstract class Interface {
 	public static void uploadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
+	   
+	    Path filePath = new File(fileDir+"/"+fileName).toPath();
+	    
+	    for(Peer peer:network.getPeers()){
+	    	peer.uploadFile(filePath);
+	    }
 	}
 
 	public static void downloadFile(String fileName, String fileDir) {

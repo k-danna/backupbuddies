@@ -1,31 +1,31 @@
 package backupbuddies.network;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.file.Path;
 
 import static backupbuddies.Debug.*;
 
 public class Peer {
-	
+
 	private boolean isDead=false;
-	
+
 	private Socket socket;
-	
+
 	private DataOutputStream outbound;
-	BufferedReader inbound;
-	
 	private Thread peerServicer;
-	
+
 	public final String url;
 
 	boolean requireHandshake;
 	String password;
-	
+
 	Network network;
-	
+
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
@@ -37,50 +37,79 @@ public class Peer {
 		this.password=password;
 		this.network=net;
 		this.url=socket.getInetAddress().toString();
-		
+
 		try{
 			outbound = new DataOutputStream(socket.getOutputStream());
-			inbound = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			
+			DataInputStream inbound = new DataInputStream(socket.getInputStream());
+
 			requireHandshake = !sendHandshake;
 			if(sendHandshake)
 				sendHandshake(password);
-			
-			peerServicer = new Thread(new PeerServicer(this));
+
+			peerServicer = new Thread(new PeerServicer(this, inbound));
 			peerServicer.start();
 		} catch(Exception e) {
 			this.kill();
 		}
 	}
-	
+
 	//Sends a handshake message
 	private void sendHandshake(String password) throws IOException {
-		outbound.writeUTF(Protocol.HANDSHAKE + "\n");
-		outbound.writeUTF(password+"\n");
+		outbound.writeUTF(Protocol.HANDSHAKE);
+		outbound.writeUTF(password);
 	}
-	
+
 	public boolean isDead(){
 		return isDead;
 	}
-	
+
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(){
-		new Exception().printStackTrace();
+		//new Exception().printStackTrace();
 		network.onConnectionDie(this);
 		peerServicer=null;
 		try{
 			outbound.close();
 		}catch(IOException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		try {
 			socket.close();
 		} catch (IOException|NullPointerException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		isDead=true;
-		
+
 	}
-	
+
+	public boolean uploadFile(Path filePath) {
+		File file;
+		long length;
+		long i=0;
+		try{
+			file=filePath.toFile();
+			length = file.length();
+			FileInputStream fileStream = new FileInputStream(file);
+
+			synchronized(this){
+				outbound.writeUTF(Protocol.REQUEST_BACKUP);
+				outbound.writeUTF(filePath.getFileName().toString());
+				outbound.writeLong(length);
+				for(i=0; i<length; i++){
+					outbound.writeByte((byte) fileStream.read());
+				}
+				fileStream.close();
+				return true;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public String getStoragePath() {
+		return network.getPath();
+	}
+
 }
