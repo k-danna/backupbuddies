@@ -3,6 +3,7 @@ package backupbuddies.network;
 import java.io.IOException;
 
 import backupbuddies.Properties;
+import static backupbuddies.Debug.*;
 
 final class PeerServicer implements Runnable {
 
@@ -26,6 +27,10 @@ final class PeerServicer implements Runnable {
 
 			while(!connection.isDead()){
 				String command=connection.inbound.readLine();
+				if(command==null){
+					connection.kill();
+					return;
+				}
 				switch(command){
 				//TODO this is where messages are handled
 				
@@ -45,14 +50,19 @@ final class PeerServicer implements Runnable {
 	//Receives a handshake
 	private boolean checkHandshake() throws IOException {
 		//Check handshake first part
+		//TODO this seems broken
 		String line=connection.inbound.readLine();
-		System.out.println(line);
-		if(!line.equals(Properties.HANDSHAKE))
+		if(line==null)
+			return false;
+		line=line.replaceAll("\r", "").replaceAll("\n", "");
+		if(!(line.equals(Properties.HANDSHAKE)))
 			return false;
 
 		//Check password
 		line=connection.inbound.readLine();
-		System.out.println(line);
+		if(line==null)
+			return false;
+		line=line.replaceAll("\r", "").replaceAll("\n", "");
 		if(!line.equals(connection.password))
 			return false;
 

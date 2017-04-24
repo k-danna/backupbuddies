@@ -62,6 +62,7 @@ public class Peer {
 	
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(){
+		new Exception().printStackTrace();
 		peerServicer=null;
 		try{
 			outbound.close();

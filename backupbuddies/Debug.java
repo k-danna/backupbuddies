@@ -5,28 +5,29 @@ import java.util.Arrays;
 /*
  * Adam's no-frills logging mini-library
  * 
+ * It prints "classname@line <thing>".
+ * 
+ * eg. "PeerServicer
+ * 
  * Extracted from https://github.com/planetguy32/Utils/blob/master/src/main/java/me/planetguy/lib/util/Debug.java
  * 
  */
 
 public abstract class Debug {
 
-	public static void dbt(Object o) {
-		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-		dbg(Arrays.toString(trace) + " >>> " + o);
-	}
-
-	public static void dbg_delegate(Object o) {
+	//Prints a message, prepending the caller's caller's class name and line number
+	//Mostly useful for debugging purposes.
+	public static void printWithCaller(Object o) {
 		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
 		System.out.println(trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber() + "   " + o);
 	}
-
+	
 	public static void dbg(Object o) {
-		dbg_delegate(o);
+		printWithCaller(o);
 	}
 
 	public static void exception(Throwable t) {
-		dbg_delegate(t.toString());
+		printWithCaller(t.toString());
 	}
 	
 	@Deprecated
@@ -46,6 +47,7 @@ public abstract class Debug {
 	}
 
 	public static void mark() {
-		dbg_delegate("executed");
+		printWithCaller("executed");
 	}
+	
 }
