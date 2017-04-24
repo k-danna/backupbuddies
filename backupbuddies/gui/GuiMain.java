@@ -17,48 +17,14 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import backupbuddies.network.Network;
+import backupbuddies.shared.Interface;
 
+import static backupbuddies.Debug.*;
+
+
+@SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
-	private static Network network;
-	
-    //////////////////////////////////////////////////////////////////////
-    //FIXME: these methods need to be in the interface class
-        //so we can call them on user input events
-    public static void login(String ip, String pass) {
-        System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
-        network = new Network(pass);
-        network.connect(ip);
-    }
-    public static void uploadFile(String fileName, String fileDir) {
-        System.out.printf("[+] uploading '%s' from '%s'\n", 
-                fileName, fileDir);
-    }
-    public static void downloadFile(String fileName, String fileDir) {
-        System.out.printf("[+] downloading '%s' to '%s'\n", 
-                fileName, fileDir);
-    }
-    public static String[] fetchUserList(){
-    	String[] list = {"user1","user2","user3","user4"};
-    	System.out.printf("fetchingUsers->complete\n  users are:\n");
-    	int i=0;
-    	while(i<list.length){
-    		System.out.printf("     %s\n", list[i]);
-    		i++;
-    	}
-    	return list;
-    }
-    public static String[] fetchFileList(){
-    	String[] list = {"file1","file2","file3","file4"};
-    	System.out.printf("fetchingFiles->complete\n  files are:\n");
-    	int i=0;
-    	while(i<list.length){
-    		System.out.printf("     %s\n", list[i]);
-    		i++;
-    	}
-    	return list;
-    }
 
     //////////////////////////////////////////////////////////////////////
 
@@ -86,7 +52,7 @@ public class GuiMain extends JFrame {
             //browser.getSelectedFile().toString() for full path w/filename
                 //since download will be separate name and directory
                 //might be easier to keep separate
-            uploadFile(browser.getSelectedFile().getName(),
+            Interface.uploadFile(browser.getSelectedFile().getName(),
                     browser.getCurrentDirectory().toString());
         }
     }
@@ -97,7 +63,7 @@ public class GuiMain extends JFrame {
         if (saveDir.getText().equals("")) {
             setSaveDir();
         }
-        downloadFile(fileToGet, saveDir.getText());
+        Interface.downloadFile(fileToGet, saveDir.getText());
     }
 
     public static JPanel filePanel() {
@@ -155,7 +121,7 @@ public class GuiMain extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                login(ipField.getText(), passField.getText());
+                Interface.login(ipField.getText(), passField.getText());
             }
         });
         ipField.addMouseListener(new MouseAdapter() {
@@ -196,7 +162,7 @@ public class GuiMain extends JFrame {
     	userListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = fetchUserList();
+            	String[] newList = Interface.fetchUserList();
                 int i=0;
                 
                 model.removeAllElements();
@@ -228,7 +194,7 @@ public class GuiMain extends JFrame {
     	fileListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = fetchFileList();
+            	String[] newList = Interface.fetchFileList();
                 int i=0;
                 
                 model.removeAllElements();

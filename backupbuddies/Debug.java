@@ -1,7 +1,5 @@
 package backupbuddies;
 
-import java.util.Arrays;
-
 /*
  * Adam's no-frills logging mini-library
  * 

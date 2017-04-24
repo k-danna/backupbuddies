@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 import backupbuddies.Properties;
 
+import static backupbuddies.Debug.*;
+
 public class Network {
 	
 	private final String password;

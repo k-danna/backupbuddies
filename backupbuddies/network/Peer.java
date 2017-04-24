@@ -8,6 +8,8 @@ import java.net.Socket;
 
 import backupbuddies.Properties;
 
+import static backupbuddies.Debug.*;
+
 public class Peer {
 	
 	private boolean isDead=false;
