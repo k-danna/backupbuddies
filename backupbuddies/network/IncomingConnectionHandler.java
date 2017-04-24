@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import backupbuddies.Properties;
-
 class IncomingConnectionHandler implements Runnable {
 
 	/**
@@ -27,7 +25,7 @@ class IncomingConnectionHandler implements Runnable {
 	public void run() {
 		ServerSocket serverSocket;
 		try{
-			serverSocket = new ServerSocket(Properties.DEFAULT_PORT);
+			serverSocket = new ServerSocket(Protocol.DEFAULT_PORT);
 		}catch(IOException e){
 			throw(new RuntimeException(e));
 		}

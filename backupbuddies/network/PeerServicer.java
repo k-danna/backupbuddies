@@ -3,7 +3,6 @@ package backupbuddies.network;
 import java.io.IOException;
 import java.util.Arrays;
 
-import backupbuddies.Properties;
 import static backupbuddies.Debug.*;
 
 final class PeerServicer implements Runnable {
@@ -62,9 +61,9 @@ final class PeerServicer implements Runnable {
 		
 		dbg(Arrays.toString(line.getBytes()));
 		dbg(line);
-		dbg(Arrays.toString(Properties.HANDSHAKE.getBytes()));
+		dbg(Arrays.toString(Protocol.HANDSHAKE.getBytes()));
 
-		if(!(line.equals(Properties.HANDSHAKE)))
+		if(!(line.equals(Protocol.HANDSHAKE)))
 			return false;
 
 		//Check password

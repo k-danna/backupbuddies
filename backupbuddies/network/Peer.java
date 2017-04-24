@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import backupbuddies.Properties;
-
 import static backupbuddies.Debug.*;
 
 public class Peer {
@@ -32,7 +30,7 @@ public class Peer {
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
 	Peer(String url, String password, Network net) throws IOException{
-		this(new Socket(url, Properties.DEFAULT_PORT), password, true, net);
+		this(new Socket(url, Protocol.DEFAULT_PORT), password, true, net);
 	}
 
 	Peer(Socket socket, String password, boolean sendHandshake, Network net) {
@@ -57,7 +55,7 @@ public class Peer {
 	
 	//Sends a handshake message
 	private void sendHandshake(String password) throws IOException {
-		outbound.writeUTF(Properties.HANDSHAKE + "\n");
+		outbound.writeUTF(Protocol.HANDSHAKE + "\n");
 		outbound.writeUTF(password+"\n");
 	}
 	

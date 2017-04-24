@@ -1,6 +1,6 @@
-package backupbuddies;
+package backupbuddies.network;
 
-public class Properties {
+public class Protocol {
 	
 	// It seems to be free when I checked here
 	// https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
