@@ -34,6 +34,7 @@ class IncomingConnectionHandler implements Runnable {
 		{
 			try {
 				Socket incomingSocket = serverSocket.accept();
+				System.out.println("Incoming from "+incomingSocket.getInetAddress());
 				Peer peer=new Peer(incomingSocket, this.network.password, false, this.network);
 				synchronized(this.network.connections){
 					this.network.connections.put(peer.url, peer);

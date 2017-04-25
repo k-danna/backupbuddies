@@ -15,4 +15,10 @@ public class Protocol {
 	
 	public static final String REQUEST_RETRIEVE = "R";
 	
+	public static final String LIST_FILES = "L";
+	
+	public static final String REPLY_WITH_FILES = "l";
+	
+	public static final String LIST_PEERS = "P";
+	
 }

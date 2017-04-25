@@ -34,6 +34,7 @@ final class PeerServicer implements Runnable {
 			while(!connection.isDead()){
 				String command=inbound.readUTF();
 				if(command==null){
+					dbg(command);
 					connection.kill();
 					return;
 				}
@@ -42,6 +43,11 @@ final class PeerServicer implements Runnable {
 					handleBackupRequest();
 					break;
 				
+				case Protocol.LIST_FILES:
+					handleListRequest();
+					break;
+					
+					
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
 				default:
@@ -51,6 +57,7 @@ final class PeerServicer implements Runnable {
 				}
 			}
 		}catch(IOException e){
+			//TODO make this informative
 			e.printStackTrace();
 			connection.kill();
 			return;
@@ -90,10 +97,11 @@ final class PeerServicer implements Runnable {
 		return true;
 	}
 	
+	//Backs up a file
 	private void handleBackupRequest() throws IOException{
 		String fileName=inbound.readUTF();
 		long length=inbound.readLong();
-		File file=new File(connection.getStoragePath() + "/" + fileName);
+		File file=new File(connection.getStoragePath(), fileName);
 		//You can overwrite existing backups
 		if(file.exists())
 			file.delete();
@@ -107,6 +115,25 @@ final class PeerServicer implements Runnable {
 			out.write(inbound.readByte());
 		}
 		out.close();
-		
+	}
+	
+	//Lists all files stored here
+	private void handleListRequest() throws IOException {
+		File storageRoot=new File(connection.getStoragePath());
+		String[] files = storageRoot.list();
+		synchronized(connection){
+			connection.outbound.writeUTF(Protocol.REPLY_WITH_FILES);
+			connection.outbound.writeInt(files.length);
+			for(String fileName:files)
+				connection.outbound.writeUTF(fileName);
+		}
+	}
+	
+	//Receives list of files stored on some peer
+	private void handleListResponse() throws IOException {
+		int files=inbound.readInt();
+		for(int i=0; i<files; i++){
+			connection.recordStoredFile(inbound.readUTF());
+		}
 	}
 }

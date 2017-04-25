@@ -16,7 +16,7 @@ public class Peer {
 
 	private Socket socket;
 
-	private DataOutputStream outbound;
+	DataOutputStream outbound;
 	private Thread peerServicer;
 
 	public final String url;
@@ -54,7 +54,7 @@ public class Peer {
 	}
 
 	//Sends a handshake message
-	private void sendHandshake(String password) throws IOException {
+	private synchronized void sendHandshake(String password) throws IOException {
 		outbound.writeUTF(Protocol.HANDSHAKE);
 		outbound.writeUTF(password);
 	}
@@ -83,7 +83,7 @@ public class Peer {
 
 	}
 
-	public boolean uploadFile(Path filePath) {
+	public synchronized boolean uploadFile(Path filePath) {
 		File file;
 		long length;
 		long i=0;
@@ -110,6 +110,11 @@ public class Peer {
 
 	public String getStoragePath() {
 		return network.getPath();
+	}
+
+	public void recordStoredFile(String readUTF) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
