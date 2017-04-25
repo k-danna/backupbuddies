@@ -51,5 +51,9 @@ public abstract class Interface {
 		return network.getKnownFiles()
 				.toArray(new String[0]);
 	}
+	
+	public static void testFile(String fileDir){
+	    System.out.printf("testFile()\n");
+	}
 
 }

@@ -32,15 +32,18 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
 
     public static void setSaveDir() {
+    	
         JFileChooser browser = new JFileChooser();
         browser.setDialogTitle("choose save location");
         browser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         browser.setAcceptAllFileFilterUsed(false);
+        
         if (browser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             saveDir.setText(browser.getSelectedFile().toString());
             //DEBUG:
             System.out.printf("[*] save directory set to '%s'\n",
                     saveDir.getText());
+            Interface.testFile(saveDir.getText());
         }
     }
 
