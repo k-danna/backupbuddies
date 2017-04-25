@@ -2,9 +2,8 @@ package backupbuddies.network;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 
 import static backupbuddies.Debug.*;
 
@@ -16,6 +15,13 @@ public class Network {
 	//TODO is this what the GUI team needs?
 	HashMap<String, Peer> connections = new HashMap<>();
 	
+	/*
+	 * All files we have ever seen
+	 * 
+	 * TODO this will need changing for various reasons
+	 */
+	HashSet<String> seenFiles = new HashSet<>();
+	
 	public Network(String password){
 		this.password=password;
 		new Thread(new IncomingConnectionHandler(this)).start();
@@ -24,7 +30,7 @@ public class Network {
 	 * Returns null if all is well, or the IOException if we failed to
 	 * open the connection
 	 */
-	public IOException connect(String url){
+	public Peer connect(String url){
 		if(url.equals(""))
 			return null;
 		try{
@@ -37,10 +43,10 @@ public class Network {
 				//We have to lock connections so that no new peer overwrites it
 				
 				connections.put(url,peer);
+				return peer;
 			}
-			return null;
 		}catch(IOException e){
-			return e;
+			return null;
 		}
 	}
 	
@@ -57,6 +63,13 @@ public class Network {
 	public String getPath() {
 		//TODO can change this
 		return "/home/planetguy/backupbuddies";
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Collection<String> getKnownFiles() {
+		synchronized(seenFiles){
+			return (Collection<String>) seenFiles.clone();
+		}
 	}
 
 }

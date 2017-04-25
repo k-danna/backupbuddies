@@ -112,9 +112,31 @@ public class Peer {
 		return network.getPath();
 	}
 
-	public void recordStoredFile(String readUTF) {
-		// TODO Auto-generated method stub
+	public void recordStoredFile(String fileName) {
+		synchronized(network.seenFiles) {
+			network.seenFiles.add(fileName);
+		}
 		
+	}
+
+	public void updateStoredFiles() {
+		try{
+			outbound.writeUTF(Protocol.LIST_FILES);
+		}catch(IOException e){
+			e.printStackTrace();
+			kill();
+		}
+	}
+
+	public void sendStoredFileList() throws IOException {
+		File storageRoot=new File(getStoragePath());
+		String[] files = storageRoot.list();
+		synchronized(this){
+			outbound.writeUTF(Protocol.REPLY_WITH_FILES);
+			outbound.writeInt(files.length);
+			for(String fileName:files)
+				outbound.writeUTF(fileName);
+		}
 	}
 
 }

@@ -17,7 +17,12 @@ public abstract class Interface {
 	    System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
 	    if(network == null || !pass.equals(network.password))
 	    	network = new Network(pass);
-	    network.connect(ip);
+	    Peer newPeer = network.connect(ip);
+	    if(newPeer != null && !newPeer.isDead()) {
+	    	newPeer.updateStoredFiles();
+	    	
+	    }
+
 	}
 
 	public static void uploadFile(String fileName, String fileDir) {
@@ -28,6 +33,7 @@ public abstract class Interface {
 	    
 	    for(Peer peer:network.getPeers()){
 	    	peer.uploadFile(filePath);
+	    	peer.updateStoredFiles();
 	    }
 	}
 
@@ -37,25 +43,13 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchUserList(){
-		String[] list = {"user1","user2","user3","user4"};
-		System.out.printf("fetchingUsers->complete\n  users are:\n");
-		int i=0;
-		while(i<list.length){
-			System.out.printf("     %s\n", list[i]);
-			i++;
-		}
-		return list;
+		return network.getPeers()
+				.toArray(new String[0]);
 	}
 
 	public static String[] fetchFileList(){
-		String[] list = {"file1","file2","file3","file4"};
-		System.out.printf("fetchingFiles->complete\n  files are:\n");
-		int i=0;
-		while(i<list.length){
-			System.out.printf("     %s\n", list[i]);
-			i++;
-		}
-		return list;
+		return network.getKnownFiles()
+				.toArray(new String[0]);
 	}
 
 }

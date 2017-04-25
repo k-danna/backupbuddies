@@ -43,8 +43,12 @@ final class PeerServicer implements Runnable {
 					handleBackupRequest();
 					break;
 				
+				//Ask for and receive file list
 				case Protocol.LIST_FILES:
-					handleListRequest();
+					connection.sendStoredFileList();
+					break;
+				case Protocol.REPLY_WITH_FILES:
+					handleListResponse();
 					break;
 					
 					
@@ -115,18 +119,6 @@ final class PeerServicer implements Runnable {
 			out.write(inbound.readByte());
 		}
 		out.close();
-	}
-	
-	//Lists all files stored here
-	private void handleListRequest() throws IOException {
-		File storageRoot=new File(connection.getStoragePath());
-		String[] files = storageRoot.list();
-		synchronized(connection){
-			connection.outbound.writeUTF(Protocol.REPLY_WITH_FILES);
-			connection.outbound.writeInt(files.length);
-			for(String fileName:files)
-				connection.outbound.writeUTF(fileName);
-		}
 	}
 	
 	//Receives list of files stored on some peer
