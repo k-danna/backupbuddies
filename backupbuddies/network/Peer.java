@@ -119,7 +119,7 @@ public class Peer {
 		
 	}
 
-	public void updateStoredFiles() {
+	public void requestUpdatedFileList() {
 		try{
 			outbound.writeUTF(Protocol.LIST_FILES);
 		}catch(IOException e){
@@ -131,6 +131,8 @@ public class Peer {
 	public void sendStoredFileList() throws IOException {
 		File storageRoot=new File(getStoragePath());
 		String[] files = storageRoot.list();
+		if(files==null)
+			return;
 		synchronized(this){
 			outbound.writeUTF(Protocol.REPLY_WITH_FILES);
 			outbound.writeInt(files.length);

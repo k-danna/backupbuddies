@@ -19,7 +19,7 @@ public abstract class Interface {
 	    	network = new Network(pass);
 	    Peer newPeer = network.connect(ip);
 	    if(newPeer != null && !newPeer.isDead()) {
-	    	newPeer.updateStoredFiles();
+	    	newPeer.requestUpdatedFileList();
 	    	
 	    }
 
@@ -33,7 +33,7 @@ public abstract class Interface {
 	    
 	    for(Peer peer:network.getPeers()){
 	    	peer.uploadFile(filePath);
-	    	peer.updateStoredFiles();
+	    	peer.requestUpdatedFileList();
 	    }
 	}
 
@@ -43,7 +43,7 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchUserList(){
-		return network.getPeers()
+		return network.getPeerIPAddresses()
 				.toArray(new String[0]);
 	}
 
