@@ -109,7 +109,7 @@ public class Peer {
 	}
 
 	public String getStoragePath() {
-		return network.getPath();
+		return network.getBackupStoragePath();
 	}
 
 	public void recordStoredFile(String fileName) {

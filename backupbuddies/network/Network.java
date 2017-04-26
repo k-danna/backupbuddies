@@ -68,7 +68,7 @@ public class Network {
 		}
 	}
 
-	public String getPath() {
+	public String getBackupStoragePath() {
 		//TODO can change this
 		return "/home/planetguy/backupbuddies";
 	}
