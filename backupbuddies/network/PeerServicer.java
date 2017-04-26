@@ -44,10 +44,10 @@ final class PeerServicer implements Runnable {
 					break;
 				
 				//Ask for and receive file list
-				case Protocol.LIST_FILES:
+				case Protocol.REQUEST_LIST_FILES:
 					connection.sendStoredFileList();
 					break;
-				case Protocol.REPLY_WITH_FILES:
+				case Protocol.REPLY_LIST_FILES:
 					handleListResponse();
 					break;
 					

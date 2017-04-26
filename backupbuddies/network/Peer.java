@@ -121,7 +121,7 @@ public class Peer {
 
 	public void requestUpdatedFileList() {
 		try{
-			outbound.writeUTF(Protocol.LIST_FILES);
+			outbound.writeUTF(Protocol.REQUEST_LIST_FILES);
 		}catch(IOException e){
 			e.printStackTrace();
 			kill();
@@ -134,7 +134,7 @@ public class Peer {
 		if(files==null)
 			return;
 		synchronized(this){
-			outbound.writeUTF(Protocol.REPLY_WITH_FILES);
+			outbound.writeUTF(Protocol.REPLY_LIST_FILES);
 			outbound.writeInt(files.length);
 			for(String fileName:files)
 				outbound.writeUTF(fileName);

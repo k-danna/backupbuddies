@@ -11,14 +11,21 @@ public class Protocol {
 	// they're probably not BackupBuddies
 	public static final String HANDSHAKE = "BackupBuddies v0.1";
 	
+	//These function as message IDs. They need to be unique.
+	//They're supposed to be a bit meaningful as well - not that
+	//it matters, since you should be using the constants anyway
 	public static final String REQUEST_BACKUP = "B";
 	
 	public static final String REQUEST_RETRIEVE = "R";
 	
-	public static final String LIST_FILES = "L";
+	public static final String REPLY_RETRIEVE = "r";
 	
-	public static final String REPLY_WITH_FILES = "l";
+	public static final String REQUEST_LIST_FILES = "L";
+	
+	public static final String REPLY_LIST_FILES = "l";
 	
 	public static final String LIST_PEERS = "P";
+	
+	public static final String NOTIFY_NEW_PEER = "p";
 	
 }
