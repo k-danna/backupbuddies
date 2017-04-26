@@ -112,13 +112,13 @@ public class GuiMain extends JFrame {
 
     public static JPanel loginPanel() {
         //create panel
-        JPanel loginPanel = new JPanel();
+        final JPanel loginPanel = new JPanel();
 
         //create components
-        JLabel loginLabel = new JLabel("join a network:");
-        JButton loginButton = new JButton("join");
-        JTextField ipField = new JTextField("network ip");
-        JTextField passField = new JTextField("network password");
+        final JLabel loginLabel = new JLabel("join a network:");
+        final JButton loginButton = new JButton("join");
+        final JTextField ipField = new JTextField("network ip");
+        final JTextField passField = new JTextField("network password");
         
         //bind methods to buttons
         loginButton.addActionListener(new ActionListener() {
@@ -158,7 +158,7 @@ public class GuiMain extends JFrame {
     	JScrollPane userScroll = new JScrollPane();
     	
     	//using DefaultListModel for easy overwriting
-    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	final DefaultListModel<String> model = new DefaultListModel<String>();
     	//model.addElement("please join a network");    	
     	JList<String> userList = new JList<String>(model);
    	
@@ -191,7 +191,7 @@ public class GuiMain extends JFrame {
     	JScrollPane fileScroll = new JScrollPane();
     	
     	//using DefaultListModel for easy overwriting
-    	DefaultListModel<String> model = new DefaultListModel<String>();
+    	final DefaultListModel<String> model = new DefaultListModel<String>();
     	JList<String> fileList = new JList<String>(model);
    	
     	fileListRefresh.addActionListener(new ActionListener() {
