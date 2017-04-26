@@ -170,6 +170,11 @@ public class GuiMain extends JFrame {
                 
                 model.removeAllElements();
                 while (i < newList.length){
+                	if (Interface.isOnline(newList[i])){
+                		newList[i] = newList[i] + " (online)";
+                	}else{
+                		newList[i] = newList[i] + " (offline)";
+                	}
                     model.addElement(newList[i]);
                     i++;
                 }    

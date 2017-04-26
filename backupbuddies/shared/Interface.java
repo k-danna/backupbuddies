@@ -55,5 +55,10 @@ public abstract class Interface {
 	public static void testFile(String fileDir){
 	    System.out.printf("testFile()\n");
 	}
+	
+	public static boolean isOnline(String ip){
+		System.out.println("isOnline()\n");
+		return true;
+	}
 
 }
