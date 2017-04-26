@@ -41,7 +41,11 @@ class IncomingConnectionHandler implements Runnable {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				serverSocket.close();
+				try {
+					serverSocket.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
