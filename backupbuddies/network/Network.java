@@ -21,6 +21,9 @@ public class Network {
 	 * TODO this will need changing for various reasons
 	 */
 	HashSet<String> seenFiles = new HashSet<>();
+	
+	//A lock for the file storage
+	public final Object fileStorageLock = new Object();
 
 	public Network(String password){
 		this.password=password;
@@ -39,7 +42,6 @@ public class Network {
 					return null;
 
 				Peer peer=new Peer(url, password, this);
-				//We have to lock connections so that no new peer overwrites it
 
 				connections.put(url,peer);
 				return peer;
@@ -49,12 +51,15 @@ public class Network {
 		}
 	}
 
+	//If a Peer/connection fails, we shouldn't keep it around in connections
+	//Remove it
 	public void onConnectionDie(Peer peer) {
 		synchronized(connections){
 			connections.remove(peer.url);
 		}
 	}
 
+	//Returns a collection of peers
 	public Collection<Peer> getPeers(){
 		synchronized(connections){
 			return connections.values();

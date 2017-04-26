@@ -76,14 +76,6 @@ final class PeerServicer implements Runnable {
 		if(line==null)
 			return false;
 
-		//Eat all the non-printable characters
-		//I don't know why they get in, but they do.
-		//line=line.replaceAll("\\p{C}", "");
-		
-		dbg(Arrays.toString(line.getBytes()));
-		dbg(line);
-		dbg(Arrays.toString(Protocol.HANDSHAKE.getBytes()));
-
 		if(!(line.equals(Protocol.HANDSHAKE)))
 			return false;
 
@@ -92,9 +84,6 @@ final class PeerServicer implements Runnable {
 
 		if(line==null)
 			return false;
-		
-		dbg(Arrays.toString(line.getBytes()));
-		dbg(Arrays.toString(connection.password.getBytes()));
 		
 		if(!line.equals(connection.password))
 			return false;
@@ -105,22 +94,24 @@ final class PeerServicer implements Runnable {
 	
 	//Backs up a file
 	private void handleBackupRequest() throws IOException{
-		String fileName=inbound.readUTF();
-		long length=inbound.readLong();
-		File file=new File(connection.getStoragePath(), fileName);
-		//You can overwrite existing backups
-		if(file.exists())
-			file.delete();
-		
-		file.getParentFile().mkdirs();
-		
-		file.createNewFile();
-		FileOutputStream out=new FileOutputStream(file);
-		
-		for(long i=0; i<length; i++){
-			out.write(inbound.readByte());
+		synchronized(connection.network.fileStorageLock){
+			String fileName=inbound.readUTF();
+			long length=inbound.readLong();
+			File file=new File(connection.getStoragePath(), fileName);
+			//You can overwrite existing backups
+			if(file.exists())
+				file.delete();
+
+			file.getParentFile().mkdirs();
+
+			file.createNewFile();
+			FileOutputStream out=new FileOutputStream(file);
+
+			for(long i=0; i<length; i++){
+				out.write(inbound.readByte());
+			}
+			out.close();
 		}
-		out.close();
 	}
 	
 	//Receives list of files stored on some peer

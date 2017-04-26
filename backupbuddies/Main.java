@@ -1,12 +1,15 @@
 package backupbuddies;
 
+import backupbuddies.cli.CliMain;
 import backupbuddies.gui.GuiMain;
-import java.awt.event.*;
 
 public class Main {
   
   public static void main(String[] args) {
     System.out.println("Hello, world!");
-    GuiMain.startGui();
+    if(args.length == 0)
+    	GuiMain.startGui();
+    else
+    	CliMain.handle(args);
   }
 }

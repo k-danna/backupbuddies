@@ -29,7 +29,7 @@ public abstract class Interface {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
 	   
-	    Path filePath = new File(fileDir+"/"+fileName).toPath();
+	    Path filePath = new File(fileDir,fileName).toPath();
 	    
 	    for(Peer peer:network.getPeers()){
 	    	peer.uploadFile(filePath);
