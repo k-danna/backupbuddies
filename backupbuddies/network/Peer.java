@@ -83,7 +83,7 @@ public class Peer {
 
 	}
 
-	public synchronized boolean uploadFile(Path filePath) {
+	public boolean uploadFile(Path filePath) {
 		File file;
 		long length;
 		long i=0;
@@ -121,7 +121,9 @@ public class Peer {
 
 	public void requestUpdatedFileList() {
 		try{
-			outbound.writeUTF(Protocol.REQUEST_LIST_FILES);
+			synchronized(this){
+				outbound.writeUTF(Protocol.REQUEST_LIST_FILES);
+			}
 		}catch(IOException e){
 			e.printStackTrace();
 			kill();

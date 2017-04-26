@@ -27,8 +27,7 @@ public class Network {
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
 	/*
-	 * Returns null if all is well, or the IOException if we failed to
-	 * open the connection
+	 * Creates a connection to a URL
 	 */
 	public Peer connect(String url){
 		if(url.equals(""))

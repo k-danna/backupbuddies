@@ -38,6 +38,8 @@ final class PeerServicer implements Runnable {
 					connection.kill();
 					return;
 				}
+				//This is where messages are handled
+				//To add a new message type, add a case for it
 				switch(command){
 				case Protocol.REQUEST_BACKUP:
 					handleBackupRequest();
