@@ -28,6 +28,11 @@ public class GuiMain extends JFrame {
     static JFrame frame;
     static JTextField saveDir = new JTextField();
 
+    static ImageIcon statusRed = new ImageIcon("/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("/assets/YellowCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
+
+
     public static String[] debugReturnUsers() {
         String[] users = {"josh cena", "michael jordan"};
         return users;
