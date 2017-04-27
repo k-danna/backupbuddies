@@ -16,6 +16,7 @@ package backupbuddies.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
 
 import backupbuddies.shared.Interface;
 
@@ -33,14 +34,19 @@ public class GuiMain extends JFrame {
     static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
 
 
-    public static String[] debugReturnUsers() {
-        String[] users = {"josh cena", "michael jordan"};
-        return users;
+    public static Map<String, Integer> debugReturnUsers() {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("josh cena", 0);
+        map.put("michael jordan", 1);
+        return map;
     }
 
-    public static String[] debugReturnFiles() {
-        String[] files = {"iamafile.cc", "iamalsoafile.py", "imnotafile.java"};
-        return files;
+    public static Map<String, Integer> debugReturnFiles() {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("file_one.txt", 0);
+        map.put("file_two.java", 1);
+        map.put("file_three.py", 2);
+        return map;
     }
 
     public static void setSaveDir() {
@@ -177,16 +183,16 @@ public class GuiMain extends JFrame {
     	userListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = Interface.fetchUserList();
+            	//String[] newList = Interface.fetchUserList();
 
             	//DEBUG
-                newList = debugReturnUsers();
+                Map<String, Integer> newList = debugReturnUsers();
                 
-                int i=0;
                 model.removeAllElements();
-                while (i < newList.length){
-                    model.addElement(newList[i]);
-                    i++;
+                for (Map.Entry<String, Integer> entry : newList.entrySet()){
+                    String key = entry.getKey();
+                    int val = entry.getValue();
+                    model.addElement(key);
                 }    
             }
         });
@@ -212,16 +218,16 @@ public class GuiMain extends JFrame {
     	fileListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = Interface.fetchFileList();
+            	//String[] newList = Interface.fetchFileList();
 
                 //DEBUG:
-                newList = debugReturnFiles();
+                Map<String, Integer> newList = debugReturnFiles();
                 
-                int i=0;
                 model.removeAllElements();
-                while (i < newList.length){
-                    model.addElement(newList[i]);
-                    i++;
+                for (Map.Entry<String, Integer> entry : newList.entrySet()){
+                    String key = entry.getKey();
+                    int val = entry.getValue();
+                    model.addElement(key);
                 }    
             }
         });

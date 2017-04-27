@@ -43,6 +43,10 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchUserList(){
+	    //FIXME: return a hashmap<string, int>
+	        //filename and current status
+	        //status:   0 - unavailable
+	        //          1 - available
 	    try {
             return network.getPeerIPAddresses()
                     .toArray(new String[0]);
@@ -53,6 +57,11 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchFileList(){
+	    //FIXME: return a hashmap<string, int>
+	        //filename and current status
+	        //status:   0 - unavailable
+	        //          1 - available
+	        //          2 - in transit
 	    try {
             return network.getKnownFiles()
                     .toArray(new String[0]);
