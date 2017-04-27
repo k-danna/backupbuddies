@@ -10,12 +10,12 @@ import static backupbuddies.Debug.*;
 
 final class PeerServicer implements Runnable {
 
-	private final Peer connection;
+	private final Peer peer;
 	
 	private final DataInputStream inbound;
 
 	PeerServicer(Peer peer, DataInputStream inbound) {
-		this.connection = peer;
+		this.peer = peer;
 		this.inbound = inbound;
 	}
 
@@ -24,18 +24,18 @@ final class PeerServicer implements Runnable {
 		try{
 			// If they fail to handshake properly, they're either not Backup
 			// Buddies or don't have the password. Don't take their commands.
-			if(connection.requireHandshake) {
+			if(peer.requireHandshake) {
 				if(!checkHandshake()){
-					connection.kill();
+					peer.kill();
 					return;
 				}
 			}
 
-			while(!connection.isDead()){
+			while(!peer.isDead()){
 				String command=inbound.readUTF();
 				if(command==null){
 					dbg(command);
-					connection.kill();
+					peer.kill();
 					return;
 				}
 				//This is where messages are handled
@@ -47,7 +47,7 @@ final class PeerServicer implements Runnable {
 				
 				//Ask for and receive file list
 				case Protocol.REQUEST_LIST_FILES:
-					connection.sendStoredFileList();
+					peer.sendStoredFileList();
 					break;
 				case Protocol.REPLY_LIST_FILES:
 					handleListResponse();
@@ -58,14 +58,14 @@ final class PeerServicer implements Runnable {
 				//It's incompatible with us
 				default:
 					
-					connection.kill();
+					peer.kill();
 					break;
 				}
 			}
 		}catch(IOException e){
 			//TODO make this informative
 			e.printStackTrace();
-			connection.kill();
+			peer.kill();
 			return;
 		}
 	}
@@ -85,7 +85,7 @@ final class PeerServicer implements Runnable {
 		if(line==null)
 			return false;
 		
-		if(!line.equals(connection.network.password))
+		if(!line.equals(peer.network.password))
 			return false;
 
 		//All checks passed = we're good
@@ -94,10 +94,10 @@ final class PeerServicer implements Runnable {
 	
 	//Backs up a file
 	private void handleBackupRequest() throws IOException{
-		synchronized(connection.network.fileStorageLock){
+		synchronized(peer.network.fileStorageLock){
 			String fileName=inbound.readUTF();
 			long length=inbound.readLong();
-			File file=new File(connection.getStoragePath(), fileName);
+			File file=new File(peer.getStoragePath(), fileName);
 			//You can overwrite existing backups
 			if(file.exists())
 				file.delete();
@@ -118,7 +118,7 @@ final class PeerServicer implements Runnable {
 	private void handleListResponse() throws IOException {
 		int files=inbound.readInt();
 		for(int i=0; i<files; i++){
-			connection.recordStoredFile(inbound.readUTF());
+			peer.recordStoredFile(inbound.readUTF());
 		}
 	}
 }
