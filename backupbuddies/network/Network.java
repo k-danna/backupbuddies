@@ -43,7 +43,10 @@ public class Network {
 
 				Peer peer=new Peer(url, password, this);
 
-				connections.put(url,peer);
+			    if(!peer.isDead()) {
+			    	connections.put(url,peer);
+			    	
+			    }
 				return peer;
 			}
 		}catch(IOException e){

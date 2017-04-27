@@ -48,6 +48,7 @@ public class Peer {
 
 			peerServicer = new Thread(new PeerServicer(this, inbound));
 			peerServicer.start();
+			sendStoredFileList();
 		} catch(Exception e) {
 			this.kill();
 		}
