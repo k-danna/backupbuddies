@@ -39,13 +39,32 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchUserList(){
-		return network.getPeerIPAddresses()
-				.toArray(new String[0]);
+	    //FIXME: return a hashmap<string, int>
+	        //filename and current status
+	        //status:   0 - unavailable
+	        //          1 - available
+	    try {
+            return network.getPeerIPAddresses()
+                    .toArray(new String[0]);
+		}
+		catch (Exception e) {
+            return new String[0];
+		}
 	}
 
 	public static String[] fetchFileList(){
-		return network.getKnownFiles()
-				.toArray(new String[0]);
+	    //FIXME: return a hashmap<string, int>
+	        //filename and current status
+	        //status:   0 - unavailable
+	        //          1 - available
+	        //          2 - in transit
+	    try {
+            return network.getKnownFiles()
+                    .toArray(new String[0]);
+		}
+		catch (Exception e) {
+            return new String[0];
+		}
 	}
 	
 	public static void testFile(String fileDir){

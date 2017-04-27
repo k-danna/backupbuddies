@@ -16,6 +16,7 @@ package backupbuddies.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
 
 import backupbuddies.shared.Interface;
 
@@ -25,11 +26,28 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
-
-    //////////////////////////////////////////////////////////////////////
-
     static JFrame frame;
     static JTextField saveDir = new JTextField();
+
+    static ImageIcon statusRed = new ImageIcon("/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("/assets/YellowCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
+
+
+    public static Map<String, Integer> debugReturnUsers() {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("josh cena", 0);
+        map.put("michael jordan", 1);
+        return map;
+    }
+
+    public static Map<String, Integer> debugReturnFiles() {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("file_one.txt", 0);
+        map.put("file_two.java", 1);
+        map.put("file_three.py", 2);
+        return map;
+    }
 
     public static void setSaveDir() {
     	
@@ -165,13 +183,20 @@ public class GuiMain extends JFrame {
     	userListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = Interface.fetchUserList();
-                int i=0;
+            	//String[] newList = Interface.fetchUserList();
+
+            	//DEBUG
+                Map<String, Integer> newList = debugReturnUsers();
                 
                 model.removeAllElements();
-                while (i < newList.length){
-                    model.addElement(newList[i]);
-                    i++;
+                for (Map.Entry<String, Integer> entry : newList.entrySet()){
+                    String key = entry.getKey();
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:OFFLINE"; break;
+                        case 1:     status = "status:ONLINE"; break;
+                    }
+                    model.addElement(key + "    " + status);
                 }    
             }
         });
@@ -197,13 +222,21 @@ public class GuiMain extends JFrame {
     	fileListRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	String[] newList = Interface.fetchFileList();
-                int i=0;
+            	//String[] newList = Interface.fetchFileList();
+
+                //DEBUG:
+                Map<String, Integer> newList = debugReturnFiles();
                 
                 model.removeAllElements();
-                while (i < newList.length){
-                    model.addElement(newList[i]);
-                    i++;
+                for (Map.Entry<String, Integer> entry : newList.entrySet()){
+                    String key = entry.getKey();
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:UNAVAILABLE"; break;
+                        case 1:     status = "status:AVAILABLE"; break;
+                        case 2:     status = "status:TRANSIT"; break;
+                    }
+                    model.addElement(key + "    " + status);
                 }    
             }
         });
