@@ -25,11 +25,18 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
-
-    //////////////////////////////////////////////////////////////////////
-
     static JFrame frame;
     static JTextField saveDir = new JTextField();
+
+    public static String[] debugReturnUsers() {
+        String[] users = {"josh cena", "michael jordan"};
+        return users;
+    }
+
+    public static String[] debugReturnFiles() {
+        String[] files = {"iamafile.cc", "iamalsoafile.py", "imnotafile.java"};
+        return files;
+    }
 
     public static void setSaveDir() {
     	
@@ -166,8 +173,11 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
             	String[] newList = Interface.fetchUserList();
-                int i=0;
+
+            	//DEBUG
+                newList = debugReturnUsers();
                 
+                int i=0;
                 model.removeAllElements();
                 while (i < newList.length){
                     model.addElement(newList[i]);
@@ -198,8 +208,11 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
             	String[] newList = Interface.fetchFileList();
-                int i=0;
+
+                //DEBUG:
+                newList = debugReturnFiles();
                 
+                int i=0;
                 model.removeAllElements();
                 while (i < newList.length){
                     model.addElement(newList[i]);
