@@ -43,13 +43,23 @@ public abstract class Interface {
 	}
 
 	public static String[] fetchUserList(){
-		return network.getPeerIPAddresses()
-				.toArray(new String[0]);
+	    try {
+            return network.getPeerIPAddresses()
+                    .toArray(new String[0]);
+		}
+		catch (Exception e) {
+            return new String[0];
+		}
 	}
 
 	public static String[] fetchFileList(){
-		return network.getKnownFiles()
-				.toArray(new String[0]);
+	    try {
+            return network.getKnownFiles()
+                    .toArray(new String[0]);
+		}
+		catch (Exception e) {
+            return new String[0];
+		}
 	}
 	
 	public static void testFile(String fileDir){
