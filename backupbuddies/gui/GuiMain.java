@@ -191,8 +191,12 @@ public class GuiMain extends JFrame {
                 model.removeAllElements();
                 for (Map.Entry<String, Integer> entry : newList.entrySet()){
                     String key = entry.getKey();
-                    int val = entry.getValue();
-                    model.addElement(key);
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:OFFLINE"; break;
+                        case 1:     status = "status:ONLINE"; break;
+                    }
+                    model.addElement(key + "    " + status);
                 }    
             }
         });
@@ -226,8 +230,13 @@ public class GuiMain extends JFrame {
                 model.removeAllElements();
                 for (Map.Entry<String, Integer> entry : newList.entrySet()){
                     String key = entry.getKey();
-                    int val = entry.getValue();
-                    model.addElement(key);
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:UNAVAILABLE"; break;
+                        case 1:     status = "status:AVAILABLE"; break;
+                        case 2:     status = "status:TRANSIT"; break;
+                    }
+                    model.addElement(key + "    " + status);
                 }    
             }
         });
