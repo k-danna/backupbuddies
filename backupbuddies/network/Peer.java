@@ -22,19 +22,18 @@ public class Peer {
 	public final String url;
 
 	boolean requireHandshake;
-	String password;
+	//String password;
 
 	Network network;
 
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
-	Peer(String url, String password, Network net) throws IOException{
-		this(new Socket(url, Protocol.DEFAULT_PORT), password, true, net);
+	Peer(String url, Network net) throws IOException{
+		this(new Socket(url, Protocol.DEFAULT_PORT), true, net);
 	}
 
-	Peer(Socket socket, String password, boolean sendHandshake, Network net) {
-		this.password=password;
+	Peer(Socket socket, boolean sendHandshake, Network net) {
 		this.network=net;
 		this.url=socket.getInetAddress().toString();
 
@@ -44,7 +43,7 @@ public class Peer {
 
 			requireHandshake = !sendHandshake;
 			if(sendHandshake)
-				sendHandshake(password);
+				sendHandshake(net.password);
 
 			peerServicer = new Thread(new PeerServicer(this, inbound));
 			peerServicer.start();

@@ -41,7 +41,7 @@ public class Network {
 				if(connections.containsKey(url))
 					return null;
 
-				Peer peer=new Peer(url, password, this);
+				Peer peer=new Peer(url, this);
 
 			    if(!peer.isDead()) {
 			    	connections.put(url,peer);

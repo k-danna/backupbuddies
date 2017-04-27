@@ -18,8 +18,7 @@ class IncomingConnectionHandler implements Runnable {
 		this.network = network;
 	}
 
-	//Server socket stays open for the life of the program
-	//We don't care if it leaks, until (unless) we support multiple nets
+	//Runs accepting incoming connections and adds them as peers.
 	@SuppressWarnings("resource")
 	@Override
 	public void run() {
@@ -35,17 +34,12 @@ class IncomingConnectionHandler implements Runnable {
 			try {
 				Socket incomingSocket = serverSocket.accept();
 				System.out.println("Incoming from "+incomingSocket.getInetAddress());
-				Peer peer=new Peer(incomingSocket, this.network.password, false, this.network);
+				Peer peer=new Peer(incomingSocket, false, this.network);
 				synchronized(this.network.connections){
 					this.network.connections.put(peer.url, peer);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				try {
-					serverSocket.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 			}
 		}
 	}

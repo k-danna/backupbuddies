@@ -85,7 +85,7 @@ final class PeerServicer implements Runnable {
 		if(line==null)
 			return false;
 		
-		if(!line.equals(connection.password))
+		if(!line.equals(connection.network.password))
 			return false;
 
 		//All checks passed = we're good
