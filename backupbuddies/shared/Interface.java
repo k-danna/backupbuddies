@@ -13,12 +13,12 @@ public abstract class Interface {
 	
 	private static Network network;
 
+	/*trigger: GUI-attempting to join a network-logging in with ip of net device & pw of net, also used for creating a net */
 	public static void login(String ip, String pass) {
 	    System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
-	    if(network == null || !pass.equals(network.password))
-	    	network = new Network(pass);
-	    Peer newPeer = network.connect(ip);
-
+	    if(network == null || !pass.equals(network.password))               //if loc net not defined OR pw differ from current loc net pw:
+	    	network = new Network(pass);									//create a new loc net with given password. 
+	    Peer newPeer = network.connect(ip);									//try and connect to ip given.
 	}
 
 	public static void uploadFile(String fileName, String fileDir) {
