@@ -16,34 +16,81 @@ package backupbuddies.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.lang.*;
+
+//do not import util.*
+//there is a Timer class in util and swing that conflict
 
 import backupbuddies.shared.Interface;
-
 import static backupbuddies.Debug.*;
-
 
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
     static JFrame frame;
     static JTextField saveDir = new JTextField();
+    //using DefaultListModel for easy overwriting
+    static final DefaultListModel<String> userModel = new DefaultListModel<String>();
+    static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
 
+    //load img assets
     static ImageIcon statusRed = new ImageIcon("/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("/assets/YellowCircle.png");
     static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
 
+    public static void startIntervals(int interval) {
+        ActionListener refreshLists = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                //refresh user list
+            	//String[] uList = Interface.fetchUserList();
+            	//DEBUG
+                Map<String, Integer> uList = debugReturnUsers();
+                userModel.removeAllElements();
+                for (Map.Entry<String, Integer> entry : uList.entrySet()){
+                    String key = entry.getKey();
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:OFFLINE"; break;
+                        case 1:     status = "status:ONLINE"; break;
+                    }
+                    userModel.addElement(String.format("%-20s  %s", key, status));
+                }
+
+                //refresh file list
+            	//String[] fList = Interface.fetchFileList();
+                //DEBUG:
+                Map<String, Integer> fList = debugReturnFiles();
+                fileModel.removeAllElements();
+                for (Map.Entry<String, Integer> entry : fList.entrySet()){
+                    String key = entry.getKey();
+                    String status = "";
+                    switch(entry.getValue()) {
+                        case 0:     status = "status:UNAVAILABLE"; break;
+                        case 1:     status = "status:AVAILABLE"; break;
+                        case 2:     status = "status:TRANSIT"; break;
+                    }
+                    fileModel.addElement(String.format("%-20s  %s", key, status));
+                }    
+            }
+        };
+        Timer timer = new Timer(interval, refreshLists);
+        timer.setRepeats(true);
+        timer.start();
+    }
 
     public static Map<String, Integer> debugReturnUsers() {
         Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("josh cena", 0);
-        map.put("michael jordan", 1);
+        map.put("john cena", 0);
+        map.put("jane werd", 1);
         return map;
     }
 
     public static Map<String, Integer> debugReturnFiles() {
         Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("file_one.txt", 0);
+        map.put("file_one.java", 0);
         map.put("file_two.java", 1);
         map.put("file_three.py", 2);
         return map;
@@ -58,9 +105,6 @@ public class GuiMain extends JFrame {
         
         if (browser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             saveDir.setText(browser.getSelectedFile().toString());
-            //DEBUG:
-            System.out.printf("[*] save directory set to '%s'\n",
-                    saveDir.getText());
             Interface.testFile(saveDir.getText());
         }
     }
@@ -172,38 +216,13 @@ public class GuiMain extends JFrame {
     public static JPanel userListPanel() {
     	JPanel userListPanel = new JPanel();
     	JLabel userLabel = new JLabel("users in network:");
-    	JButton userListRefresh = new JButton("refresh");
     	JScrollPane userScroll = new JScrollPane();
     	
-    	//using DefaultListModel for easy overwriting
-    	final DefaultListModel<String> model = new DefaultListModel<String>();
-    	//model.addElement("please join a network");    	
-    	JList<String> userList = new JList<String>(model);
-   	
-    	userListRefresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	//String[] newList = Interface.fetchUserList();
-
-            	//DEBUG
-                Map<String, Integer> newList = debugReturnUsers();
-                
-                model.removeAllElements();
-                for (Map.Entry<String, Integer> entry : newList.entrySet()){
-                    String key = entry.getKey();
-                    String status = "";
-                    switch(entry.getValue()) {
-                        case 0:     status = "status:OFFLINE"; break;
-                        case 1:     status = "status:ONLINE"; break;
-                    }
-                    model.addElement(key + "    " + status);
-                }    
-            }
-        });
+    	//userModel.addElement("please join a network");    	
+    	JList<String> userList = new JList<String>(userModel);
    	
     	userScroll.setViewportView(userList);
        	userListPanel.add(userLabel);
-       	userListPanel.add(userListRefresh);
        	userListPanel.add(userScroll);
     	
     	return userListPanel;
@@ -212,38 +231,12 @@ public class GuiMain extends JFrame {
     public static JPanel fileListPanel() {
     	JPanel fileListPanel = new JPanel();
     	JLabel fileLabel = new JLabel("files:");
-    	JButton fileListRefresh = new JButton("refresh");
     	JScrollPane fileScroll = new JScrollPane();
     	
-    	//using DefaultListModel for easy overwriting
-    	final DefaultListModel<String> model = new DefaultListModel<String>();
-    	JList<String> fileList = new JList<String>(model);
+    	JList<String> fileList = new JList<String>(fileModel);
    	
-    	fileListRefresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	//String[] newList = Interface.fetchFileList();
-
-                //DEBUG:
-                Map<String, Integer> newList = debugReturnFiles();
-                
-                model.removeAllElements();
-                for (Map.Entry<String, Integer> entry : newList.entrySet()){
-                    String key = entry.getKey();
-                    String status = "";
-                    switch(entry.getValue()) {
-                        case 0:     status = "status:UNAVAILABLE"; break;
-                        case 1:     status = "status:AVAILABLE"; break;
-                        case 2:     status = "status:TRANSIT"; break;
-                    }
-                    model.addElement(key + "    " + status);
-                }    
-            }
-        });
-    	
      	fileScroll.setViewportView(fileList);    	
     	fileListPanel.add(fileLabel);
-    	fileListPanel.add(fileListRefresh);
     	fileListPanel.add(fileScroll);
       	
     	return fileListPanel;
@@ -252,6 +245,9 @@ public class GuiMain extends JFrame {
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                //start those intervals
+                startIntervals(1000);
+
                 //create the window and center it on screen
                 frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -44,6 +44,7 @@ public abstract class Interface {
 
 	public static String[] fetchUserList(){
 	    //FIXME: return a hashmap<string, int>
+            //return type Map<String, Integer> map = new HashMap<String, Integer>();
 	        //filename and current status
 	        //status:   0 - unavailable
 	        //          1 - available
@@ -58,6 +59,7 @@ public abstract class Interface {
 
 	public static String[] fetchFileList(){
 	    //FIXME: return a hashmap<string, int>
+            //return type Map<String, Integer> map = new HashMap<String, Integer>();
 	        //filename and current status
 	        //status:   0 - unavailable
 	        //          1 - available
