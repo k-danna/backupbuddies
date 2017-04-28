@@ -18,10 +18,6 @@ public abstract class Interface {
 	    if(network == null || !pass.equals(network.password))
 	    	network = new Network(pass);
 	    Peer newPeer = network.connect(ip);
-	    if(newPeer != null && !newPeer.isDead()) {
-	    	newPeer.requestUpdatedFileList();
-	    	
-	    }
 
 	}
 
