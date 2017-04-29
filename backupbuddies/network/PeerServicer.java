@@ -26,7 +26,7 @@ final class PeerServicer implements Runnable {
 			// Buddies or don't have the password. Don't take their commands.
 			if(peer.requireHandshake) {
 				if(!checkHandshake()){
-					peer.kill();
+					peer.kill("Bad handshake");
 					return;
 				}
 			}
@@ -35,7 +35,7 @@ final class PeerServicer implements Runnable {
 				String command=inbound.readUTF();
 				if(command==null){
 					dbg(command);
-					peer.kill();
+					peer.kill("Null command");
 					return;
 				}
 				//This is where messages are handled
@@ -60,14 +60,14 @@ final class PeerServicer implements Runnable {
 				//It's incompatible with us
 				default:
 					
-					peer.kill();
+					peer.kill("Bad command: "+command);
 					break;
 				}
 			}
 		}catch(IOException e){
 			//TODO make this informative
 			e.printStackTrace();
-			peer.kill();
+			peer.kill(e);
 			return;
 		}
 	}

@@ -54,7 +54,7 @@ public class Peer {
 			peerServicer.start();
 			sendStoredFileList();
 		} catch(Exception e) {
-			this.kill();
+			this.kill(e);
 		}
 	}
 
@@ -69,9 +69,14 @@ public class Peer {
 	}
 
 	// Call this if the connection is broken/shouldn't be used further
-	public synchronized void kill(){
-		//new Exception().printStackTrace();
+	public synchronized void kill(Object error){
+		Debug.dbg(error);
 		network.onConnectionDie(this);
+		cleanup();
+	}
+	
+	public synchronized void cleanup(){
+		peerServicer.stop();
 		peerServicer=null;
 		try{
 			outbound.close();
@@ -85,9 +90,8 @@ public class Peer {
 		}
 
 		isDead=true;
-
 	}
-
+	
 	public boolean uploadFile(Path filePath) {
 		File file;
 		long length;
@@ -131,7 +135,7 @@ public class Peer {
 			}
 		}catch(IOException e){
 			e.printStackTrace();
-			kill();
+			kill(e);
 		}
 	}
 
