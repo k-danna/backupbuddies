@@ -51,6 +51,9 @@ public abstract class Interface {
 		Map<String, Integer> result=new HashMap<>();
 		if(network==null)
 			return result;
+		for(String s:network.seenConnections){
+			result.put(s, 0);
+		}
         for(String s:network.getPeerIPAddresses()){
         	 result.put(s, 1);
 		}
@@ -63,6 +66,11 @@ public abstract class Interface {
 			return fileMap;
 	    for(String file :network.getKnownFiles()){
 	    	fileMap.put(file, 0);
+	    }
+	    for(Peer peer:network.connections.values()){
+	    	for(String file:peer.getKnownFiles()){
+	    		fileMap.put(file, 1);
+	    	}
 	    }
 	    return fileMap;
 	}

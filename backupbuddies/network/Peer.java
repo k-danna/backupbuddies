@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import backupbuddies.Debug;
 
@@ -28,6 +31,8 @@ public class Peer {
 	//String password;
 
 	Network network;
+	
+	Set<String> filesStored=new HashSet<>();
 
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
@@ -126,6 +131,7 @@ public class Peer {
 		synchronized(network.seenFiles) {
 			network.seenFiles.add(fileName);
 		}
+		this.filesStored.add(fileName);
 		
 	}
 
@@ -189,6 +195,10 @@ public class Peer {
 			}
 		}
 		
+	}
+
+	public Collection<String> getKnownFiles() {
+		return filesStored;
 	}
 	
 	

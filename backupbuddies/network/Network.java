@@ -18,7 +18,10 @@ public class Network {
 
 	//You can look up peers by their IP
 	//TODO is this what the GUI team needs?
-	HashMap<String, Peer> connections = new HashMap<>();
+	public HashMap<String, Peer> connections = new HashMap<>();
+	
+	//All connections we have ever seen
+	public HashSet<String> seenConnections = new HashSet<>();
 
 	/*
 	 * All files we have ever seen
@@ -70,7 +73,8 @@ public class Network {
 					i.notifyNewPeer(peer);
 				}
 				//Connect with peer
-				connections.put(peer.url,peer);			    	
+				connections.put(peer.url,peer);
+				seenConnections.add(peer.url);
 				// Inform list of peers connected to about new peer
 			}
 		}
