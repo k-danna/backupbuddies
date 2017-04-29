@@ -159,6 +159,18 @@ public class Peer {
 		Debug.dbg(peer.url);
 	}
 	
+	public void downloadFile(Path filePath) {
+		try{
+			synchronized(this){
+				outbound.writeUTF(Protocol.REQUEST_RETRIEVE);
+				outbound.writeUTF(filePath.getFileName().toString());
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+	}
+	
 	
 	
 	

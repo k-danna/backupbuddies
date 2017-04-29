@@ -15,18 +15,20 @@ public abstract class Interface {
 	
 	private static Network network;
 
+	/*trigger: GUI-attempting to join a network-logging in with ip of net device & pw of net, also used for creating a net */
 	public static void login(String ip, String pass) {
 	    System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
-	    if(network == null || !pass.equals(network.password))
-	    	network = new Network(pass);
-	    network.connect(ip);
+	    if(network == null || !pass.equals(network.password))               //if loc net not defined OR pw differ from current loc net pw:
+	    	network = new Network(pass);									//create a new loc net with given password. 
+	    network.connect(ip);									//try and connect to ip given.
 	}
 
+	/*trigger:  */
 	public static void uploadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
 	   
-	    Path filePath = new File(fileDir,fileName).toPath();
+	    Path filePath = new File(fileDir,fileName).toPath();				//
 	    
 	    for(Peer peer:network.getPeers()){
 	    	peer.uploadFile(filePath);
@@ -37,6 +39,12 @@ public abstract class Interface {
 	public static void downloadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] downloading '%s' to '%s'\n", 
 	            fileName, fileDir);
+	    
+	    Path filePath = new File(fileDir,fileName).toPath();
+	    
+	    for(Peer peer:network.getPeers()){
+	    	peer.downloadFile(filePath);
+	    }
 	}
 
 	public static Map<String, Integer> fetchUserList(){
@@ -69,3 +77,5 @@ public abstract class Interface {
 	}
 
 }
+
+//TEST
