@@ -52,7 +52,9 @@ final class PeerServicer implements Runnable {
 				case Protocol.REPLY_LIST_FILES:
 					handleListResponse();
 					break;
-					
+				case Protocol.NOTIFY_NEW_PEER:
+					handleNewPeer();
+					break;
 					
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
@@ -120,5 +122,11 @@ final class PeerServicer implements Runnable {
 		for(int i=0; i<files; i++){
 			peer.recordStoredFile(inbound.readUTF());
 		}
+	}
+	
+	//Receives new peer and attempts to connect with them
+	public void handleNewPeer() throws IOException{
+		String newPeer = inbound.readUTF();
+		peer.network.connect(newPeer);
 	}
 }

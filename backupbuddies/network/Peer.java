@@ -142,5 +142,16 @@ public class Peer {
 				outbound.writeUTF(fileName);
 		}
 	}
+	
+	// Method to notify a peer about another peer
+	public synchronized void notifyNewPeer( Peer peer ) throws IOException{
+		outbound.writeUTF(Protocol.NOTIFY_NEW_PEER);
+		outbound.writeUTF(peer.url);
+	}
+	
+	
+	
+	
+	
 
 }
