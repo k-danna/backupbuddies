@@ -42,10 +42,20 @@ public class Network {
 				if(connections.containsKey(url))
 					return null;
 
+				// Make a new peer
 				Peer peer=new Peer(url, this);
-
+				// Check if the new peer is connected 
 			    if(!peer.isDead()) {
-			    	connections.put(url,peer);
+			    	// Send new peer a list of peers we are already connected to
+			    	for(Peer i: connections.values() ){
+			    		peer.notifyNewPeer(i);
+			    		i.notifyNewPeer(peer);
+			    	}
+			    	//Connect with peer
+			    	connections.put(url,peer);			    	
+			    	// Inform list of peers connected to about new peer
+			    	
+			    	
 			    	
 			    }
 				return peer;
