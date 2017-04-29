@@ -40,19 +40,14 @@ public abstract class Interface {
 	    System.out.printf("[+] downloading '%s' to '%s'\n", 
 	            fileName, fileDir);
 	    
-	    Path filePath = new File(fileDir,fileName).toPath();
+	    network.setFileLoc(fileName, fileDir);
 	    
 	    for(Peer peer:network.getPeers()){
-	    	peer.downloadFile(filePath);
+	    	peer.downloadFile(fileName);
 	    }
 	}
 
 	public static Map<String, Integer> fetchUserList(){
-	    //FIXME: return a hashmap<string, int>
-            //return type Map<String, Integer> map = new HashMap<String, Integer>();
-	        //filename and current status
-	        //status:   0 - unavailable
-	        //          1 - available
 		Map<String, Integer> result=new HashMap<>();
 		if(network==null)
 			return result;
@@ -73,7 +68,7 @@ public abstract class Interface {
 	}
 	
 	public static void testFile(String fileDir){
-	    System.out.printf("testFile()\n");
+	    network.storagePath=fileDir;
 	}
 
 }

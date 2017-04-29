@@ -1,6 +1,7 @@
 // Network.java
 package backupbuddies.network;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Collection;
@@ -28,9 +29,17 @@ public class Network {
 	
 	//A lock for the file storage
 	public final Object fileStorageLock = new Object();
-
+	
+	//A hash map from file names to the paths to store them at
+	HashMap<String, String> downloadingFileLocs = new HashMap<>();
+	
+	public String storagePath;
+	
 	public Network(String password){
 		this.password=password;
+		storagePath = new File(System.getProperty("user.home"), "backupbuddies")
+				.getAbsolutePath();
+		
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
 	/*
@@ -90,7 +99,7 @@ public class Network {
 
 	public String getBackupStoragePath() {
 		//TODO can change this
-		return "/home/planetguy/backupbuddies";
+		return storagePath;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -98,6 +107,10 @@ public class Network {
 		synchronized(seenFiles){
 			return (Collection<String>) seenFiles.clone();
 		}
+	}
+	
+	public void setFileLoc(String fileName, String fileDir) {
+		this.downloadingFileLocs.put(fileName, fileDir);
 	}
 
 }

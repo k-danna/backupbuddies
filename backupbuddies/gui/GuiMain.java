@@ -107,7 +107,7 @@ public class GuiMain extends JFrame {
 
     public static void setDirAndDownload() {
         //FIXME: need to have a list of uploaded files to choose from
-        String fileToGet = "filename";
+        String fileToGet = "test.txt";
         if (saveDir.getText().equals("")) {
             setSaveDir();
         }
