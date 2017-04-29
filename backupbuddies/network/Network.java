@@ -2,9 +2,12 @@
 package backupbuddies.network;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import backupbuddies.Debug;
 
 import static backupbuddies.Debug.*;
 
@@ -33,35 +36,39 @@ public class Network {
 	/*
 	 * Creates a connection to a URL
 	 */
-	public Peer connect(String url){
+	public void connect(String url){
 		if(url.equals(""))
-			return null;
+			return;
 		try{
 			synchronized(connections){
 				//If they're already connected, skip it
 				if(connections.containsKey(url))
-					return null;
+					return;
 
 				// Make a new peer
 				Peer peer=new Peer(url, this);
-				// Check if the new peer is connected 
-			    if(!peer.isDead()) {
-			    	// Send new peer a list of peers we are already connected to
-			    	for(Peer i: connections.values() ){
-			    		peer.notifyNewPeer(i);
-			    		i.notifyNewPeer(peer);
-			    	}
-			    	//Connect with peer
-			    	connections.put(url,peer);			    	
-			    	// Inform list of peers connected to about new peer
-			    	
-			    	
-			    	
-			    }
-				return peer;
+				setupPeer(peer);
+				return;
 			}
 		}catch(IOException e){
-			return null;
+			return;
+		}
+	}
+
+	public void setupPeer(Peer peer) throws IOException {
+		Debug.dbg(peer.url);
+		synchronized(connections){
+			// Check if the new peer is connected 
+			if(!peer.isDead()) {
+				// Send new peer a list of peers we are already connected to
+				for(Peer i: connections.values() ){
+					peer.notifyNewPeer(i);
+					i.notifyNewPeer(peer);
+				}
+				//Connect with peer
+				connections.put(peer.url,peer);			    	
+				// Inform list of peers connected to about new peer
+			}
 		}
 	}
 

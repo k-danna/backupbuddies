@@ -19,8 +19,7 @@ public abstract class Interface {
 	    System.out.printf("[+] connecting to '%s' with '%s'\n", ip, pass);
 	    if(network == null || !pass.equals(network.password))
 	    	network = new Network(pass);
-	    Peer newPeer = network.connect(ip);
-
+	    network.connect(ip);
 	}
 
 	public static void uploadFile(String fileName, String fileDir) {

@@ -35,7 +35,10 @@ public class Peer {
 
 	Peer(Socket socket, boolean sendHandshake, Network net) {
 		this.network=net;
-		this.url=socket.getInetAddress().toString();
+		
+		//It gives addrs in the form "example.com/127.0.0.1" - take only the IP
+		String[] a=socket.getInetAddress().toString().split("/");
+		this.url=a[a.length-1];
 
 		try{
 			outbound = new DataOutputStream(socket.getOutputStream());
