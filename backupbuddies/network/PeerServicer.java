@@ -60,6 +60,9 @@ final class PeerServicer implements Runnable {
 				case Protocol.REQUEST_RETRIEVE:
 					handleRetrieveRequest();
 					break;
+				case Protocol.REPLY_RETRIEVE:
+					handleRetrieveResponse();
+					break;
 					
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
@@ -127,8 +130,27 @@ final class PeerServicer implements Runnable {
 			String fileName=inbound.readUTF();
 			String fileDir = peer.network.getBackupStoragePath();
 			Path filePath = new File(fileDir,fileName).toPath();
-			peer.uploadFile(filePath);
+			try{
+				peer.restoreFile(fileName, filePath);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	private void handleRetrieveResponse() throws IOException {
+		String fileName=inbound.readUTF();
+		long length=inbound.readLong();
+		File file=new File(peer.network.downloadingFileLocs.get(fileName), fileName);
+		//You can overwrite existing backups
+		
+		file.createNewFile();
+		FileOutputStream out=new FileOutputStream(file);
+
+		for(long i=0; i<length; i++){
+			out.write(inbound.readByte());
+		}
+		out.close();
 	}
 	
 	//Receives list of files stored on some peer

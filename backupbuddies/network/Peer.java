@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -159,16 +160,35 @@ public class Peer {
 		Debug.dbg(peer.url);
 	}
 	
-	public void downloadFile(Path filePath) {
+	public void downloadFile(String fileName) {
 		try{
 			synchronized(this){
 				outbound.writeUTF(Protocol.REQUEST_RETRIEVE);
-				outbound.writeUTF(filePath.getFileName().toString());
+				outbound.writeUTF(fileName);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 
+	}
+
+	public synchronized void restoreFile(String fileName, Path filePath) throws IOException {
+		synchronized(network.fileStorageLock){
+			synchronized(this){
+				File file=filePath.toFile();
+				FileInputStream fileStream = new FileInputStream(file);
+				long length=file.length();
+				
+				outbound.writeUTF(Protocol.REPLY_RETRIEVE);
+				outbound.writeUTF(filePath.getFileName().toString());
+				outbound.writeLong(length);
+				for(long i=0; i<length; i++){
+					outbound.writeByte((byte) fileStream.read());
+				}
+				fileStream.close();
+			}
+		}
+		
 	}
 	
 	
