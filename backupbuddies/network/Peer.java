@@ -4,9 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
+
+import backupbuddies.Debug;
 
 import static backupbuddies.Debug.*;
 
@@ -35,7 +38,10 @@ public class Peer {
 
 	Peer(Socket socket, boolean sendHandshake, Network net) {
 		this.network=net;
-		this.url=socket.getInetAddress().toString();
+		
+		//It gives addrs in the form "example.com/127.0.0.1" - take only the IP
+		String[] a=socket.getInetAddress().toString().split("/");
+		this.url=a[a.length-1];
 
 		try{
 			outbound = new DataOutputStream(socket.getOutputStream());
@@ -49,7 +55,7 @@ public class Peer {
 			peerServicer.start();
 			sendStoredFileList();
 		} catch(Exception e) {
-			this.kill();
+			this.kill(e);
 		}
 	}
 
@@ -64,9 +70,14 @@ public class Peer {
 	}
 
 	// Call this if the connection is broken/shouldn't be used further
-	public synchronized void kill(){
-		//new Exception().printStackTrace();
+	public synchronized void kill(Object error){
+		Debug.dbg(error);
 		network.onConnectionDie(this);
+		cleanup();
+	}
+	
+	public synchronized void cleanup(){
+		peerServicer.stop();
 		peerServicer=null;
 		try{
 			outbound.close();
@@ -80,9 +91,8 @@ public class Peer {
 		}
 
 		isDead=true;
-
 	}
-
+	
 	public boolean uploadFile(Path filePath) {
 		File file;
 		long length;
@@ -126,7 +136,7 @@ public class Peer {
 			}
 		}catch(IOException e){
 			e.printStackTrace();
-			kill();
+			kill(e);
 		}
 	}
 
@@ -142,5 +152,48 @@ public class Peer {
 				outbound.writeUTF(fileName);
 		}
 	}
+	
+	// Method to notify a peer about another peer
+	public synchronized void notifyNewPeer( Peer peer ) throws IOException{
+		outbound.writeUTF(Protocol.NOTIFY_NEW_PEER);
+		outbound.writeUTF(peer.url);
+		Debug.dbg(peer.url);
+	}
+	
+	public void downloadFile(String fileName) {
+		try{
+			synchronized(this){
+				outbound.writeUTF(Protocol.REQUEST_RETRIEVE);
+				outbound.writeUTF(fileName);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+	}
+
+	public synchronized void restoreFile(String fileName, Path filePath) throws IOException {
+		synchronized(network.fileStorageLock){
+			synchronized(this){
+				File file=filePath.toFile();
+				FileInputStream fileStream = new FileInputStream(file);
+				long length=file.length();
+				
+				outbound.writeUTF(Protocol.REPLY_RETRIEVE);
+				outbound.writeUTF(filePath.getFileName().toString());
+				outbound.writeLong(length);
+				for(long i=0; i<length; i++){
+					outbound.writeByte((byte) fileStream.read());
+				}
+				fileStream.close();
+			}
+		}
+		
+	}
+	
+	
+	
+	
+	
 
 }

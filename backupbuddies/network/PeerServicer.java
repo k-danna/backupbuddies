@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static backupbuddies.Debug.*;
@@ -26,7 +27,7 @@ final class PeerServicer implements Runnable {
 			// Buddies or don't have the password. Don't take their commands.
 			if(peer.requireHandshake) {
 				if(!checkHandshake()){
-					peer.kill();
+					peer.kill("Bad handshake");
 					return;
 				}
 			}
@@ -35,7 +36,7 @@ final class PeerServicer implements Runnable {
 				String command=inbound.readUTF();
 				if(command==null){
 					dbg(command);
-					peer.kill();
+					peer.kill("Null command");
 					return;
 				}
 				//This is where messages are handled
@@ -52,20 +53,29 @@ final class PeerServicer implements Runnable {
 				case Protocol.REPLY_LIST_FILES:
 					handleListResponse();
 					break;
+				case Protocol.NOTIFY_NEW_PEER:
+					handleNewPeer();
+					break;
 					
+				case Protocol.REQUEST_RETRIEVE:
+					handleRetrieveRequest();
+					break;
+				case Protocol.REPLY_RETRIEVE:
+					handleRetrieveResponse();
+					break;
 					
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
 				default:
 					
-					peer.kill();
+					peer.kill("Bad command: "+command);
 					break;
 				}
 			}
 		}catch(IOException e){
 			//TODO make this informative
 			e.printStackTrace();
-			peer.kill();
+			peer.kill(e);
 			return;
 		}
 	}
@@ -114,11 +124,50 @@ final class PeerServicer implements Runnable {
 		}
 	}
 	
+	//Handles Retrieve request for a file
+	private void handleRetrieveRequest() throws IOException{
+		synchronized(peer.network.fileStorageLock){
+			String fileName=inbound.readUTF();
+			String fileDir = peer.network.getBackupStoragePath();
+			Path filePath = new File(fileDir,fileName).toPath();
+			try{
+				peer.restoreFile(fileName, filePath);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void handleRetrieveResponse() throws IOException {
+		String fileName=inbound.readUTF();
+		long length=inbound.readLong();
+		File file=new File(peer.network.downloadingFileLocs.get(fileName), fileName);
+		//You can overwrite existing backups
+		
+		file.createNewFile();
+		FileOutputStream out=new FileOutputStream(file);
+
+		for(long i=0; i<length; i++){
+			out.write(inbound.readByte());
+		}
+		out.close();
+	}
+	
 	//Receives list of files stored on some peer
 	private void handleListResponse() throws IOException {
 		int files=inbound.readInt();
 		for(int i=0; i<files; i++){
 			peer.recordStoredFile(inbound.readUTF());
+		}
+	}
+	
+	//Receives new peer and attempts to connect with them
+	public void handleNewPeer() throws IOException{
+		String newPeer = inbound.readUTF();
+		try{
+			peer.network.connect(newPeer);
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 }

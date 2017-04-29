@@ -1,9 +1,14 @@
+// Network.java
 package backupbuddies.network;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import backupbuddies.Debug;
 
 import static backupbuddies.Debug.*;
 
@@ -24,33 +29,50 @@ public class Network {
 	
 	//A lock for the file storage
 	public final Object fileStorageLock = new Object();
-
+	
+	//A hash map from file names to the paths to store them at
+	HashMap<String, String> downloadingFileLocs = new HashMap<>();
+	
+	public String storagePath;
+	
 	public Network(String password){
 		this.password=password;
+		storagePath = new File(System.getProperty("user.home"), "backupbuddies")
+				.getAbsolutePath();
+		
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
 	/*
 	 * Creates a connection to a URL
 	 */
-	public Peer connect(String url){
+	public void connect(String url){
 		if(url.equals(""))
-			return null;
+			return;
 		try{
-			synchronized(connections){
-				//If they're already connected, skip it
-				if(connections.containsKey(url))
-					return null;
-
-				Peer peer=new Peer(url, this);
-
-			    if(!peer.isDead()) {
-			    	connections.put(url,peer);
-			    	
-			    }
-				return peer;
-			}
+			Peer peer=new Peer(url, this);
+			setupPeer(peer);
 		}catch(IOException e){
-			return null;
+			e.printStackTrace();
+		}
+	}
+
+	public void setupPeer(Peer peer) throws IOException {
+		Debug.dbg(peer.url);
+		synchronized(connections){
+			if(connections.containsKey(peer.url))
+				//Can't use kill() - that removes it from connections
+				peer.cleanup();
+			// Check if the new peer is connected 
+			if(!peer.isDead()) {
+				// Send new peer a list of peers we are already connected to
+				for(Peer i: connections.values() ){
+					peer.notifyNewPeer(i);
+					i.notifyNewPeer(peer);
+				}
+				//Connect with peer
+				connections.put(peer.url,peer);			    	
+				// Inform list of peers connected to about new peer
+			}
 		}
 	}
 
@@ -77,7 +99,7 @@ public class Network {
 
 	public String getBackupStoragePath() {
 		//TODO can change this
-		return "/home/planetguy/backupbuddies";
+		return storagePath;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -85,6 +107,10 @@ public class Network {
 		synchronized(seenFiles){
 			return (Collection<String>) seenFiles.clone();
 		}
+	}
+	
+	public void setFileLoc(String fileName, String fileDir) {
+		this.downloadingFileLocs.put(fileName, fileDir);
 	}
 
 }

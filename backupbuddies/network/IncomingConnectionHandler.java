@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import backupbuddies.Debug;
+
 class IncomingConnectionHandler implements Runnable {
 
 	/**
@@ -33,11 +35,9 @@ class IncomingConnectionHandler implements Runnable {
 		{
 			try {
 				Socket incomingSocket = serverSocket.accept();
-				System.out.println("Incoming from "+incomingSocket.getInetAddress());
 				Peer peer=new Peer(incomingSocket, false, this.network);
-				synchronized(this.network.connections){
-					this.network.connections.put(peer.url, peer);
-				}
+				Debug.dbg(peer.url);
+				network.setupPeer(peer);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
