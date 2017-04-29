@@ -47,7 +47,7 @@ public class GuiMain extends JFrame {
                 //refresh user list
             	//String[] uList = Interface.fetchUserList();
             	//DEBUG
-                Map<String, Integer> uList = debugReturnUsers();
+                Map<String, Integer> uList = Interface.fetchUserList();
                 userModel.removeAllElements();
                 for (Map.Entry<String, Integer> entry : uList.entrySet()){
                     String key = entry.getKey();
@@ -60,9 +60,7 @@ public class GuiMain extends JFrame {
                 }
 
                 //refresh file list
-            	//String[] fList = Interface.fetchFileList();
-                //DEBUG:
-                Map<String, Integer> fList = debugReturnFiles();
+                Map<String, Integer> fList = Interface.fetchFileList();
                 fileModel.removeAllElements();
                 for (Map.Entry<String, Integer> entry : fList.entrySet()){
                     String key = entry.getKey();
@@ -79,21 +77,6 @@ public class GuiMain extends JFrame {
         Timer timer = new Timer(interval, refreshLists);
         timer.setRepeats(true);
         timer.start();
-    }
-
-    public static Map<String, Integer> debugReturnUsers() {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("john cena", 0);
-        map.put("jane werd", 1);
-        return map;
-    }
-
-    public static Map<String, Integer> debugReturnFiles() {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("file_one.java", 0);
-        map.put("file_two.java", 1);
-        map.put("file_three.py", 2);
-        return map;
     }
 
     public static void setSaveDir() {

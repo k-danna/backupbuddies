@@ -7,6 +7,8 @@ import static backupbuddies.Debug.*;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public abstract class Interface {
@@ -38,35 +40,25 @@ public abstract class Interface {
 	            fileName, fileDir);
 	}
 
-	public static String[] fetchUserList(){
+	public static Map<String, Integer> fetchUserList(){
 	    //FIXME: return a hashmap<string, int>
             //return type Map<String, Integer> map = new HashMap<String, Integer>();
 	        //filename and current status
 	        //status:   0 - unavailable
 	        //          1 - available
-	    try {
-            return network.getPeerIPAddresses()
-                    .toArray(new String[0]);
+		Map<String, Integer> result=new HashMap<>();
+        for(String s:network.getPeerIPAddresses()){
+        	 result.put(s, 1);
 		}
-		catch (Exception e) {
-            return new String[0];
-		}
+        return result;
 	}
 
-	public static String[] fetchFileList(){
-	    //FIXME: return a hashmap<string, int>
-            //return type Map<String, Integer> map = new HashMap<String, Integer>();
-	        //filename and current status
-	        //status:   0 - unavailable
-	        //          1 - available
-	        //          2 - in transit
-	    try {
-            return network.getKnownFiles()
-                    .toArray(new String[0]);
-		}
-		catch (Exception e) {
-            return new String[0];
-		}
+	public static Map<String, Integer> fetchFileList(){
+		Map<String, Integer> fileMap=new HashMap<>();
+	    for(String file :network.getKnownFiles()){
+	    	fileMap.put(file, 0);
+	    }
+	    return fileMap;
 	}
 	
 	public static void testFile(String fileDir){
