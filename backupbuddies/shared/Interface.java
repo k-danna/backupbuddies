@@ -21,11 +21,12 @@ public abstract class Interface {
 	    Peer newPeer = network.connect(ip);									//try and connect to ip given.
 	}
 
+	/*trigger:  */
 	public static void uploadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
 	   
-	    Path filePath = new File(fileDir,fileName).toPath();
+	    Path filePath = new File(fileDir,fileName).toPath();				//
 	    
 	    for(Peer peer:network.getPeers()){
 	    	peer.uploadFile(filePath);
@@ -36,6 +37,12 @@ public abstract class Interface {
 	public static void downloadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] downloading '%s' to '%s'\n", 
 	            fileName, fileDir);
+	    
+	    Path filePath = new File(fileDir,fileName).toPath();
+	    
+	    for(Peer peer:network.getPeers()){
+	    	peer.downloadFile(filePath);
+	    }
 	}
 
 	public static String[] fetchUserList(){

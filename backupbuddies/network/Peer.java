@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -106,6 +107,18 @@ public class Peer {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public void downloadFile(Path filePath) {
+		try{
+			synchronized(this){
+				outbound.writeUTF(Protocol.REQUEST_RETRIEVE);
+				outbound.writeUTF(filePath.getFileName().toString());
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
 	}
 
 	public String getStoragePath() {

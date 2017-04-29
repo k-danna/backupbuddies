@@ -2,8 +2,10 @@ package backupbuddies.network;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static backupbuddies.Debug.*;
@@ -51,6 +53,9 @@ final class PeerServicer implements Runnable {
 					break;
 				case Protocol.REPLY_LIST_FILES:
 					handleListResponse();
+					break;
+				case Protocol.REQUEST_RETRIEVE:
+					handleRetrieveRequest();
 					break;
 					
 					
@@ -111,6 +116,16 @@ final class PeerServicer implements Runnable {
 				out.write(inbound.readByte());
 			}
 			out.close();
+		}
+	}
+	
+	//Handles Retrieve request for a file
+	private void handleRetrieveRequest() throws IOException{
+		synchronized(peer.network.fileStorageLock){
+			String fileName=inbound.readUTF();
+			String fileDir = peer.network.getBackupStoragePath();
+			Path filePath = new File(fileDir,fileName).toPath();
+			peer.uploadFile(filePath);
 		}
 	}
 	
