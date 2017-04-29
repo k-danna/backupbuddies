@@ -127,6 +127,10 @@ final class PeerServicer implements Runnable {
 	//Receives new peer and attempts to connect with them
 	public void handleNewPeer() throws IOException{
 		String newPeer = inbound.readUTF();
-		peer.network.connect(newPeer);
+		try{
+			peer.network.connect(newPeer);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 }

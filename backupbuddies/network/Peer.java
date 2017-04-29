@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
 
+import backupbuddies.Debug;
+
 import static backupbuddies.Debug.*;
 
 public class Peer {
@@ -150,6 +152,7 @@ public class Peer {
 	public synchronized void notifyNewPeer( Peer peer ) throws IOException{
 		outbound.writeUTF(Protocol.NOTIFY_NEW_PEER);
 		outbound.writeUTF(peer.url);
+		Debug.dbg(peer.url);
 	}
 	
 	
