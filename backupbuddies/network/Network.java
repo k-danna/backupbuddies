@@ -40,24 +40,18 @@ public class Network {
 		if(url.equals(""))
 			return;
 		try{
-			synchronized(connections){
-				//If they're already connected, skip it
-				if(connections.containsKey(url))
-					return;
-
-				// Make a new peer
-				Peer peer=new Peer(url, this);
-				setupPeer(peer);
-				return;
-			}
+			Peer peer=new Peer(url, this);
+			setupPeer(peer);
 		}catch(IOException e){
-			return;
+			e.printStackTrace();
 		}
 	}
 
 	public void setupPeer(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
+			if(connections.containsKey(peer.url))
+				peer.kill();
 			// Check if the new peer is connected 
 			if(!peer.isDead()) {
 				// Send new peer a list of peers we are already connected to
