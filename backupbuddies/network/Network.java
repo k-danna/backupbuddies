@@ -51,7 +51,8 @@ public class Network {
 		Debug.dbg(peer.url);
 		synchronized(connections){
 			if(connections.containsKey(peer.url))
-				peer.kill();
+				//Can't use kill() - that removes it from connections
+				peer.cleanup();
 			// Check if the new peer is connected 
 			if(!peer.isDead()) {
 				// Send new peer a list of peers we are already connected to
