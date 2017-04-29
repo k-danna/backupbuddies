@@ -47,6 +47,8 @@ public abstract class Interface {
 	        //status:   0 - unavailable
 	        //          1 - available
 		Map<String, Integer> result=new HashMap<>();
+		if(network==null)
+			return result;
         for(String s:network.getPeerIPAddresses()){
         	 result.put(s, 1);
 		}
@@ -55,6 +57,8 @@ public abstract class Interface {
 
 	public static Map<String, Integer> fetchFileList(){
 		Map<String, Integer> fileMap=new HashMap<>();
+		if(network==null)
+			return fileMap;
 	    for(String file :network.getKnownFiles()){
 	    	fileMap.put(file, 0);
 	    }
