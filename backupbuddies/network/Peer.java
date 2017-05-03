@@ -8,9 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import backupbuddies.Debug;
 
@@ -33,6 +36,10 @@ public class Peer {
 	Network network;
 	
 	Set<String> filesStored=new HashSet<>();
+	
+	
+	//This is the UUID we generate
+	final String token;
 
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
@@ -44,6 +51,9 @@ public class Peer {
 	Peer(Socket socket, boolean sendHandshake, Network net) {
 		this.network=net;
 		
+		//Generate our token at random
+		token=UUID.randomUUID().toString();
+		
 		//It gives addrs in the form "example.com/127.0.0.1" - take only the IP
 		String[] a=socket.getInetAddress().toString().split("/");
 		this.url=a[a.length-1];
@@ -53,21 +63,39 @@ public class Peer {
 			DataInputStream inbound = new DataInputStream(socket.getInputStream());
 
 			requireHandshake = !sendHandshake;
-			if(sendHandshake)
-				sendHandshake(net.password);
+			sendHandshake();
 
 			peerServicer = new Thread(new PeerServicer(this, inbound));
 			peerServicer.start();
-			sendStoredFileList();
 		} catch(Exception e) {
 			this.kill(e);
 		}
 	}
 
 	//Sends a handshake message
-	private synchronized void sendHandshake(String password) throws IOException {
+	private synchronized void sendHandshake() throws IOException {
 		outbound.writeUTF(Protocol.HANDSHAKE);
-		outbound.writeUTF(password);
+		outbound.writeUTF(token);
+	}
+	
+	public synchronized void sendLoginToken(String theirToken) throws IOException {
+		String loginKey = token + theirToken + network.password;
+		
+		byte[] ourHash = computeHash(loginKey);
+		
+		outbound.write(ourHash);
+	}
+	
+	static byte[] computeHash(String input){
+		try{
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			byte[] hashBytes = md.digest(input.getBytes());
+			return hashBytes;
+		}catch(NoSuchAlgorithmException e){
+			//We're hosed
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	public boolean isDead(){

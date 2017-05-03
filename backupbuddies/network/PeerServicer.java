@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.UUID;
+
+import backupbuddies.Debug;
 
 import static backupbuddies.Debug.*;
 
@@ -25,12 +28,17 @@ final class PeerServicer implements Runnable {
 		try{
 			// If they fail to handshake properly, they're either not Backup
 			// Buddies or don't have the password. Don't take their commands.
-			if(peer.requireHandshake) {
-				if(!checkHandshake()){
-					peer.kill("Bad handshake");
-					return;
-				}
+			try{
+				checkHandshake();
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
+				peer.kill("Bad handshake");
+				return;
 			}
+			
+			//Now that they're auth'd, send them our file list
+			peer.sendStoredFileList();
+
 
 			while(!peer.isDead()){
 				String command=inbound.readUTF();
@@ -81,24 +89,41 @@ final class PeerServicer implements Runnable {
 	}
 
 	//Receives a handshake
-	private boolean checkHandshake() throws IOException {
-		String line=inbound.readUTF();
-		if(line==null)
-			return false;
+	private boolean checkHandshake() throws IOException, IllegalArgumentException {
+		String handshake=inbound.readUTF();
+		if(handshake==null)
+			throw new IllegalArgumentException();
 
-		if(!(line.equals(Protocol.HANDSHAKE)))
-			return false;
+		if(!(handshake.equals(Protocol.HANDSHAKE)))
+			throw new IllegalArgumentException();
 
 		//Check password
-		line=inbound.readUTF();
+		String theirToken=inbound.readUTF();
 
-		if(line==null)
-			return false;
+		if(theirToken==null)
+			throw new IllegalArgumentException();
 		
-		if(!line.equals(peer.network.password))
-			return false;
-
-		//All checks passed = we're good
+		//Check that they sent us a valid UUID
+		//This throws an IAE if the UUID is not valid
+		UUID.fromString(theirToken);
+		
+		peer.sendLoginToken(theirToken);
+		
+		byte[] targetHash = Peer.computeHash(theirToken + peer.token + peer.network.password);
+		
+		byte[] theirHash = new byte[targetHash.length];
+		
+		if(inbound.read(theirHash) != theirHash.length)
+			throw new IllegalArgumentException();
+		
+		for(int i=0; i<theirHash.length; i++) {
+			if(theirHash[i] != targetHash[i]) {
+				Debug.dbg(Arrays.toString(targetHash));
+				Debug.dbg(Arrays.toString(theirHash));				
+				throw new IllegalArgumentException("Byte "+i+" mismatched!");
+			}
+		}
+		
 		return true;
 	}
 	
