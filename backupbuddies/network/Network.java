@@ -49,13 +49,18 @@ public class Network {
 	 * Creates a connection to a URL
 	 */
 	public void connect(String url){
-		if(url.equals(""))
-			return;
-		try{
-			Peer peer=new Peer(url, this);
-			setupPeer(peer);
-		}catch(IOException e){
-			e.printStackTrace();
+		synchronized(connections){
+			if(url.equals(""))
+				return;
+			//Don't open a duplicate connection if one dies
+			if(connections.containsKey(url))
+				return;
+			try{
+				Peer peer=new Peer(url, this);
+				setupPeer(peer);
+			}catch(IOException e){
+				e.printStackTrace();
+			}
 		}
 	}
 
