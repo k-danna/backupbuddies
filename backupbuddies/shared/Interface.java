@@ -107,6 +107,11 @@ public abstract class Interface {
 	public static void testFile(String fileDir){
 	    network.storagePath=fileDir;
 	}
+	
+	public static boolean isOnline(String ip){
+		System.out.println("isOnline()\n");
+		return true;
+	}
 
 }
 
