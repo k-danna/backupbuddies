@@ -267,13 +267,13 @@ public class GuiMain extends JFrame {
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel();
-                
-                
+                                
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
                 
+                //set locations for each panel
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
                 layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
@@ -285,9 +285,9 @@ public class GuiMain extends JFrame {
                                      SpringLayout.SOUTH, loginPanel);
                 
                 layout.putConstraint(SpringLayout.NORTH, controlPanel, 5,
-                           SpringLayout.SOUTH, userListPanel);
+                                     SpringLayout.SOUTH, userListPanel);
                 layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
-                        SpringLayout.WEST, contentPane);
+                                     SpringLayout.WEST, contentPane);
                 
                 layout.putConstraint(SpringLayout.WEST, fileListPanel, 20,
    		                             SpringLayout.EAST, userListPanel);
