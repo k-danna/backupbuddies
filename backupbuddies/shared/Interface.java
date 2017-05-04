@@ -55,8 +55,12 @@ public abstract class Interface {
 	    //DEBUG set at top of class
 	    if (DEBUG) {
             Map<String, Integer> result = new HashMap<>();
-            result.put("offlineUser", 0);
-            result.put("onlineUser", 1);
+            result.put("offlineUser1", 0);
+            result.put("onlineUser1", 1);
+            result.put("offlineUser2", 0);
+            result.put("onlineUser2", 1);
+            result.put("offlineUser3", 0);
+            result.put("onlineUser3", 1);
             return result;
 	    }
 		Map<String, Integer> result=new HashMap<>();
@@ -75,9 +79,15 @@ public abstract class Interface {
 	    //DEBUG set at top of class
 	    if (DEBUG) {
             Map<String, Integer> result = new HashMap<>();
-            result.put("unavailableFile", 0);
-            result.put("availableFile", 1);
-            result.put("fileInTransit", 2);
+            result.put("unavailableFile1", 0);
+            result.put("availableFile1", 1);
+            result.put("fileInTransit1", 2);
+            result.put("unavailableFile2", 0);
+            result.put("availableFile2", 1);
+            result.put("fileInTransit2", 2);
+            result.put("unavailableFile3", 0);
+            result.put("availableFile3", 1);
+            result.put("fileInTransit3", 2);
             return result;
 	    }
 		Map<String, Integer> fileMap=new HashMap<>();

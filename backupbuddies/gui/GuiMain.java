@@ -17,49 +17,45 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
-    //load assets, etc at runtime
+    //load assets, lists etc before creating the gui
     static JFrame frame;
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    static ImageIcon statusRed = new ImageIcon("/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("/assets/YellowCircle.png");
-    static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
+    static ImageIcon statusRed = new ImageIcon("gui/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("gui/assets/YellowCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
+    static Map<String, ImageIcon> userMap = fetchAndProcess("users");
+    static Map<String, ImageIcon> fileMap = fetchAndProcess("files");
 
     //process lists returned from networking
-    //public static String[] fetchFiles(){}
+        //NOTE: to speed this up we can just do it in the interface methods
+            //iteration already occurs there
+    public static Map<String, ImageIcon> fetchAndProcess(String type) {
+        //get data
+        Map<String, Integer> map = new HashMap<String, Integer>(); 
+        if (type.equals("users")) map = Interface.fetchUserList();
+        else if (type.equals("files")) map = Interface.fetchFileList();
+        
+        //replace int with img
+        Map<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
+        for  (Map.Entry<String, Integer> entry : map.entrySet()) {
+            switch (entry.getValue()) {
+                case 0: iconMap.put(entry.getKey(), statusRed); break;
+                case 1: iconMap.put(entry.getKey(), statusGreen); break;
+                case 2: iconMap.put(entry.getKey(), statusYellow); break;
+                default: iconMap.put(entry.getKey(), statusRed); break;
+            }
+        }
+        return iconMap;
+    }
 
     //updates ui on interval
     public static void startIntervals(int interval) {
         ActionListener updateUI = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
-                //refresh user list
-                Map<String, Integer> uList = Interface.fetchUserList();
-                userModel.removeAllElements();
-                for (Map.Entry<String, Integer> entry : uList.entrySet()){
-                    String key = entry.getKey();
-                    String status = "";
-                    switch(entry.getValue()) {
-                        case 0:     status = "status:OFFLINE"; break;
-                        case 1:     status = "status:ONLINE"; break;
-                    }
-                    userModel.addElement(String.format("%-20s  %s", key, status));
-                }
-
-                //refresh file list
-                Map<String, Integer> fList = Interface.fetchFileList();
-                fileModel.removeAllElements();
-                for (Map.Entry<String, Integer> entry : fList.entrySet()){
-                    String key = entry.getKey();
-                    String status = "";
-                    switch(entry.getValue()) {
-                        case 0:     status = "status:UNAVAILABLE"; break;
-                        case 1:     status = "status:AVAILABLE"; break;
-                        case 2:     status = "status:TRANSIT"; break;
-                    }
-                    fileModel.addElement(String.format("%-20s  %s", key, status));
-                }    
+                userMap = fetchAndProcess("users");
+                userMap = fetchAndProcess("files");
             }
         };
         Timer timer = new Timer(interval, updateUI);
@@ -69,7 +65,6 @@ public class GuiMain extends JFrame {
     
     //user chooses directory to save to
     public static void setSaveDir() {
-    	
         JFileChooser browser = new JFileChooser();
         browser.setDialogTitle("choose save location");
         browser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -189,39 +184,54 @@ public class GuiMain extends JFrame {
         return loginPanel;    
     }
 
+    public static class UserListRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, 
+                Object value, int index, boolean isSelected,
+                boolean cellHasFocus) {
+            JLabel label = (JLabel)super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+            label.setIcon(userMap.get((String)value));
+            label.setHorizontalTextPosition(JLabel.RIGHT);
+            return label;
+        }
+    }
+
+    public static class FileListRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, 
+                Object value, int index, boolean isSelected,
+                boolean cellHasFocus) {
+            JLabel label = (JLabel)super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+            label.setIcon(fileMap.get((String)value));
+            label.setHorizontalTextPosition(JLabel.RIGHT);
+            return label;
+        }
+    }
+
     //list of peers in the network
         //TODO: multiple selection
         //TODO: renders images
-    public static JPanel userListPanel() {
-    	JPanel userListPanel = new JPanel();
-    	JLabel userLabel = new JLabel("users in network:");
-    	JScrollPane userScroll = new JScrollPane();
-    	
-    	//userModel.addElement("please join a network");    	
-    	JList<String> userList = new JList<String>(userModel);
-   	
-    	userScroll.setViewportView(userList);
-       	userListPanel.add(userLabel);
-       	userListPanel.add(userScroll);
-    	
-    	return userListPanel;
+    public static JScrollPane userListPanel() {
+        userMap = fetchAndProcess("users");
+        JList list = new JList(userMap.keySet().toArray());
+        list.setCellRenderer(new UserListRenderer());
+        JScrollPane pane = new JScrollPane(list);
+        pane.setPreferredSize(new Dimension(300, 100));
+        return pane;
     }
     
     //list of files you can recover
         //TODO: multiple selection
         //TODO: renders images
-    public static JPanel fileListPanel() {
-    	JPanel fileListPanel = new JPanel();
-    	JLabel fileLabel = new JLabel("files:");
-    	JScrollPane fileScroll = new JScrollPane();
-    	
-    	JList<String> fileList = new JList<String>(fileModel);
-   	
-     	fileScroll.setViewportView(fileList);    	
-    	fileListPanel.add(fileLabel);
-    	fileListPanel.add(fileScroll);
-      	
-    	return fileListPanel;
+    public static JScrollPane fileListPanel() {
+        fileMap = fetchAndProcess("files");
+        JList list = new JList(fileMap.keySet().toArray());
+        list.setCellRenderer(new FileListRenderer());
+        JScrollPane pane = new JScrollPane(list);
+        pane.setPreferredSize(new Dimension(300, 100));
+        return pane;
     }
 
     //bind panels to frame and display the gui
