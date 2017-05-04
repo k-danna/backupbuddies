@@ -12,6 +12,10 @@ import java.util.Map;
 
 
 public abstract class Interface {
+
+    //true to enable debug fetchlist methods
+        //aka you dont have to connect to a network to test
+    static Boolean DEBUG = true;
 	
 	private static Network network;
 
@@ -48,6 +52,13 @@ public abstract class Interface {
 	}
 
 	public static Map<String, Integer> fetchUserList(){
+	    //DEBUG set at top of class
+	    if (DEBUG) {
+            Map<String, Integer> result = new HashMap<>();
+            result.put("offlineUser", 0);
+            result.put("onlineUser", 1);
+            return result;
+	    }
 		Map<String, Integer> result=new HashMap<>();
 		if(network==null)
 			return result;
@@ -61,6 +72,14 @@ public abstract class Interface {
 	}
 
 	public static Map<String, Integer> fetchFileList(){
+	    //DEBUG set at top of class
+	    if (DEBUG) {
+            Map<String, Integer> result = new HashMap<>();
+            result.put("unavailableFile", 0);
+            result.put("availableFile", 1);
+            result.put("fileInTransit", 2);
+            return result;
+	    }
 		Map<String, Integer> fileMap=new HashMap<>();
 		if(network==null)
 			return fileMap;
@@ -81,4 +100,3 @@ public abstract class Interface {
 
 }
 
-//TEST
