@@ -1,18 +1,5 @@
 package backupbuddies.gui;
 
-/*TODO:
-    high priority:
-        upload button
-        download button
-        ipname input
-        password input
-    
-    low priority
-        list of peers
-        file list
-        file status
-*/
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -22,6 +9,7 @@ import java.lang.*;
 
 //do not import util.*
 //there is a Timer class in util and swing that conflict
+//currently using swing timer
 
 import backupbuddies.shared.Interface;
 import static backupbuddies.Debug.*;
@@ -29,24 +17,24 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
+    //load assets, etc at runtime
     static JFrame frame;
     static JTextField saveDir = new JTextField();
-    //using DefaultListModel for easy overwriting
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-
-    //load img assets
     static ImageIcon statusRed = new ImageIcon("/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("/assets/YellowCircle.png");
     static ImageIcon statusGreen = new ImageIcon("/assets/GreenCircle.png");
 
+    //process lists returned from networking
+    //public static String[] fetchFiles(){}
+
+    //updates ui on interval
     public static void startIntervals(int interval) {
-        ActionListener refreshLists = new ActionListener() {
+        ActionListener updateUI = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
                 //refresh user list
-            	//String[] uList = Interface.fetchUserList();
-            	//DEBUG
                 Map<String, Integer> uList = Interface.fetchUserList();
                 userModel.removeAllElements();
                 for (Map.Entry<String, Integer> entry : uList.entrySet()){
@@ -74,11 +62,12 @@ public class GuiMain extends JFrame {
                 }    
             }
         };
-        Timer timer = new Timer(interval, refreshLists);
+        Timer timer = new Timer(interval, updateUI);
         timer.setRepeats(true);
         timer.start();
     }
-
+    
+    //user chooses directory to save to
     public static void setSaveDir() {
     	
         JFileChooser browser = new JFileChooser();
@@ -91,7 +80,8 @@ public class GuiMain extends JFrame {
             Interface.testFile(saveDir.getText());
         }
     }
-
+    
+    //user selects a file and it uploads to network
     public static void chooseAndUpload() {
         JFileChooser browser = new JFileChooser();
         browser.setDialogTitle("choose file to upload");
@@ -105,6 +95,7 @@ public class GuiMain extends JFrame {
         }
     }
 
+    //user downloads a file to save directory (and chooses if not set)
     public static void setDirAndDownload() {
         //FIXME: need to have a list of uploaded files to choose from
         String fileToGet = "test.txt";
@@ -114,9 +105,10 @@ public class GuiMain extends JFrame {
         Interface.downloadFile(fileToGet, saveDir.getText());
     }
 
-    public static JPanel filePanel() {
+    //upload, download, save control buttons
+    public static JPanel controlPanel() {
         //create panel
-        JPanel filePanel = new JPanel();
+        JPanel controlPanel = new JPanel();
         
         //create components
         JLabel fileLabel = new JLabel("backup your files");
@@ -145,16 +137,17 @@ public class GuiMain extends JFrame {
         });
 
         //add components to panel and specify orientation
-        filePanel.add(fileLabel);
-        filePanel.add(pathButton);
-        filePanel.add(uploadButton);
-        filePanel.add(downloadButton);
-        filePanel.setComponentOrientation(
+        controlPanel.add(fileLabel);
+        controlPanel.add(pathButton);
+        controlPanel.add(uploadButton);
+        controlPanel.add(downloadButton);
+        controlPanel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
 
-        return filePanel;
+        return controlPanel;
     }
 
+    //allows user to input ip and pass and connect to network
     public static JPanel loginPanel() {
         //create panel
         final JPanel loginPanel = new JPanel();
@@ -195,7 +188,10 @@ public class GuiMain extends JFrame {
 
         return loginPanel;    
     }
-    
+
+    //list of peers in the network
+        //TODO: multiple selection
+        //TODO: renders images
     public static JPanel userListPanel() {
     	JPanel userListPanel = new JPanel();
     	JLabel userLabel = new JLabel("users in network:");
@@ -211,6 +207,9 @@ public class GuiMain extends JFrame {
     	return userListPanel;
     }
     
+    //list of files you can recover
+        //TODO: multiple selection
+        //TODO: renders images
     public static JPanel fileListPanel() {
     	JPanel fileListPanel = new JPanel();
     	JLabel fileLabel = new JLabel("files:");
@@ -225,6 +224,7 @@ public class GuiMain extends JFrame {
     	return fileListPanel;
     }
 
+    //bind panels to frame and display the gui
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -246,7 +246,7 @@ public class GuiMain extends JFrame {
 
                 //populate the window
                 frame.add(loginPanel(), BorderLayout.NORTH);
-                frame.add(filePanel(), BorderLayout.SOUTH);
+                frame.add(controlPanel(), BorderLayout.SOUTH);
                 frame.add(userListPanel(), BorderLayout.WEST);
                 frame.add(fileListPanel(), BorderLayout.EAST);
     
