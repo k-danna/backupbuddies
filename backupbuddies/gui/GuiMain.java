@@ -244,27 +244,65 @@ public class GuiMain extends JFrame {
                 //create the window and center it on screen
                 frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setResizable(false);
+                //frame.setResizable(false);
+                Container contentPane = frame.getContentPane();
+                SpringLayout layout = new SpringLayout();
+                contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(500, 500);
-                frame.setLocationRelativeTo(null);
+                frame.setSize(800, 500);
+                //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
                     //this uses the easy yet terrible BorderLayout to
                         //prototype each panel
 
                 //populate the window
-                frame.add(loginPanel(), BorderLayout.NORTH);
-                frame.add(controlPanel(), BorderLayout.SOUTH);
-                frame.add(userListPanel(), BorderLayout.WEST);
-                frame.add(fileListPanel(), BorderLayout.EAST);
-    
+                //frame.add(loginPanel(), BorderLayout.NORTH);
+                //frame.add(controlPanel(), BorderLayout.SOUTH);
+                //frame.add(userListPanel(), BorderLayout.WEST);
+                //frame.add(fileListPanel(), BorderLayout.EAST);
+                JPanel loginPanel = new JPanel();
+                JPanel controlPanel = new JPanel();
+                JScrollPane userListPanel = new JScrollPane();
+                JScrollPane fileListPanel = new JScrollPane();
+                
+                loginPanel = loginPanel();            
+                controlPanel = controlPanel();
+                userListPanel = userListPanel();
+                fileListPanel = fileListPanel();
+                
+                
+                contentPane.add(loginPanel);
+                contentPane.add(controlPanel);
+                contentPane.add(userListPanel);
+                contentPane.add(fileListPanel);
+                
+                layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
+                		             SpringLayout.NORTH, contentPane);
+                layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
+   		                             SpringLayout.WEST, contentPane);
+                
+                layout.putConstraint(SpringLayout.SOUTH, controlPanel, 5,
+   		                             SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
+                                     SpringLayout.WEST, contentPane);
+                
+                layout.putConstraint(SpringLayout.WEST, userListPanel, 5,
+   		                             SpringLayout.WEST, contentPane);
+                layout.putConstraint(SpringLayout.NORTH, userListPanel, 5,
+                                     SpringLayout.SOUTH, loginPanel);
+                
+                layout.putConstraint(SpringLayout.WEST, fileListPanel, 20,
+   		                             SpringLayout.EAST, userListPanel);
+                layout.putConstraint(SpringLayout.NORTH, fileListPanel, 5,
+                                     SpringLayout.SOUTH, loginPanel);
+                
                 //display the window
                     //pack - layout manager auto sizes and auto locates
                         //fixes size issue with insets/border of frame
                         //aka use minimum frame size to display the content
-                frame.pack();
+                //frame.pack();
                 frame.setVisible(true);
 
             }
