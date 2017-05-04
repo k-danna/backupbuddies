@@ -244,13 +244,13 @@ public class GuiMain extends JFrame {
                 //create the window and center it on screen
                 frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                //frame.setResizable(false);
+                frame.setResizable(false);
                 Container contentPane = frame.getContentPane();
                 SpringLayout layout = new SpringLayout();
                 contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(800, 500);
+                frame.setSize(700, 300);
                 //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
@@ -258,10 +258,6 @@ public class GuiMain extends JFrame {
                         //prototype each panel
 
                 //populate the window
-                //frame.add(loginPanel(), BorderLayout.NORTH);
-                //frame.add(controlPanel(), BorderLayout.SOUTH);
-                //frame.add(userListPanel(), BorderLayout.WEST);
-                //frame.add(fileListPanel(), BorderLayout.EAST);
                 JPanel loginPanel = new JPanel();
                 JPanel controlPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
@@ -281,17 +277,17 @@ public class GuiMain extends JFrame {
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
                 layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
-   		                             SpringLayout.WEST, contentPane);
-                
-                layout.putConstraint(SpringLayout.SOUTH, controlPanel, 5,
-   		                             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
-                                     SpringLayout.WEST, contentPane);
+   		                             SpringLayout.WEST, contentPane);               
                 
                 layout.putConstraint(SpringLayout.WEST, userListPanel, 5,
    		                             SpringLayout.WEST, contentPane);
                 layout.putConstraint(SpringLayout.NORTH, userListPanel, 5,
                                      SpringLayout.SOUTH, loginPanel);
+                
+                layout.putConstraint(SpringLayout.NORTH, controlPanel, 5,
+                           SpringLayout.SOUTH, userListPanel);
+                layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
+                        SpringLayout.WEST, contentPane);
                 
                 layout.putConstraint(SpringLayout.WEST, fileListPanel, 20,
    		                             SpringLayout.EAST, userListPanel);
