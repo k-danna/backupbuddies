@@ -3,9 +3,12 @@ package backupbuddies.shared;
 import backupbuddies.network.Network;
 import backupbuddies.network.Peer;
 
-import static backupbuddies.Debug.*;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +18,43 @@ public abstract class Interface {
 
     //true to enable debug fetchlist methods
         //aka you dont have to connect to a network to test
-    static Boolean DEBUG = true;
+    static Boolean DEBUG = false;
 	
 	private static Network network;
+	
+	//Loads the network from disk, from a standard place
+	public static boolean loadNetwork(){
+		try{
+			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			ObjectInputStream stream=new ObjectInputStream(new FileInputStream(networkFile));
+			network=(Network) stream.readObject();
+			if(network != null)
+				network.init();
+			stream.close();
+			return network != null;
+		}catch(IOException | ClassCastException | ClassNotFoundException e){
+			//Mostly for debugging
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	//Saves the network to disk, in a standard place
+	public static boolean saveNetwork(){
+		try{
+			if(network==null)
+				return false;
+			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			ObjectOutputStream stream=new ObjectOutputStream(new FileOutputStream(networkFile));
+			stream.writeObject(network);
+			stream.close();
+			return true;
+		}catch(IOException | ClassCastException e){
+			//Mostly for debugging
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 	/*trigger: GUI-attempting to join a network-logging in with ip of net device & pw of net, also used for creating a net */
 	public static void login(String ip, String pass) {
@@ -66,7 +103,7 @@ public abstract class Interface {
 		Map<String, Integer> result=new HashMap<>();
 		if(network==null)
 			return result;
-		for(String s:network.seenConnections){
+		for(String s:network.seenConnections.keySet()){
 			result.put(s, 0);
 		}
         for(String s:network.getPeerIPAddresses()){

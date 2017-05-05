@@ -3,25 +3,31 @@ package backupbuddies.network;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import backupbuddies.Debug;
+import backupbuddies.Properties;
 
 import static backupbuddies.Debug.*;
 
-public class Network {
+public class Network implements Serializable {
+
+
+	private static final long serialVersionUID = -6752762844617097329L;
 
 	public final String password;
 
 	//You can look up peers by their IP
 	//TODO is this what the GUI team needs?
-	public HashMap<String, Peer> connections = new HashMap<>();
+	public transient HashMap<String, Peer> connections = new HashMap<>();
 	
 	//All connections we have ever seen
-	public HashSet<String> seenConnections = new HashSet<>();
+	public HashMap<String, Long> seenConnections = new HashMap<>();
 
 	/*
 	 * All files we have ever seen
@@ -31,19 +37,42 @@ public class Network {
 	HashSet<String> seenFiles = new HashSet<>();
 	
 	//A lock for the file storage
-	public final Object fileStorageLock = new Object();
+	public transient Object fileStorageLock = new Object();
 	
 	//A hash map from file names to the paths to store them at
-	HashMap<String, String> downloadingFileLocs = new HashMap<>();
+	transient HashMap<String, String> downloadingFileLocs = new HashMap<>();
 	
 	public String storagePath;
 	
+	public Network(){
+		password=null;
+	}
+	
 	public Network(String password){
 		this.password=password;
-		storagePath = new File(System.getProperty("user.home"), "backupbuddies")
+		storagePath = new File(System.getProperty("user.home"), "backupbuddies/files")
 				.getAbsolutePath();
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
+	}
+	
+	//Apparently transient things don't get auto-created
+	//We have to do these things ourselves
+	public void init(){
+		connections = new HashMap<>();
+		fileStorageLock = new Object();
+		downloadingFileLocs = new HashMap<>();
+		for(String s:seenConnections.keySet()){
+			//Maybe you were the one who was offline for 30 days
+			//In that case, you don't want to delete all your peers
+			//Try all your peers first - this will update timeouts
+			//for each.
+			connect(s);
+			if(System.currentTimeMillis() - seenConnections.get(s) 
+					> Properties.PEER_REMEMBER_MILLIS) {
+				seenConnections.remove(s);
+			}
+		}
 	}
 	/*
 	 * Creates a connection to a URL
@@ -79,7 +108,7 @@ public class Network {
 				}
 				//Connect with peer
 				connections.put(peer.url,peer);
-				seenConnections.add(peer.url);
+				seenConnections.put(peer.url, System.currentTimeMillis());
 				// Inform list of peers connected to about new peer
 			}
 		}
