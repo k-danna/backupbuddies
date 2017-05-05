@@ -27,6 +27,8 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
+    static DefaultListModel<String> files = new DefaultListModel<String>();
+    
     static ImageIcon statusRed = new ImageIcon("gui/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("gui/assets/YellowCircle.png");
     static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
@@ -242,21 +244,24 @@ public class GuiMain extends JFrame {
         return pane;
         */
         
-        JList list = new JList(fileMap.keySet().toArray());  
-        Map<String, ImageIcon> searchMap = new HashMap<String, ImageIcon>();
-        JList newList = new JList(fileModel);
+        //JList list = new JList(fileMap.keySet().toArray());  
+        //Map<String, ImageIcon> searchMap = new HashMap<String, ImageIcon>();
+        
+       
         
         Set<String> keys = fileMap.keySet();
         String[] key = keys.toArray(new String[keys.size()]);
-        
+        files.clear();
+
         for(int i=0; i<key.length; i++){
         	if(key[i].startsWith(search)){
-        		fileModel.addElement(key[i]);
-        		//System.out.printf("%s\n", search);
-        	}//else{
-        	//	fileModel.removeElementAt(i);
-        	//}
+        		files.addElement(key[i]);
+        		//System.out.printf("%s\n", key[i]);
+        	}else{
+        		files.removeElement(key[i]);
+        	}
         }
+        JList newList = new JList(files);
         newList.setCellRenderer(new FileListRenderer());
         JScrollPane pane = new JScrollPane(newList);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -285,14 +290,12 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				System.out.printf("insert: "+(search.getText())+ "\n");
 				fileListPanel(search.getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				System.out.printf("removed: " +(search.getText())+"\n");
-				
+				fileListPanel(search.getText());				
 			}
         });
         
@@ -334,7 +337,7 @@ public class GuiMain extends JFrame {
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
-                fileListPanel = fileListPanel("availableFile2");
+                fileListPanel = fileListPanel("");
                 searchPanel = searchPanel();
                                 
                 contentPane.add(loginPanel);
