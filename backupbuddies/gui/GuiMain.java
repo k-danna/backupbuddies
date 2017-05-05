@@ -3,6 +3,9 @@ package backupbuddies.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.*;
@@ -233,6 +236,43 @@ public class GuiMain extends JFrame {
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
     }
+    
+    public static JPanel searchPanel() {
+    	JPanel panel = new JPanel();
+    	JLabel label = new JLabel("search for file:");
+        JTextField search = new JTextField("search");
+        
+        search.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                search.setText("");
+            }
+        });
+        
+        search.getDocument().addDocumentListener(new DocumentListener(){
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				System.out.printf("changed\n");				
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				System.out.printf("insert: "+(search.getText())+ "\n");
+				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				System.out.printf("removed\n");
+				
+			}
+        });
+        
+        panel.add(label);
+        panel.add(search);
+        return panel;
+    }
 
     //bind panels to frame and display the gui
     public static void startGui() {
@@ -260,6 +300,7 @@ public class GuiMain extends JFrame {
                 //populate the window
                 JPanel loginPanel = new JPanel();
                 JPanel controlPanel = new JPanel();
+                JPanel searchPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
                 
@@ -267,11 +308,13 @@ public class GuiMain extends JFrame {
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel();
+                searchPanel = searchPanel();
                                 
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
+                contentPane.add(searchPanel);
                 
                 //set locations for each panel
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
@@ -293,6 +336,12 @@ public class GuiMain extends JFrame {
    		                             SpringLayout.EAST, userListPanel);
                 layout.putConstraint(SpringLayout.NORTH, fileListPanel, 5,
                                      SpringLayout.SOUTH, loginPanel);
+                
+                layout.putConstraint(SpringLayout.WEST, searchPanel, 25,
+                                     SpringLayout.EAST, userListPanel);
+                layout.putConstraint(SpringLayout.NORTH, searchPanel, 7,
+                                     SpringLayout.NORTH, contentPane);
+   
                 
                 //display the window
                     //pack - layout manager auto sizes and auto locates
