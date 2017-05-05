@@ -7,8 +7,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
+import java.lang.Object;
 
 //do not import util.*
 //there is a Timer class in util and swing that conflict
@@ -224,24 +226,49 @@ public class GuiMain extends JFrame {
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
     }
-    
+
     //list of files you can recover
         //TODO: multiple selection
         //TODO: renders images
-    public static JScrollPane fileListPanel() {
+
+    public static JScrollPane fileListPanel(String search) {
         fileMap = fetchAndProcess("files");
+        
+        /*
         JList list = new JList(fileMap.keySet().toArray());
         list.setCellRenderer(new FileListRenderer());
         JScrollPane pane = new JScrollPane(list);
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
+        */
+        
+        JList list = new JList(fileMap.keySet().toArray());  
+        Map<String, ImageIcon> searchMap = new HashMap<String, ImageIcon>();
+        JList newList = new JList(fileModel);
+        
+        Set<String> keys = fileMap.keySet();
+        String[] key = keys.toArray(new String[keys.size()]);
+        
+        for(int i=0; i<key.length; i++){
+        	if(key[i].startsWith(search)){
+        		fileModel.addElement(key[i]);
+        		//System.out.printf("%s\n", search);
+        	}//else{
+        	//	fileModel.removeElementAt(i);
+        	//}
+        }
+        newList.setCellRenderer(new FileListRenderer());
+        JScrollPane pane = new JScrollPane(newList);
+        pane.setPreferredSize(new Dimension(300, 100));
+      
+        return pane;
+       
     }
     
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
     	JLabel label = new JLabel("search for file:");
         JTextField search = new JTextField("search");
-        
         search.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -253,18 +280,18 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
-				System.out.printf("changed\n");				
+				System.out.printf("changed\n");
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
 				System.out.printf("insert: "+(search.getText())+ "\n");
-				
+				fileListPanel(search.getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				System.out.printf("removed\n");
+				System.out.printf("removed: " +(search.getText())+"\n");
 				
 			}
         });
@@ -307,7 +334,7 @@ public class GuiMain extends JFrame {
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
-                fileListPanel = fileListPanel();
+                fileListPanel = fileListPanel("availableFile2");
                 searchPanel = searchPanel();
                                 
                 contentPane.add(loginPanel);
