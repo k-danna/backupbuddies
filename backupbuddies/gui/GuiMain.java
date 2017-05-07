@@ -29,15 +29,35 @@ public class GuiMain extends JFrame {
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
     static DefaultListModel<String> files = new DefaultListModel<String>();
     
-    static ImageIcon statusRed = new ImageIcon("gui/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("gui/assets/YellowCircle.png");
+    static ImageIcon statusRed = new ImageIcon("/bin/backupbuddies/gui/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("backupbuddoes/backupbuddies/gui/assets/YellowCircle.png");
     static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
     static Map<String, ImageIcon> userMap = fetchAndProcess("users");
     static Map<String, ImageIcon> fileMap = fetchAndProcess("files");
-
+    
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
+
+    public static JScrollPane listModel(){
+    	ListModel one = new ListModel("file1", "red");
+    	ListModel two = new ListModel("file2", "green");
+    	ListModel three = new ListModel("file3", "yellow");
+    	
+    	System.out.println("hi\n");
+    	
+    	DefaultListModel<ListModel> model = new DefaultListModel<>();
+    	model.addElement(one);
+    	model.addElement(two);
+    	model.addElement(three);
+    	
+    	JList<ListModel> modelList = new JList<>(model);
+    	JScrollPane hi = new JScrollPane(modelList);
+    	modelList.setCellRenderer(new ListRenderer());
+    	return hi;
+    }
+    
+    
     public static Map<String, ImageIcon> fetchAndProcess(String type) {
         //get data
         Map<String, Integer> map = new HashMap<String, Integer>(); 
@@ -333,19 +353,21 @@ public class GuiMain extends JFrame {
                 JPanel searchPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
+                JScrollPane hit = new JScrollPane();
                 
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel("");
                 searchPanel = searchPanel();
+                hit = listModel();
                                 
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
                 contentPane.add(searchPanel);
-                
+                contentPane.add(hit);
                 //set locations for each panel
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
