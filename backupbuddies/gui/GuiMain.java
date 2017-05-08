@@ -35,9 +35,9 @@ public class GuiMain extends JFrame {
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
-    static ImageIcon statusRed = new ImageIcon("/bin/backupbuddies/gui/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("backupbuddoes/backupbuddies/gui/assets/YellowCircle.png");
-    static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
+    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     
