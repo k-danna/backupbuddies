@@ -87,8 +87,8 @@ public abstract class Interface {
             ListModel b = new ListModel("offlineUser2","0");
             ListModel c = new ListModel("offlineUser3","0");
             ListModel d = new ListModel("onlineUser1","1");
-            ListModel e = new ListModel("onlineUser1","1");
-            ListModel f = new ListModel("onlineUser1","1");
+            ListModel e = new ListModel("onlineUser2","1");
+            ListModel f = new ListModel("onlineUser3","1");
             
             result.addElement(a);
             result.addElement(b);

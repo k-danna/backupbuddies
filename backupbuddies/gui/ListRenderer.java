@@ -1,14 +1,14 @@
 package backupbuddies.gui;
 
 import java.awt.Component;
-import java.net.URL;
+//import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import backupbuddies.Main;
+//import backupbuddies.Main;
 
 public class ListRenderer extends JLabel implements ListCellRenderer<ListModel> {
 	 

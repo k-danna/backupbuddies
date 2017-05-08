@@ -17,6 +17,7 @@ import java.lang.Object;
 //currently using swing timer
 
 import backupbuddies.shared.Interface;
+import backupbuddies.gui.ListModel;
 import static backupbuddies.Debug.*;
 
 @SuppressWarnings("serial")
@@ -28,6 +29,11 @@ public class GuiMain extends JFrame {
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
     static DefaultListModel<String> files = new DefaultListModel<String>();
+    
+    static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
+    static JList<ListModel> hi = new JList<ListModel>();
+    
+    static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
     static ImageIcon statusRed = new ImageIcon("/bin/backupbuddies/gui/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("backupbuddoes/backupbuddies/gui/assets/YellowCircle.png");
@@ -77,10 +83,10 @@ public class GuiMain extends JFrame {
         return iconMap;
     }*/
     
-    public static JList fetchAndProcess(String type) {
+    public static JList<ListModel> fetchAndProcess(String type) {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
-        DefaultListModel<ListModel> debug = new DefaultListModel<>();
+        //debug = new DefaultListModel<>();
         if (type.equals("users")) debug = Interface.fetchUserList();
         else if (type.equals("files")) debug = Interface.fetchFileList();
         
@@ -102,7 +108,7 @@ public class GuiMain extends JFrame {
         ActionListener updateUI = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 userMap = fetchAndProcess("users");
-                userMap = fetchAndProcess("files");
+                fileMap = fetchAndProcess("files");
             }
         };
         Timer timer = new Timer(interval, updateUI);
@@ -274,38 +280,32 @@ public class GuiMain extends JFrame {
         //TODO: renders images
 
     public static JScrollPane fileListPanel(String search) {
-        //fileMap = fetchAndProcess("files");
-        
-        
-        JList<ListModel> list = new JList<ListModel>(Interface.fetchFileList());
-        list.setCellRenderer(new ListRenderer());
-        JScrollPane pane = new JScrollPane(list);
-        pane.setPreferredSize(new Dimension(300, 100));
-        return pane;
-        
-        
-        //JList list = new JList(fileMap.keySet().toArray());  
-        //Map<String, ImageIcon> searchMap = new HashMap<String, ImageIcon>();
-        
-        //Set<String> keys = fileMap.keySet();
-        //String[] key = keys.toArray(new String[keys.size()]);
-        //files.clear();
+    	
+    	test = (Interface.fetchFileList());
+        hi.setModel(test);
 
-        /*for(int i=0; i<list.getModel().getSize(); i++){
-        	if(list.startsWith(search)){
-        		files.addElement(key[i]);
-        		//System.out.printf("%s\n", key[i]);
-        	}else{
-        		files.removeElement(key[i]);
+        hi.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(hi);
+        pane.setPreferredSize(new Dimension(300, 100));
+       
+        return pane;
+       
+    }
+
+    public static void fileSearch(String search){
+    	int cap = debug.getSize();
+    	//DefaulListModel<ListModel> test = new DefaultListModel<ListModel>();
+        test.clear();
+        for(int i=0; i<cap; i++){
+        	ListModel model = debug.elementAt(i);
+        	String name = model.getName();
+      
+        	if(name.startsWith(search)){
+        	    ListModel add = new ListModel(model.getName(), model.getStatus());
+        	    test.addElement(add);
+                
         	}
         }
-        JList newList = new JList(files);
-        newList.setCellRenderer(new FileListRenderer());
-        JScrollPane pane = new JScrollPane(newList);
-        pane.setPreferredSize(new Dimension(300, 100));
-      
-        return pane;
-       */
     }
     
     public static JPanel searchPanel() {
@@ -328,12 +328,12 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				fileListPanel(search.getText());
+				fileSearch(search.getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				fileListPanel(search.getText());				
+				fileSearch(search.getText());				
 			}
         });
         
@@ -418,6 +418,9 @@ public class GuiMain extends JFrame {
                         //fixes size issue with insets/border of frame
                         //aka use minimum frame size to display the content
                 //frame.pack();
+                //frame.
+                frame.validate();
+                frame.repaint();
                 frame.setVisible(true);
 
             }
