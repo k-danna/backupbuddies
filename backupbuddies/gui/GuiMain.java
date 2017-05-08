@@ -373,7 +373,7 @@ public class GuiMain extends JFrame {
                 contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(700, 300);
+                frame.setSize(700, 400);
                 //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
@@ -409,8 +409,10 @@ public class GuiMain extends JFrame {
                 //set locations for each panel
                 layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
                 		             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.SOUTH, logPanel, 5,
+                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
                 		             SpringLayout.SOUTH, contentPane);
+                //layout.putConstraint(SpringLayout.EAST, logPanel, 5,
+                //		             SpringLayout.WEST, contentPane);
 
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
