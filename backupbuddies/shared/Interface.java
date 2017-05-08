@@ -59,6 +59,9 @@ public abstract class Interface {
 
     //FIXME: get event list
     public static List<String> getEventLog() {
+        //note that this array can be cleared at any time and functionality still works
+            //ie you add events until size is 100, then clear the array
+            //handled by gui
         List<String> eventLog = new ArrayList<>();
         eventLog.add("event 0");
         eventLog.add("event 1");

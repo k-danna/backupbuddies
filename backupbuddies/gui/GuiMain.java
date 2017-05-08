@@ -68,10 +68,18 @@ public class GuiMain extends JFrame {
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
                 
+                //FIXME: this gets slower as more events are added
+                    //prevArray --> int (length of last returned array)
+                    //change to check length of returned array
+                    //append the last (len(events) - prevLength) elements to log
+                        //if this is negative they cleared the event log
+                            //only reset prevArraysize variable
+
                 List<String> events = Interface.getEventLog();
                 for (String event : events) {
                     if (!prevEvents.contains(event)) {
                         log.append(event + "\n");
+                        log.setCaretPosition(log.getDocument().getLength());
                     }
                 }
                 prevEvents = events;
