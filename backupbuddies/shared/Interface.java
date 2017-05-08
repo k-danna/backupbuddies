@@ -11,6 +11,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -44,6 +46,26 @@ public abstract class Interface {
 	    	peer.requestUpdatedFileList();
 	    }
 	}
+
+    //FIXME: pass encryption key
+    public static void setEncryptKey(String key) {
+        System.out.printf("[+] set encrypt key to: %s\n", key);
+    }
+
+    //FIXME: pass storage amount
+    public static void setStorageSpace(int amount) {
+        System.out.printf("[+] set storage space to: %d\n", amount);
+    }
+
+    //FIXME: get event list
+    public static List<String> getEventLog() {
+        List<String> eventLog = new ArrayList<>();
+        eventLog.add("event 0");
+        eventLog.add("event 1");
+        eventLog.add("event 2");
+        eventLog.add("event 3");
+        return eventLog;
+    }
 
 	public static void downloadFile(String fileName, String fileDir) {
 	    System.out.printf("[+] downloading '%s' to '%s'\n", 

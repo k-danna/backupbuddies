@@ -1,4 +1,4 @@
-
+#!/bin/bash
 javac -sourcepath .. Main.java
 java -cp .. backupbuddies.Main
 

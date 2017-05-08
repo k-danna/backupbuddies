@@ -5,7 +5,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -34,6 +38,8 @@ public class GuiMain extends JFrame {
     static JList<ListModel> hi = new JList<ListModel>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
+    static final JTextArea log = new JTextArea(5, 20);
+    static List<String> prevEvents = new ArrayList<>();
     
     static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowCircle.png");
@@ -61,6 +67,15 @@ public class GuiMain extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
+                
+                List<String> events = Interface.getEventLog();
+                for (String event : events) {
+                    if (!prevEvents.contains(event)) {
+                        log.append(event + "\n");
+                    }
+                }
+                prevEvents = events;
+
             }
         };
         Timer timer = new Timer(interval, updateUI);
@@ -224,7 +239,7 @@ public class GuiMain extends JFrame {
         	ListModel model = debug.elementAt(i);
         	String name = model.getName();
       
-        	if(name.startsWith(search)){
+        	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
         	    test.addElement(add);
                 
@@ -266,6 +281,74 @@ public class GuiMain extends JFrame {
         return panel;
     }
 
+    public static JPanel varsPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        //create components
+        final JLabel varsPanelLabel = new JLabel("enter encryption key:");
+        final JButton lockPassButton = new JButton("confirm key");
+        final JTextField keyField = new JTextField("encryption key");
+        
+        //bind methods to buttons
+        lockPassButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Interface.setEncryptKey(keyField.getText());
+            }
+        });
+        keyField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                keyField.setText("");
+            }
+        });
+
+        int min = 0;
+        int max = 1000;
+        int init = 1;
+        final JLabel sliderLabel = new JLabel("storage (GB):");
+        final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
+        slider.setMajorTickSpacing(max / 10);
+        slider.setPaintTicks(true);
+
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!slider.getValueIsAdjusting()) {
+                    Interface.setStorageSpace(slider.getValue());
+                }
+            }
+        });
+
+
+        //add components to panel and specify orientation
+        panel.add(varsPanelLabel);
+        panel.add(keyField);
+        panel.add(lockPassButton);
+        panel.add(sliderLabel);
+        panel.add(slider);
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+
+        return panel;    
+    }
+
+    public static JPanel logPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        //create components
+        final JLabel logLabel = new JLabel("event log");
+        log.setEditable(false);
+
+        //log.append(text + newline)
+
+        panel.add(logLabel);
+        panel.add(log);
+        return panel;
+    }
+
     //bind panels to frame and display the gui
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -293,6 +376,8 @@ public class GuiMain extends JFrame {
                 JPanel loginPanel = new JPanel();
                 JPanel controlPanel = new JPanel();
                 JPanel searchPanel = new JPanel();
+                JPanel varsPanel = new JPanel();
+                JPanel logPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
                 JScrollPane hit = new JScrollPane();
@@ -302,15 +387,23 @@ public class GuiMain extends JFrame {
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel("");
                 searchPanel = searchPanel();
-                
+                varsPanel = varsPanel();
+                logPanel = logPanel();
                                 
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
                 contentPane.add(searchPanel);
+                contentPane.add(varsPanel);
+                contentPane.add(logPanel);
                 contentPane.add(hit);
                 //set locations for each panel
+                layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
+                		             SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.SOUTH, logPanel, 5,
+                		             SpringLayout.SOUTH, contentPane);
+
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
                 layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
