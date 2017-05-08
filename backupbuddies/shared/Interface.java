@@ -56,29 +56,6 @@ public abstract class Interface {
 	    }
 	}
 
-	/*public static Map<String, Integer> fetchUserList(){
-	    //DEBUG set at top of class
-	    if (DEBUG) {
-            Map<String, Integer> result = new HashMap<>();
-            result.put("offlineUser1", 0);
-            result.put("onlineUser1", 1);
-            result.put("offlineUser2", 0);
-            result.put("onlineUser2", 1);
-            result.put("offlineUser3", 0);
-            result.put("onlineUser3", 1);
-            return result;
-	    }
-		Map<String, Integer> result=new HashMap<>();
-		if(network==null)
-			return result;
-		for(String s:network.seenConnections){
-			result.put(s, 0);
-		}
-        for(String s:network.getPeerIPAddresses()){
-        	 result.put(s, 1);
-		}
-        return result;
-	}*/
 	public static DefaultListModel<ListModel> fetchUserList(){
 	    //DEBUG set at top of class
 	    if (DEBUG) {
@@ -148,35 +125,6 @@ public abstract class Interface {
 	}
 	
 	
-
-	/*public static Map<String, Integer> fetchFileList(){
-	    //DEBUG set at top of class
-	    if (DEBUG) {
-            Map<String, Integer> result = new HashMap<>();
-            result.put("unavailableFile1", 0);
-            result.put("availableFile1", 1);
-            result.put("fileInTransit1", 2);
-            result.put("unavailableFile2", 0);
-            result.put("availableFile2", 1);
-            result.put("fileInTransit2", 2);
-            result.put("unavailableFile3", 0);
-            result.put("availableFile3", 1);
-            result.put("fileInTransit3", 2);
-            return result;
-	    }
-		Map<String, Integer> fileMap=new HashMap<>();
-		if(network==null)
-			return fileMap;
-	    for(String file :network.getKnownFiles()){
-	    	fileMap.put(file, 0);
-	    }
-	    for(Peer peer:network.connections.values()){
-	    	for(String file:peer.getKnownFiles()){
-	    		fileMap.put(file, 1);
-	    	}
-	    }
-	    return fileMap;
-	}*/
 	
 	
 	

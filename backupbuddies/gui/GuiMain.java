@@ -44,44 +44,6 @@ public class GuiMain extends JFrame {
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
-
-   /* public static JScrollPane listModel(){
-    	ListModel one = new ListModel("file1", "red");
-    	ListModel two = new ListModel("file2", "green");
-    	ListModel three = new ListModel("file3", "yellow");
-    	
-    	System.out.println("hi\n");
-    	
-    	DefaultListModel<ListModel> model = new DefaultListModel<>();
-    	model.addElement(one);
-    	model.addElement(two);
-    	model.addElement(three);
-    	
-    	JList<ListModel> modelList = new JList<>(model);
-    	JScrollPane hi = new JScrollPane(modelList);
-    	modelList.setCellRenderer(new ListRenderer());
-    	return hi;
-    }*/
-    
-    
-    /*public static Map<String, ImageIcon> fetchAndProcess(String type) {
-        //get data
-        Map<String, Integer> map = new HashMap<String, Integer>(); 
-        if (type.equals("users")) map = Interface.fetchUserList();
-        else if (type.equals("files")) map = Interface.fetchFileList();
-        
-        //replace int with img
-        Map<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-        for  (Map.Entry<String, Integer> entry : map.entrySet()) {
-            switch (entry.getValue()) {
-                case 0: iconMap.put(entry.getKey(), statusRed); break;
-                case 1: iconMap.put(entry.getKey(), statusGreen); break;
-                case 2: iconMap.put(entry.getKey(), statusYellow); break;
-                default: iconMap.put(entry.getKey(), statusRed); break;
-            }
-        }
-        return iconMap;
-    }*/
     
     public static JList<ListModel> fetchAndProcess(String type) {
         //get data
@@ -90,16 +52,6 @@ public class GuiMain extends JFrame {
         if (type.equals("users")) debug = Interface.fetchUserList();
         else if (type.equals("files")) debug = Interface.fetchFileList();
         
-        //replace int with img
-       /* Map<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-        for  (Map.Entry<String, Integer> entry : map.entrySet()) {
-            switch (entry.getValue()) {
-                case 0: iconMap.put(entry.getKey(), statusRed); break;
-                case 1: iconMap.put(entry.getKey(), statusGreen); break;
-                case 2: iconMap.put(entry.getKey(), statusYellow); break;
-                default: iconMap.put(entry.getKey(), statusRed); break;
-            }
-        }*/
         return map;
     }
 
@@ -135,7 +87,6 @@ public class GuiMain extends JFrame {
         browser.setDialogTitle("choose file to upload");
         if (browser.showOpenDialog(frame) == 
                 JFileChooser.APPROVE_OPTION) {
-            //browser.getSelectedFile().toString() for full path w/filename
                 //since download will be separate name and directory
                 //might be easier to keep separate
             Interface.uploadFile(browser.getSelectedFile().getName(),
@@ -237,32 +188,6 @@ public class GuiMain extends JFrame {
         return loginPanel;    
     }
 
-   /* public static class UserListRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList list, 
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
-            JLabel label = (JLabel)super.getListCellRendererComponent(
-                    list, value, index, isSelected, cellHasFocus);
-            label.setIcon(userMap.get((String)value));
-            label.setHorizontalTextPosition(JLabel.RIGHT);
-            return label;
-        }
-    }*/
-
-    /*public static class FileListRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList list, 
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
-            JLabel label = (JLabel)super.getListCellRendererComponent(
-                    list, value, index, isSelected, cellHasFocus);
-            label.setIcon(fileMap.get((String)value));
-            label.setHorizontalTextPosition(JLabel.RIGHT);
-            return label;
-        }
-    }*/
-
     //list of peers in the network
         //TODO: multiple selection
         //TODO: renders images
@@ -294,7 +219,6 @@ public class GuiMain extends JFrame {
 
     public static void fileSearch(String search){
     	int cap = debug.getSize();
-    	//DefaulListModel<ListModel> test = new DefaultListModel<ListModel>();
         test.clear();
         for(int i=0; i<cap; i++){
         	ListModel model = debug.elementAt(i);
@@ -418,7 +342,6 @@ public class GuiMain extends JFrame {
                         //fixes size issue with insets/border of frame
                         //aka use minimum frame size to display the content
                 //frame.pack();
-                //frame.
                 frame.validate();
                 frame.repaint();
                 frame.setVisible(true);
