@@ -32,14 +32,14 @@ public class GuiMain extends JFrame {
     static ImageIcon statusRed = new ImageIcon("/bin/backupbuddies/gui/assets/RedCircle.png");
     static ImageIcon statusYellow = new ImageIcon("backupbuddoes/backupbuddies/gui/assets/YellowCircle.png");
     static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
-    static Map<String, ImageIcon> userMap = fetchAndProcess("users");
-    static Map<String, ImageIcon> fileMap = fetchAndProcess("files");
+    static JList<ListModel> userMap = fetchAndProcess("users");
+    static JList<ListModel> fileMap = fetchAndProcess("files");
     
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
 
-    public static JScrollPane listModel(){
+   /* public static JScrollPane listModel(){
     	ListModel one = new ListModel("file1", "red");
     	ListModel two = new ListModel("file2", "green");
     	ListModel three = new ListModel("file3", "yellow");
@@ -55,10 +55,10 @@ public class GuiMain extends JFrame {
     	JScrollPane hi = new JScrollPane(modelList);
     	modelList.setCellRenderer(new ListRenderer());
     	return hi;
-    }
+    }*/
     
     
-    public static Map<String, ImageIcon> fetchAndProcess(String type) {
+    /*public static Map<String, ImageIcon> fetchAndProcess(String type) {
         //get data
         Map<String, Integer> map = new HashMap<String, Integer>(); 
         if (type.equals("users")) map = Interface.fetchUserList();
@@ -75,6 +75,26 @@ public class GuiMain extends JFrame {
             }
         }
         return iconMap;
+    }*/
+    
+    public static JList fetchAndProcess(String type) {
+        //get data
+        JList<ListModel> map = new JList<ListModel>(); 
+        DefaultListModel<ListModel> debug = new DefaultListModel<>();
+        if (type.equals("users")) debug = Interface.fetchUserList();
+        else if (type.equals("files")) debug = Interface.fetchFileList();
+        
+        //replace int with img
+       /* Map<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
+        for  (Map.Entry<String, Integer> entry : map.entrySet()) {
+            switch (entry.getValue()) {
+                case 0: iconMap.put(entry.getKey(), statusRed); break;
+                case 1: iconMap.put(entry.getKey(), statusGreen); break;
+                case 2: iconMap.put(entry.getKey(), statusYellow); break;
+                default: iconMap.put(entry.getKey(), statusRed); break;
+            }
+        }*/
+        return map;
     }
 
     //updates ui on interval
@@ -211,7 +231,7 @@ public class GuiMain extends JFrame {
         return loginPanel;    
     }
 
-    public static class UserListRenderer extends DefaultListCellRenderer {
+   /* public static class UserListRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList list, 
                 Object value, int index, boolean isSelected,
@@ -222,9 +242,9 @@ public class GuiMain extends JFrame {
             label.setHorizontalTextPosition(JLabel.RIGHT);
             return label;
         }
-    }
+    }*/
 
-    public static class FileListRenderer extends DefaultListCellRenderer {
+    /*public static class FileListRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList list, 
                 Object value, int index, boolean isSelected,
@@ -235,15 +255,15 @@ public class GuiMain extends JFrame {
             label.setHorizontalTextPosition(JLabel.RIGHT);
             return label;
         }
-    }
+    }*/
 
     //list of peers in the network
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-        userMap = fetchAndProcess("users");
-        JList list = new JList(userMap.keySet().toArray());
-        list.setCellRenderer(new UserListRenderer());
+        //userMap = fetchAndProcess("users");
+        JList<ListModel> list = new JList<ListModel>(Interface.fetchUserList());
+        list.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(list);
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
@@ -254,27 +274,25 @@ public class GuiMain extends JFrame {
         //TODO: renders images
 
     public static JScrollPane fileListPanel(String search) {
-        fileMap = fetchAndProcess("files");
+        //fileMap = fetchAndProcess("files");
         
-        /*
-        JList list = new JList(fileMap.keySet().toArray());
-        list.setCellRenderer(new FileListRenderer());
+        
+        JList<ListModel> list = new JList<ListModel>(Interface.fetchFileList());
+        list.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(list);
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
-        */
+        
         
         //JList list = new JList(fileMap.keySet().toArray());  
         //Map<String, ImageIcon> searchMap = new HashMap<String, ImageIcon>();
         
-       
-        
-        Set<String> keys = fileMap.keySet();
-        String[] key = keys.toArray(new String[keys.size()]);
-        files.clear();
+        //Set<String> keys = fileMap.keySet();
+        //String[] key = keys.toArray(new String[keys.size()]);
+        //files.clear();
 
-        for(int i=0; i<key.length; i++){
-        	if(key[i].startsWith(search)){
+        /*for(int i=0; i<list.getModel().getSize(); i++){
+        	if(list.startsWith(search)){
         		files.addElement(key[i]);
         		//System.out.printf("%s\n", key[i]);
         	}else{
@@ -287,7 +305,7 @@ public class GuiMain extends JFrame {
         pane.setPreferredSize(new Dimension(300, 100));
       
         return pane;
-       
+       */
     }
     
     public static JPanel searchPanel() {
@@ -360,7 +378,7 @@ public class GuiMain extends JFrame {
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel("");
                 searchPanel = searchPanel();
-                hit = listModel();
+                
                                 
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);

@@ -1,7 +1,9 @@
 package backupbuddies.shared;
 
+
 import backupbuddies.network.Network;
 import backupbuddies.network.Peer;
+import backupbuddies.gui.ListModel;
 
 import static backupbuddies.Debug.*;
 
@@ -9,6 +11,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 
 
 public abstract class Interface {
@@ -51,7 +56,7 @@ public abstract class Interface {
 	    }
 	}
 
-	public static Map<String, Integer> fetchUserList(){
+	/*public static Map<String, Integer> fetchUserList(){
 	    //DEBUG set at top of class
 	    if (DEBUG) {
             Map<String, Integer> result = new HashMap<>();
@@ -73,9 +78,78 @@ public abstract class Interface {
         	 result.put(s, 1);
 		}
         return result;
+	}*/
+	public static DefaultListModel<ListModel> fetchUserList(){
+	    //DEBUG set at top of class
+	    if (DEBUG) {
+            DefaultListModel<ListModel> result = new DefaultListModel<>();
+            ListModel a = new ListModel("offlineUser1","0");
+            ListModel b = new ListModel("offlineUser2","0");
+            ListModel c = new ListModel("offlineUser3","0");
+            ListModel d = new ListModel("onlineUser1","1");
+            ListModel e = new ListModel("onlineUser1","1");
+            ListModel f = new ListModel("onlineUser1","1");
+            
+            result.addElement(a);
+            result.addElement(b);
+            result.addElement(c);
+            result.addElement(d);
+            result.addElement(e);
+            result.addElement(f);
+            return result;
+	    }
+		DefaultListModel<ListModel> result=new DefaultListModel<>();
+		if(network==null)
+			return result;
+		/*for(String s:network.seenConnections){
+			result.put(s, 0);
+		}
+        for(String s:network.getPeerIPAddresses()){
+        	 result.put(s, 1);
+		}*/
+        return result;
 	}
+   
+	public static DefaultListModel<ListModel> fetchFileList(){
+	    //DEBUG set at top of class
+	    if (DEBUG) {
+	    	 DefaultListModel<ListModel> result = new DefaultListModel<>();
+	            ListModel a = new ListModel("unavailableFile1","0");
+	            ListModel b = new ListModel("availableFile1","1");
+	            ListModel c = new ListModel("fileInTransit1","2");
+	            ListModel d = new ListModel("unavailableFile2","0");
+	            ListModel e = new ListModel("availableFile2","1");
+	            ListModel f = new ListModel("fileInTransit2","2");
+	            ListModel g = new ListModel("unavailableFile3","0");
+	            ListModel h = new ListModel("availableFile3","1");
+	            ListModel i = new ListModel("fileInTransit3","2");
+	            
+	            result.addElement(a);
+	            result.addElement(b);
+	            result.addElement(c);
+	            result.addElement(d);
+	            result.addElement(e);
+	            result.addElement(f);
+	            return result;           
+	    }
+		DefaultListModel<ListModel> fileMap=new DefaultListModel<>();
+		if(network==null)
+			return fileMap;
+		/*
+	    for(String file :network.getKnownFiles()){
+	    	fileMap.put(file, 0);
+	    }
+	    for(Peer peer:network.connections.values()){
+	    	for(String file:peer.getKnownFiles()){
+	    		fileMap.put(file, 1);
+	    	}
+	    }*/
+	    return fileMap;
+	}
+	
+	
 
-	public static Map<String, Integer> fetchFileList(){
+	/*public static Map<String, Integer> fetchFileList(){
 	    //DEBUG set at top of class
 	    if (DEBUG) {
             Map<String, Integer> result = new HashMap<>();
@@ -102,7 +176,9 @@ public abstract class Interface {
 	    	}
 	    }
 	    return fileMap;
-	}
+	}*/
+	
+	
 	
 	public static void testFile(String fileDir){
 	    network.storagePath=fileDir;
