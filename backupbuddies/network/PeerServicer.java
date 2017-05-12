@@ -107,6 +107,17 @@ final class PeerServicer implements Runnable {
 		//This throws an IAE if the UUID is not valid
 		UUID.fromString(theirToken);
 		
+		//Prevents an attack where
+		//		A = attacker
+		//		B = honest peer
+		//B sends their token
+		//A waits for this, then sends back the same token
+		//B sends hash(their token + their token + password)
+		//A sends that same hash back
+		//B accepts it because swapping the tokens doesn't change it
+		if(peer.token.equals(theirToken))
+			throw new IllegalArgumentException();
+		
 		peer.sendLoginToken(theirToken);
 		
 		byte[] targetHash = Peer.computeHash(theirToken + peer.token + peer.network.password);
