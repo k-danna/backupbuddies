@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
-import java.lang.Object;
 
 //do not import util.*
 //there is a Timer class in util and swing that conflict
@@ -120,11 +119,16 @@ public class GuiMain extends JFrame {
     //user downloads a file to save directory (and chooses if not set)
     public static void setDirAndDownload() {
         //FIXME: need to have a list of uploaded files to choose from
-        String fileToGet = "test.txt";
+        //String fileToGet = "test.txt";
         if (saveDir.getText().equals("")) {
             setSaveDir();
         }
-        Interface.downloadFile(fileToGet, saveDir.getText());
+
+		int[] selected = hi.getSelectedIndices();
+        for(int i=0; i<selected.length; i++){
+        	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
+        	Interface.downloadFile(hi.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
+        }
     }
 
     //upload, download, save control buttons
