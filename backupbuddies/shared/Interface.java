@@ -83,8 +83,8 @@ public abstract class Interface {
 
 	public static DefaultListModel<ListModel> fetchUserList(){
 	    //DEBUG set at top of class
-	    if (DEBUG) {
-            DefaultListModel<ListModel> result = new DefaultListModel<>();
+		DefaultListModel<ListModel> result = new DefaultListModel<>();
+	    if (DEBUG) {            
             ListModel a = new ListModel("offlineUser1","0");
             ListModel b = new ListModel("offlineUser2","0");
             ListModel c = new ListModel("offlineUser3","0");
@@ -100,22 +100,25 @@ public abstract class Interface {
             result.addElement(f);
             return result;
 	    }
-		DefaultListModel<ListModel> result=new DefaultListModel<>();
+		//DefaultListModel<ListModel> result=new DefaultListModel<>();
 		if(network==null)
 			return result;
-		/*for(String s:network.seenConnections){
-			result.put(s, 0);
+		for(String s:network.seenConnections){
+			ListModel a = new ListModel(s,"0");
+			result.addElement(a);
 		}
         for(String s:network.getPeerIPAddresses()){
-        	 result.put(s, 1);
-		}*/
+        	ListModel a = new ListModel(s,"1");
+        	result.addElement(a);
+		}
         return result;
 	}
    
 	public static DefaultListModel<ListModel> fetchFileList(){
 	    //DEBUG set at top of class
+		DefaultListModel<ListModel> result = new DefaultListModel<>();
 	    if (DEBUG) {
-	    	 DefaultListModel<ListModel> result = new DefaultListModel<>();
+	    	 
 	            ListModel a = new ListModel("unavailableFile1","0");
 	            ListModel b = new ListModel("availableFile1","1");
 	            ListModel c = new ListModel("fileInTransit1","2");
@@ -134,19 +137,20 @@ public abstract class Interface {
 	            result.addElement(f);
 	            return result;           
 	    }
-		DefaultListModel<ListModel> fileMap=new DefaultListModel<>();
 		if(network==null)
-			return fileMap;
-		/*
+			return result;
+
 	    for(String file :network.getKnownFiles()){
-	    	fileMap.put(file, 0);
+	    	ListModel a = new ListModel(file, "0");
+	    	result.addElement(a);
 	    }
 	    for(Peer peer:network.connections.values()){
 	    	for(String file:peer.getKnownFiles()){
-	    		fileMap.put(file, 1);
+	    		ListModel a = new ListModel(file, "1");
+	    		result.addElement(a);
 	    	}
-	    }*/
-	    return fileMap;
+	    }
+	    return result;
 	}
 	
 	
