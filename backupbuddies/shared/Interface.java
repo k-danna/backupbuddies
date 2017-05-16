@@ -22,7 +22,7 @@ public abstract class Interface {
 
     //true to enable debug fetchlist methods
         //aka you dont have to connect to a network to test
-    static Boolean DEBUG = true;
+    static Boolean DEBUG = false;
 	
 	private static Network network;
 
@@ -35,16 +35,16 @@ public abstract class Interface {
 	}
 
 	/*trigger:  */
-	public static void uploadFile(String fileName, String fileDir, String[] selectedUsers) {
+	public static void uploadFile(String fileName, String fileDir, String peerName) {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
 	   
 	    Path filePath = new File(fileDir,fileName).toPath();				//
 	    
-	    for(Peer peer:network.getPeers()){
-	    	peer.uploadFile(filePath);
-	    	peer.requestUpdatedFileList();
-	    }
+	    Peer peer = network.getPeer(peerName);
+	    peer.uploadFile(filePath);
+	    peer.requestUpdatedFileList();
+	    
 	}
 
     //FIXME: pass encryption key

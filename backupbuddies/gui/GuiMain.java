@@ -113,13 +113,11 @@ public class GuiMain extends JFrame {
                 //since download will be separate name and directory
                 //might be easier to keep separate
         	int[] selected = allUsers.getSelectedIndices();
-        	String[] selectedUsers = new String[selected.length];
-        	for( int i=0; i<selected.length; i++){
-        		selectedUsers[i] = allUsers.getModel().getElementAt(selected[i]).getName();
+        	for( int i=0; i<selected.length; i++){       		        	
+        		Interface.uploadFile(browser.getSelectedFile().getName(),
+                    browser.getCurrentDirectory().toString(), 
+                    allUsers.getModel().getElementAt(selected[i]).getName());
         	}
-            Interface.uploadFile(browser.getSelectedFile().getName(),
-                    browser.getCurrentDirectory().toString(), selectedUsers);
-
         }
     }
 
@@ -481,17 +479,22 @@ public class GuiMain extends JFrame {
                 //FIXME: these two panels not visible
                 layout.putConstraint(SpringLayout.SOUTH, selectUsersPanel, -60,
    		                             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, 5,
-   		                             SpringLayout.SOUTH, selectUsersPanel);
+                layout.putConstraint(SpringLayout.WEST, selectUsersPanel, 500,
+                                     SpringLayout.WEST, contentPane);
+                
+                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, -100,
+                                     SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.WEST, selectFilesPanel, 500,
+   		                             SpringLayout.WEST, contentPane);
 
                 layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
                 		             SpringLayout.SOUTH, contentPane);
 
-                layout.putConstraint(SpringLayout.SOUTH, logPanel, -40,
+                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
 
                 		             SpringLayout.SOUTH, contentPane);
-                //layout.putConstraint(SpringLayout.EAST, logPanel, 5,
-                //		             SpringLayout.WEST, contentPane);
+ //               layout.putConstraint(SpringLayout.EAST, logPanel, 50,
+ //               		             SpringLayout.WEST, contentPane);
 
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
