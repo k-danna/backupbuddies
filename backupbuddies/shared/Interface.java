@@ -167,21 +167,11 @@ public abstract class Interface {
 	    		//System.out.println("ho");
 	    	}
 	    }
-	    int selected = files.getSize();
-	    for(int i=0; i<selected; i++){
-	    	System.out.printf("%s %s\n", files.getElementAt(i).getName(), 
-	    			                     files.getElementAt(i).getStatus());
-	    }
 	    return files;
 	}
 	
 	public static void testFile(String fileDir){
 		network.storagePath=fileDir;
-	}
-
-	public static boolean isOnline(String ip){
-		System.out.println("isOnline()\n");
-		return true;
 	}
 
 	public static void setEncryptKey(String key) {
