@@ -60,9 +60,9 @@ public class GuiMain extends JFrame {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
         //debug = new DefaultListModel<>();
-       // if (type.equals("users")) debug = Interface.fetchUserList();
-      //  else if (type.equals("files")) debug = Interface.fetchFileList();
-        debug = Interface.fetchFileList();
+        if (type.equals("users")) debug = Interface.fetchUserList();
+        else if (type.equals("files")) debug = Interface.fetchFileList();
+  
         return map;
     }
 
@@ -70,10 +70,11 @@ public class GuiMain extends JFrame {
     public static void startIntervals(int interval) {  	
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
-               // userMap = fetchAndProcess("users");
+                userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
             	updateUserSelection();
+            	
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
