@@ -24,6 +24,8 @@ public abstract class Interface {
     //true to enable debug fetchlist methods
         //aka you dont have to connect to a network to test
     static Boolean DEBUG = false;
+    static DefaultListModel<ListModel> files = new DefaultListModel<>();
+	static DefaultListModel<ListModel> users = new DefaultListModel<>();
 	
 	private static Network network;
 	
@@ -95,7 +97,7 @@ public abstract class Interface {
 
 	public static DefaultListModel<ListModel> fetchUserList(){
 	    //DEBUG set at top of class
-		DefaultListModel<ListModel> result = new DefaultListModel<>();
+	    users.clear();
 	    if (DEBUG) {            
             ListModel a = new ListModel("offlineUser1","0");
             ListModel b = new ListModel("offlineUser2","0");
@@ -104,31 +106,33 @@ public abstract class Interface {
             ListModel e = new ListModel("onlineUser2","1");
             ListModel f = new ListModel("onlineUser3","1");
             
-            result.addElement(a);
-            result.addElement(b);
-            result.addElement(c);
-            result.addElement(d);
-            result.addElement(e);
-            result.addElement(f);
-            return result;
+            users.addElement(a);
+            users.addElement(b);
+            users.addElement(c);
+            users.addElement(d);
+            users.addElement(e);
+            users.addElement(f);
+            return users;
 	    }
 		//DefaultListModel<ListModel> result=new DefaultListModel<>();
 		if(network==null)
-			return result;
+			return users;
 		for(String s:network.seenConnections.keySet()){
 			ListModel a = new ListModel(s,"0");
-			result.addElement(a);
+			users.addElement(a);
+			//System.out.println("hi");
 		}
         for(String s:network.getPeerIPAddresses()){
         	ListModel a = new ListModel(s,"1");
-        	result.addElement(a);
+        	users.addElement(a);
+        	//System.out.println("ho");
 		}
-        return result;
+        return users;
 	}
 
 	public static DefaultListModel<ListModel> fetchFileList(){
 	    //DEBUG set at top of class
-		DefaultListModel<ListModel> result = new DefaultListModel<>();
+		files.clear();
 	    if (DEBUG) {
 	            ListModel a = new ListModel("unavailableFile1","0");
 	            ListModel b = new ListModel("availableFile1","1");
@@ -140,28 +144,35 @@ public abstract class Interface {
 	            ListModel h = new ListModel("availableFile3","1");
 	            ListModel i = new ListModel("fileInTransit3","2");
 	            
-	            result.addElement(a);
-	            result.addElement(b);
-	            result.addElement(c);
-	            result.addElement(d);
-	            result.addElement(e);
-	            result.addElement(f);
-	            return result;           
+	            files.addElement(a);
+	            files.addElement(b);
+	            files.addElement(c);
+	            files.addElement(d);
+	            files.addElement(e);
+	            files.addElement(f);
+	            return files;           
 	    }
 		if(network==null)
-			return result;
+			return files;
 
 	    for(String file :network.getKnownFiles()){
 	    	ListModel a = new ListModel(file, "0");
-	    	result.addElement(a);
+	    	files.addElement(a);
+	    	//System.out.println("hi");
 	    }
 	    for(Peer peer:network.connections.values()){
 	    	for(String file:peer.getKnownFiles()){
 	    		ListModel a = new ListModel(file, "1");
-	    		result.addElement(a);
+	    		files.addElement(a);
+	    		//System.out.println("ho");
 	    	}
 	    }
-	    return result;
+	    int selected = files.getSize();
+	    for(int i=0; i<selected; i++){
+	    	System.out.printf("%s %s\n", files.getElementAt(i).getName(), 
+	    			                     files.getElementAt(i).getStatus());
+	    }
+	    return files;
 	}
 	
 	public static void testFile(String fileDir){

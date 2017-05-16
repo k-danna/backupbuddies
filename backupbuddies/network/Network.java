@@ -53,6 +53,8 @@ public class Network implements Serializable {
 	
 	public String storagePath;
 	
+	long length;
+	
 	public Network(){
 		password=null;
 	}
@@ -162,6 +164,10 @@ public class Network implements Serializable {
 	
 	public Peer getPeer(String peerName){
 		return connections.get(peerName);
+	}
+	
+	public boolean requestSpaceForFile(long length){
+		return false;
 	}
 
 }
