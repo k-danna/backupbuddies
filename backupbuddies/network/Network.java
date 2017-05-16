@@ -53,7 +53,10 @@ public class Network implements Serializable {
 	
 	public String storagePath;
 	
-	long length;
+	//Number of bytes already stored
+	long bytesStored;
+	
+	long bytesLimit;
 	
 	public Network(){
 		password=null;
@@ -63,6 +66,9 @@ public class Network implements Serializable {
 		this.password=password;
 		storagePath = new File(System.getProperty("user.home"), "backupbuddies/files")
 				.getAbsolutePath();
+		
+		//Set the initial limit to 10% of your initial hard drive space
+		bytesLimit = new File(storagePath).getFreeSpace() / 10;
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
@@ -166,8 +172,14 @@ public class Network implements Serializable {
 		return connections.get(peerName);
 	}
 	
+	//Requests and reserves space for a new file
 	public boolean requestSpaceForFile(long length){
-		return false;
+		if(bytesStored + length < bytesLimit) {
+			bytesStored += length;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
