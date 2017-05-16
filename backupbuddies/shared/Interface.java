@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -163,12 +165,32 @@ public abstract class Interface {
 	}
 	
 	public static void testFile(String fileDir){
-	    network.storagePath=fileDir;
+		network.storagePath=fileDir;
 	}
-	
+
 	public static boolean isOnline(String ip){
 		System.out.println("isOnline()\n");
 		return true;
+	}
+
+	public static void setEncryptKey(String key) {
+		System.out.printf("[+] set encrypt key to: %s\n", key);
+	}
+
+	//FIXME: pass storage amount
+	public static void setStorageSpace(int amount) {
+		System.out.printf("[+] set storage space to: %d\n", amount);
+	}
+
+	//FIXME: get event list
+	public static List<String> getEventLog() {
+		List<String> eventLog = new ArrayList<String>();
+		
+		eventLog.add("event 0");
+		eventLog.add("event 1");
+		eventLog.add("event 2");
+		eventLog.add("event 3");
+		return eventLog;
 	}
 
 }
