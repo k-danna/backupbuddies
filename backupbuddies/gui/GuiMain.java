@@ -356,6 +356,54 @@ public class GuiMain extends JFrame {
         return panel;    
     }
 
+    public static JPanel selectUsersPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        final JButton selectAllButton = new JButton("select all");
+        final JButton selectNoneButton = new JButton("select none");
+        //bind methods to buttons
+        selectAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting all\n");
+            }
+        });
+        selectNoneButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting none\n");
+            }
+        });
+        panel.add(selectAllButton);
+        panel.add(selectNoneButton);
+        return panel;
+    }
+
+    public static JPanel selectFilesPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        final JButton selectAllButton = new JButton("select all");
+        final JButton selectNoneButton = new JButton("select none");
+        //bind methods to buttons
+        selectAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting all\n");
+            }
+        });
+        selectNoneButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting none\n");
+            }
+        });
+        panel.add(selectAllButton);
+        panel.add(selectNoneButton);
+        return panel;
+    }
+
     public static JPanel logPanel() {
         //create panel
         final JPanel panel = new JPanel();
@@ -387,7 +435,9 @@ public class GuiMain extends JFrame {
                 contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(700, 400);
+
+                frame.setSize(800, 400);
+
                 //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
@@ -400,14 +450,19 @@ public class GuiMain extends JFrame {
                 JPanel searchPanel = new JPanel();
                 JPanel varsPanel = new JPanel();
                 JPanel logPanel = new JPanel();
+                JPanel selectUsersPanel = new JPanel();
+                JPanel selectFilesPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
                 JScrollPane hit = new JScrollPane();
+                
                 
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel("");
+                selectUsersPanel = selectUsersPanel();
+                selectFilesPanel = selectFilesPanel();
                 searchPanel = searchPanel();
                 varsPanel = varsPanel();
                 logPanel = logPanel();
@@ -416,14 +471,24 @@ public class GuiMain extends JFrame {
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
+                contentPane.add(selectFilesPanel);
+                contentPane.add(selectUsersPanel);
                 contentPane.add(searchPanel);
                 contentPane.add(varsPanel);
                 contentPane.add(logPanel);
                 contentPane.add(hit);
                 //set locations for each panel
+                //FIXME: these two panels not visible
+                layout.putConstraint(SpringLayout.SOUTH, selectUsersPanel, -60,
+   		                             SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, 5,
+   		                             SpringLayout.SOUTH, selectUsersPanel);
+
                 layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
                 		             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
+
+                layout.putConstraint(SpringLayout.SOUTH, logPanel, -40,
+
                 		             SpringLayout.SOUTH, contentPane);
                 //layout.putConstraint(SpringLayout.EAST, logPanel, 5,
                 //		             SpringLayout.WEST, contentPane);
