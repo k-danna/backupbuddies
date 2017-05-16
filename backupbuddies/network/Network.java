@@ -159,5 +159,9 @@ public class Network implements Serializable {
 	public void setFileLoc(String fileName, String fileDir) {
 		this.downloadingFileLocs.put(fileName, fileDir);
 	}
+	
+	public Peer getPeer(String peerName){
+		return connections.get(peerName);
+	}
 
 }

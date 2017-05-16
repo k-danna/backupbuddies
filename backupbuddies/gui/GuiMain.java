@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
-import java.lang.Object;
 
 //do not import util.*
 //there is a Timer class in util and swing that conflict
@@ -35,7 +34,8 @@ public class GuiMain extends JFrame {
     static DefaultListModel<String> files = new DefaultListModel<String>();
     
     static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
-    static JList<ListModel> hi = new JList<ListModel>();
+    static JList<ListModel> allFiles = new JList<ListModel>();
+    static JList<ListModel> allUsers = new JList<ListModel>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     static final JTextArea log = new JTextArea(5, 20);
@@ -112,19 +112,28 @@ public class GuiMain extends JFrame {
                 JFileChooser.APPROVE_OPTION) {
                 //since download will be separate name and directory
                 //might be easier to keep separate
-            Interface.uploadFile(browser.getSelectedFile().getName(),
-                    browser.getCurrentDirectory().toString());
+        	int[] selected = allUsers.getSelectedIndices();
+        	for( int i=0; i<selected.length; i++){       		        	
+        		Interface.uploadFile(browser.getSelectedFile().getName(),
+                    browser.getCurrentDirectory().toString(), 
+                    allUsers.getModel().getElementAt(selected[i]).getName());
+        	}
         }
     }
 
     //user downloads a file to save directory (and chooses if not set)
     public static void setDirAndDownload() {
         //FIXME: need to have a list of uploaded files to choose from
-        String fileToGet = "test.txt";
+        //String fileToGet = "test.txt";
         if (saveDir.getText().equals("")) {
             setSaveDir();
         }
-        Interface.downloadFile(fileToGet, saveDir.getText());
+
+		int[] selected = allFiles.getSelectedIndices();
+        for(int i=0; i<selected.length; i++){
+        	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
+        	Interface.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
+        }
     }
 
     //upload, download, save control buttons
@@ -215,11 +224,14 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-        //userMap = fetchAndProcess("users");
-        JList<ListModel> list = new JList<ListModel>(Interface.fetchUserList());
-        list.setCellRenderer(new ListRenderer());
-        JScrollPane pane = new JScrollPane(list);
+    	
+    	test = (Interface.fetchUserList());
+    	allUsers.setModel(test);
+    	
+        allUsers.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(300, 100));
+        
         return pane;
     }
 
@@ -230,10 +242,10 @@ public class GuiMain extends JFrame {
     public static JScrollPane fileListPanel(String search) {
     	
     	test = (Interface.fetchFileList());
-        hi.setModel(test);
+        allFiles.setModel(test);
 
-        hi.setCellRenderer(new ListRenderer());
-        JScrollPane pane = new JScrollPane(hi);
+        allFiles.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
        
         return pane;
@@ -342,6 +354,54 @@ public class GuiMain extends JFrame {
         return panel;    
     }
 
+    public static JPanel selectUsersPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        final JButton selectAllButton = new JButton("select all");
+        final JButton selectNoneButton = new JButton("select none");
+        //bind methods to buttons
+        selectAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting all\n");
+            }
+        });
+        selectNoneButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting none\n");
+            }
+        });
+        panel.add(selectAllButton);
+        panel.add(selectNoneButton);
+        return panel;
+    }
+
+    public static JPanel selectFilesPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        final JButton selectAllButton = new JButton("select all");
+        final JButton selectNoneButton = new JButton("select none");
+        //bind methods to buttons
+        selectAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting all\n");
+            }
+        });
+        selectNoneButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.printf("[*] selecting none\n");
+            }
+        });
+        panel.add(selectAllButton);
+        panel.add(selectNoneButton);
+        return panel;
+    }
+
     public static JPanel logPanel() {
         //create panel
         final JPanel panel = new JPanel();
@@ -373,7 +433,9 @@ public class GuiMain extends JFrame {
                 contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(700, 400);
+
+                frame.setSize(800, 400);
+
                 //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
@@ -386,14 +448,19 @@ public class GuiMain extends JFrame {
                 JPanel searchPanel = new JPanel();
                 JPanel varsPanel = new JPanel();
                 JPanel logPanel = new JPanel();
+                JPanel selectUsersPanel = new JPanel();
+                JPanel selectFilesPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
                 JScrollPane hit = new JScrollPane();
+                
                 
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
                 fileListPanel = fileListPanel("");
+                selectUsersPanel = selectUsersPanel();
+                selectFilesPanel = selectFilesPanel();
                 searchPanel = searchPanel();
                 varsPanel = varsPanel();
                 logPanel = logPanel();
@@ -402,17 +469,32 @@ public class GuiMain extends JFrame {
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
+                contentPane.add(selectFilesPanel);
+                contentPane.add(selectUsersPanel);
                 contentPane.add(searchPanel);
                 contentPane.add(varsPanel);
                 contentPane.add(logPanel);
                 contentPane.add(hit);
                 //set locations for each panel
+                //FIXME: these two panels not visible
+                layout.putConstraint(SpringLayout.SOUTH, selectUsersPanel, -60,
+   		                             SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.WEST, selectUsersPanel, 500,
+                                     SpringLayout.WEST, contentPane);
+                
+                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, -100,
+                                     SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.WEST, selectFilesPanel, 500,
+   		                             SpringLayout.WEST, contentPane);
+
                 layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
                 		             SpringLayout.SOUTH, contentPane);
+
                 layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
+
                 		             SpringLayout.SOUTH, contentPane);
-                //layout.putConstraint(SpringLayout.EAST, logPanel, 5,
-                //		             SpringLayout.WEST, contentPane);
+ //               layout.putConstraint(SpringLayout.EAST, logPanel, 50,
+ //               		             SpringLayout.WEST, contentPane);
 
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
