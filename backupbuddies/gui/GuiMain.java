@@ -34,7 +34,8 @@ public class GuiMain extends JFrame {
     static DefaultListModel<String> files = new DefaultListModel<String>();
     
     static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
-    static JList<ListModel> hi = new JList<ListModel>();
+    static JList<ListModel> allFiles = new JList<ListModel>();
+    static JList<ListModel> allUsers = new JList<ListModel>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     static final JTextArea log = new JTextArea(5, 20);
@@ -111,8 +112,14 @@ public class GuiMain extends JFrame {
                 JFileChooser.APPROVE_OPTION) {
                 //since download will be separate name and directory
                 //might be easier to keep separate
+        	int[] selected = allUsers.getSelectedIndices();
+        	String[] selectedUsers = new String[selected.length];
+        	for( int i=0; i<selected.length; i++){
+        		selectedUsers[i] = allUsers.getModel().getElementAt(selected[i]).getName();
+        	}
             Interface.uploadFile(browser.getSelectedFile().getName(),
-                    browser.getCurrentDirectory().toString());
+                    browser.getCurrentDirectory().toString(), selectedUsers);
+
         }
     }
 
@@ -124,10 +131,10 @@ public class GuiMain extends JFrame {
             setSaveDir();
         }
 
-		int[] selected = hi.getSelectedIndices();
+		int[] selected = allFiles.getSelectedIndices();
         for(int i=0; i<selected.length; i++){
         	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
-        	Interface.downloadFile(hi.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
+        	Interface.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
         }
     }
 
@@ -219,11 +226,14 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-        //userMap = fetchAndProcess("users");
-        JList<ListModel> list = new JList<ListModel>(Interface.fetchUserList());
-        list.setCellRenderer(new ListRenderer());
-        JScrollPane pane = new JScrollPane(list);
+    	
+    	test = (Interface.fetchUserList());
+    	allUsers.setModel(test);
+    	
+        allUsers.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(300, 100));
+        
         return pane;
     }
 
@@ -234,10 +244,10 @@ public class GuiMain extends JFrame {
     public static JScrollPane fileListPanel(String search) {
     	
     	test = (Interface.fetchFileList());
-        hi.setModel(test);
+        allFiles.setModel(test);
 
-        hi.setCellRenderer(new ListRenderer());
-        JScrollPane pane = new JScrollPane(hi);
+        allFiles.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
        
         return pane;

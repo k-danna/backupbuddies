@@ -35,7 +35,7 @@ public abstract class Interface {
 	}
 
 	/*trigger:  */
-	public static void uploadFile(String fileName, String fileDir) {
+	public static void uploadFile(String fileName, String fileDir, String[] selectedUsers) {
 	    System.out.printf("[+] uploading '%s' from '%s'\n", 
 	            fileName, fileDir);
 	   
