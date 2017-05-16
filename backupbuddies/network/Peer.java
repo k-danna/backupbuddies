@@ -228,6 +228,15 @@ public class Peer {
 	public Collection<String> getKnownFiles() {
 		return filesStored;
 	}
+
+	public void notifyFileRejection(String fileName, long bytesLimit) throws IOException {
+		synchronized(this){
+			outbound.writeUTF(Protocol.NOTIFY_TRANSFER_FAILED);
+			outbound.writeUTF(fileName);
+			outbound.writeLong(bytesLimit);
+		}
+		
+	}
 	
 	
 	

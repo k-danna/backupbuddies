@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import backupbuddies.Debug;
@@ -58,6 +59,8 @@ public class Network implements Serializable {
 	
 	long bytesLimit;
 	
+	transient ArrayDeque<String> log=new ArrayDeque<>();
+	
 	public Network(){
 		password=null;
 	}
@@ -79,6 +82,7 @@ public class Network implements Serializable {
 		connections = new HashMap<>();
 		fileStorageLock = new Object();
 		downloadingFileLocs = new HashMap<>();
+		log=new ArrayDeque<>();
 		for(String s:seenConnections.keySet()){
 			//Maybe you were the one who was offline for 30 days
 			//In that case, you don't want to delete all your peers
@@ -180,6 +184,16 @@ public class Network implements Serializable {
 		} else {
 			return false;
 		}
+	}
+	
+	public ArrayDeque<String> getErrorLog(){
+		return log.clone();
+	}
+	
+	public void log(String message){
+		log.addFirst(message);
+		if(log.size() > Properties.LOG_MESSAGE_COUNT)
+			log.removeLast();
 	}
 
 }

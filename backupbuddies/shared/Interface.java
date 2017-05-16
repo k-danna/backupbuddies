@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,13 +186,12 @@ public abstract class Interface {
 
 	//FIXME: get event list
 	public static List<String> getEventLog() {
-		List<String> eventLog = new ArrayList<String>();
-		
-		eventLog.add("event 0");
-		eventLog.add("event 1");
-		eventLog.add("event 2");
-		eventLog.add("event 3");
-		return eventLog;
+		if(network != null)
+			return Arrays.asList(
+					network.getErrorLog()
+					.toArray(new String[0]));
+		else
+			return new ArrayList<>();
 	}
 
 }

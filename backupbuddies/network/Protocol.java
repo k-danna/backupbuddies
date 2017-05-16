@@ -28,4 +28,6 @@ public class Protocol {
 	
 	public static final String NOTIFY_NEW_PEER = "p";
 	
+	public static final String NOTIFY_TRANSFER_FAILED = "E";
+	
 }
