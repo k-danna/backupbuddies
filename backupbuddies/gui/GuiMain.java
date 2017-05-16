@@ -3,15 +3,25 @@ package backupbuddies.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
+import java.lang.Object;
 
 //do not import util.*
 //there is a Timer class in util and swing that conflict
 //currently using swing timer
 
 import backupbuddies.shared.Interface;
+import backupbuddies.gui.ListModel;
 import static backupbuddies.Debug.*;
 
 @SuppressWarnings("serial")
@@ -22,32 +32,33 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    static ImageIcon statusRed = new ImageIcon("gui/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("gui/assets/YellowCircle.png");
-    static ImageIcon statusGreen = new ImageIcon("gui/assets/GreenCircle.png");
-    static Map<String, ImageIcon> userMap = fetchAndProcess("users");
-    static Map<String, ImageIcon> fileMap = fetchAndProcess("files");
-
+    static DefaultListModel<String> files = new DefaultListModel<String>();
+    
+    static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
+    static JList<ListModel> hi = new JList<ListModel>();
+    
+    static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
+    static final JTextArea log = new JTextArea(5, 20);
+    static List<String> prevEvents = new ArrayList<>();
+    
+    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
+    static JList<ListModel> userMap = fetchAndProcess("users");
+    static JList<ListModel> fileMap = fetchAndProcess("files");
+    
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
-    public static Map<String, ImageIcon> fetchAndProcess(String type) {
+    
+    public static JList<ListModel> fetchAndProcess(String type) {
         //get data
-        Map<String, Integer> map = new HashMap<String, Integer>(); 
-        if (type.equals("users")) map = Interface.fetchUserList();
-        else if (type.equals("files")) map = Interface.fetchFileList();
+        JList<ListModel> map = new JList<ListModel>(); 
+        //debug = new DefaultListModel<>();
+        if (type.equals("users")) debug = Interface.fetchUserList();
+        else if (type.equals("files")) debug = Interface.fetchFileList();
         
-        //replace int with img
-        Map<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-        for  (Map.Entry<String, Integer> entry : map.entrySet()) {
-            switch (entry.getValue()) {
-                case 0: iconMap.put(entry.getKey(), statusRed); break;
-                case 1: iconMap.put(entry.getKey(), statusGreen); break;
-                case 2: iconMap.put(entry.getKey(), statusYellow); break;
-                default: iconMap.put(entry.getKey(), statusRed); break;
-            }
-        }
-        return iconMap;
+        return map;
     }
 
     //updates ui on interval
@@ -55,7 +66,24 @@ public class GuiMain extends JFrame {
         ActionListener updateUI = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 userMap = fetchAndProcess("users");
-                userMap = fetchAndProcess("files");
+                fileMap = fetchAndProcess("files");
+                
+                //FIXME: this gets slower as more events are added
+                    //prevArray --> int (length of last returned array)
+                    //change to check length of returned array
+                    //append the last (len(events) - prevLength) elements to log
+                        //if this is negative they cleared the event log
+                            //only reset prevArraysize variable
+
+                List<String> events = Interface.getEventLog();
+                for (String event : events) {
+                    if (!prevEvents.contains(event)) {
+                        log.append(event + "\n");
+                        log.setCaretPosition(log.getDocument().getLength());
+                    }
+                }
+                prevEvents = events;
+
             }
         };
         Timer timer = new Timer(interval, updateUI);
@@ -82,7 +110,6 @@ public class GuiMain extends JFrame {
         browser.setDialogTitle("choose file to upload");
         if (browser.showOpenDialog(frame) == 
                 JFileChooser.APPROVE_OPTION) {
-            //browser.getSelectedFile().toString() for full path w/filename
                 //since download will be separate name and directory
                 //might be easier to keep separate
             Interface.uploadFile(browser.getSelectedFile().getName(),
@@ -184,54 +211,150 @@ public class GuiMain extends JFrame {
         return loginPanel;    
     }
 
-    public static class UserListRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList list, 
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
-            JLabel label = (JLabel)super.getListCellRendererComponent(
-                    list, value, index, isSelected, cellHasFocus);
-            label.setIcon(userMap.get((String)value));
-            label.setHorizontalTextPosition(JLabel.RIGHT);
-            return label;
-        }
-    }
-
-    public static class FileListRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList list, 
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
-            JLabel label = (JLabel)super.getListCellRendererComponent(
-                    list, value, index, isSelected, cellHasFocus);
-            label.setIcon(fileMap.get((String)value));
-            label.setHorizontalTextPosition(JLabel.RIGHT);
-            return label;
-        }
-    }
-
     //list of peers in the network
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-        userMap = fetchAndProcess("users");
-        JList list = new JList(userMap.keySet().toArray());
-        list.setCellRenderer(new UserListRenderer());
+        //userMap = fetchAndProcess("users");
+        JList<ListModel> list = new JList<ListModel>(Interface.fetchUserList());
+        list.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(list);
         pane.setPreferredSize(new Dimension(300, 100));
         return pane;
     }
-    
+
     //list of files you can recover
         //TODO: multiple selection
         //TODO: renders images
-    public static JScrollPane fileListPanel() {
-        fileMap = fetchAndProcess("files");
-        JList list = new JList(fileMap.keySet().toArray());
-        list.setCellRenderer(new FileListRenderer());
-        JScrollPane pane = new JScrollPane(list);
+
+    public static JScrollPane fileListPanel(String search) {
+    	
+    	test = (Interface.fetchFileList());
+        hi.setModel(test);
+
+        hi.setCellRenderer(new ListRenderer());
+        JScrollPane pane = new JScrollPane(hi);
         pane.setPreferredSize(new Dimension(300, 100));
+       
         return pane;
+       
+    }
+
+    public static void fileSearch(String search){
+    	int cap = debug.getSize();
+        test.clear();
+        for(int i=0; i<cap; i++){
+        	ListModel model = debug.elementAt(i);
+        	String name = model.getName();
+      
+        	if(name.indexOf(search) != -1){
+        	    ListModel add = new ListModel(model.getName(), model.getStatus());
+        	    test.addElement(add);
+                
+        	}
+        }
+    }
+    
+    public static JPanel searchPanel() {
+    	JPanel panel = new JPanel();
+    	JLabel label = new JLabel("search for file:");
+        JTextField search = new JTextField("search");
+        search.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                search.setText("");
+            }
+        });
+        
+        search.getDocument().addDocumentListener(new DocumentListener(){
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				System.out.printf("changed\n");
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				fileSearch(search.getText());
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				fileSearch(search.getText());				
+			}
+        });
+        
+        panel.add(label);
+        panel.add(search);
+        return panel;
+    }
+
+    public static JPanel varsPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        //create components
+        final JLabel varsPanelLabel = new JLabel("enter encryption key:");
+        final JButton lockPassButton = new JButton("confirm key");
+        final JTextField keyField = new JTextField("encryption key");
+        
+        //bind methods to buttons
+        lockPassButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Interface.setEncryptKey(keyField.getText());
+            }
+        });
+        keyField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                keyField.setText("");
+            }
+        });
+
+        int min = 0;
+        int max = 1000;
+        int init = 1;
+        final JLabel sliderLabel = new JLabel("storage (GB):");
+        final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
+        slider.setMajorTickSpacing(max / 10);
+        slider.setPaintTicks(true);
+
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!slider.getValueIsAdjusting()) {
+                    Interface.setStorageSpace(slider.getValue());
+                }
+            }
+        });
+
+
+        //add components to panel and specify orientation
+        panel.add(varsPanelLabel);
+        panel.add(keyField);
+        panel.add(lockPassButton);
+        panel.add(sliderLabel);
+        panel.add(slider);
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+
+        return panel;    
+    }
+
+    public static JPanel logPanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+
+        //create components
+        final JLabel logLabel = new JLabel("event log");
+        log.setEditable(false);
+
+        //log.append(text + newline)
+
+        panel.add(logLabel);
+        panel.add(log);
+        return panel;
     }
 
     //bind panels to frame and display the gui
@@ -250,7 +373,7 @@ public class GuiMain extends JFrame {
                 contentPane.setLayout(layout);
                 
                 //these values are used to center despite pack() overriding
-                frame.setSize(700, 300);
+                frame.setSize(700, 400);
                 //frame.setLocationRelativeTo(null);
 
                 //FIXME: migrate to SpringLayout
@@ -260,20 +383,37 @@ public class GuiMain extends JFrame {
                 //populate the window
                 JPanel loginPanel = new JPanel();
                 JPanel controlPanel = new JPanel();
+                JPanel searchPanel = new JPanel();
+                JPanel varsPanel = new JPanel();
+                JPanel logPanel = new JPanel();
                 JScrollPane userListPanel = new JScrollPane();
                 JScrollPane fileListPanel = new JScrollPane();
+                JScrollPane hit = new JScrollPane();
                 
                 loginPanel = loginPanel();            
                 controlPanel = controlPanel();
                 userListPanel = userListPanel();
-                fileListPanel = fileListPanel();
+                fileListPanel = fileListPanel("");
+                searchPanel = searchPanel();
+                varsPanel = varsPanel();
+                logPanel = logPanel();
                                 
                 contentPane.add(loginPanel);
                 contentPane.add(controlPanel);
                 contentPane.add(userListPanel);
                 contentPane.add(fileListPanel);
-                
+                contentPane.add(searchPanel);
+                contentPane.add(varsPanel);
+                contentPane.add(logPanel);
+                contentPane.add(hit);
                 //set locations for each panel
+                layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
+                		             SpringLayout.SOUTH, contentPane);
+                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
+                		             SpringLayout.SOUTH, contentPane);
+                //layout.putConstraint(SpringLayout.EAST, logPanel, 5,
+                //		             SpringLayout.WEST, contentPane);
+
                 layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
                 		             SpringLayout.NORTH, contentPane);
                 layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
@@ -294,11 +434,19 @@ public class GuiMain extends JFrame {
                 layout.putConstraint(SpringLayout.NORTH, fileListPanel, 5,
                                      SpringLayout.SOUTH, loginPanel);
                 
+                layout.putConstraint(SpringLayout.WEST, searchPanel, 25,
+                                     SpringLayout.EAST, userListPanel);
+                layout.putConstraint(SpringLayout.NORTH, searchPanel, 7,
+                                     SpringLayout.NORTH, contentPane);
+   
+                
                 //display the window
                     //pack - layout manager auto sizes and auto locates
                         //fixes size issue with insets/border of frame
                         //aka use minimum frame size to display the content
                 //frame.pack();
+                frame.validate();
+                frame.repaint();
                 frame.setVisible(true);
 
             }

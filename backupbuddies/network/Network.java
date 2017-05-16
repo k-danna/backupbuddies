@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 import backupbuddies.Debug;
 import backupbuddies.Properties;
@@ -35,6 +37,13 @@ public class Network implements Serializable {
 	 * TODO this will need changing for various reasons
 	 */
 	HashSet<String> seenFiles = new HashSet<>();
+
+	/*
+     * Log events, append all events to this,
+     * eventLog.add("x connected to y");
+     * this should be returned in the interface method
+	 */
+	List<String> eventLog = new ArrayList<>();
 	
 	//A lock for the file storage
 	public transient Object fileStorageLock = new Object();
