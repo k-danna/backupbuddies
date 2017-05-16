@@ -37,6 +37,7 @@ public class GuiMain extends JFrame {
     static JList<ListModel> allFiles = new JList<ListModel>();
     static JList<ListModel> allUsers = new JList<ListModel>();   
     
+    //holds the all indices selected by the user
     static DefaultListModel<String> lastFileState = new DefaultListModel<String>();
     static DefaultListModel<String> lastUserState = new DefaultListModel<String>();
     
@@ -59,9 +60,9 @@ public class GuiMain extends JFrame {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
         //debug = new DefaultListModel<>();
-        if (type.equals("users")) debug = Interface.fetchUserList();
-        else if (type.equals("files")) debug = Interface.fetchFileList();
-        
+       // if (type.equals("users")) debug = Interface.fetchUserList();
+      //  else if (type.equals("files")) debug = Interface.fetchFileList();
+        debug = Interface.fetchFileList();
         return map;
     }
 
@@ -69,7 +70,7 @@ public class GuiMain extends JFrame {
     public static void startIntervals(int interval) {  	
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
-                userMap = fetchAndProcess("users");
+               // userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
             	updateUserSelection();
@@ -230,10 +231,17 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-     	allUsers.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     	test = (Interface.fetchUserList());    	
     	allUsers.setModel(test);
    
+        allUsers.addMouseListener(new MouseAdapter(){
+        	@Override
+        	public void mouseClicked(MouseEvent e){
+        		int selectedItem = allUsers.getSelectedIndex();
+        		lastUserState.addElement(Integer.toString(selectedItem));
+        	}
+        });
+    	
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -244,12 +252,17 @@ public class GuiMain extends JFrame {
     //list of files you can recover
         //TODO: multiple selection
         //TODO: renders images
-
     public static JScrollPane fileListPanel(String search) {
     	test = (Interface.fetchFileList());   	
         allFiles.setModel(test);
      
-            
+        allFiles.addMouseListener(new MouseAdapter(){
+        	@Override
+        	public void mouseClicked(MouseEvent e){
+        		int selectedItem = allFiles.getSelectedIndex();
+        		lastFileState.addElement(Integer.toString(selectedItem));
+        	}
+        });
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -422,12 +435,14 @@ public class GuiMain extends JFrame {
     
     public static void updateFileSelection(){
     	for(int i=0; i<lastFileState.getSize(); i++){
-    		allFiles.addSelectionInterval(i, i);
+    		allFiles.addSelectionInterval(Integer.parseInt(lastFileState.elementAt(i)),
+                                          Integer.parseInt(lastFileState.elementAt(i)));
     	}
     }
     public static void updateUserSelection(){
     	for(int i=0; i<lastUserState.getSize(); i++){
-    		allUsers.addSelectionInterval(i, i);
+    		allUsers.addSelectionInterval(Integer.parseInt(lastUserState.elementAt(i)),
+    				                      Integer.parseInt(lastUserState.elementAt(i)));
     	}
     }
     
