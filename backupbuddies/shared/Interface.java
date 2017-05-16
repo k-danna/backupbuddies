@@ -156,11 +156,6 @@ public abstract class Interface {
 	    		//System.out.println("ho");
 	    	}
 	    }
-	    int selected = files.getSize();
-	    for(int i=0; i<selected; i++){
-	    	System.out.printf("%s %s\n", files.getElementAt(i).getName(), 
-	    			                     files.getElementAt(i).getStatus());
-	    }
 	    return files;
 	}
 	
