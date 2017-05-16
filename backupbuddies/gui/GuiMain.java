@@ -470,7 +470,7 @@ public class GuiMain extends JFrame {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 //start those intervals
-                startIntervals(1000);
+                startIntervals(100);
 
                 //create the window and center it on screen
                 frame = new JFrame("BackupBuddies");
