@@ -35,7 +35,10 @@ public class GuiMain extends JFrame {
     
     static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
     static JList<ListModel> allFiles = new JList<ListModel>();
-    static JList<ListModel> allUsers = new JList<ListModel>();
+    static JList<ListModel> allUsers = new JList<ListModel>();   
+    
+    static DefaultListModel<String> lastFileState = new DefaultListModel<String>();
+    static DefaultListModel<String> lastUserState = new DefaultListModel<String>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
@@ -63,11 +66,13 @@ public class GuiMain extends JFrame {
     }
 
     //updates ui on interval
-    public static void startIntervals(int interval) {
-        ActionListener updateUI = new ActionListener() {
+    public static void startIntervals(int interval) {  	
+        ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
+            	updateFileSelection();
+            	updateUserSelection();
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
@@ -244,7 +249,11 @@ public class GuiMain extends JFrame {
     	
     	test = (Interface.fetchFileList());   	
         allFiles.setModel(test);
+        
+        updateFileSelection();
+       // allFiles.addListSelectionListener(new listSelectionListener() {
 
+               
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -359,6 +368,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
+        final JLabel selectUser = new JLabel("users: ");
         final JButton selectAllButton = new JButton("select all");
         final JButton selectNoneButton = new JButton("select none");
         //bind methods to buttons
@@ -366,14 +376,19 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting all\n");
+                for(int i=0; i < (allUsers.getModel().getSize()); i++){
+                	lastUserState.addElement(Integer.toString(i));
+                }
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting none\n");
+                lastUserState.clear();
             }
         });
+        panel.add(selectUser);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
         return panel;
@@ -383,6 +398,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
+        final JLabel selectFiles = new JLabel("files: ");
         final JButton selectAllButton = new JButton("select all");
         final JButton selectNoneButton = new JButton("select none");
         //bind methods to buttons
@@ -390,18 +406,35 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting all\n");
+                for(int i=0; i < (allFiles.getModel().getSize()); i++){
+                	lastFileState.addElement(Integer.toString(i));
+                }
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting none\n");
+                lastFileState.clear();
             }
         });
+        panel.add(selectFiles);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
         return panel;
     }
+    
+    public static void updateFileSelection(){
+    	for(int i=0; i<lastFileState.getSize(); i++){
+    		allFiles.addSelectionInterval(i, i);
+    	}
+    }
+    public static void updateUserSelection(){
+    	for(int i=0; i<lastUserState.getSize(); i++){
+    		allUsers.addSelectionInterval(i, i);
+    	}
+    }
+    
 
     public static JPanel logPanel() {
         //create panel
