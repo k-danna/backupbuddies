@@ -38,6 +38,7 @@ public class GuiMain extends JFrame {
     static JList<ListModel> allUsers = new JList<ListModel>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
+    
     static final JTextArea log = new JTextArea(5, 20);
     static List<String> prevEvents = new ArrayList<>();
     
@@ -225,7 +226,7 @@ public class GuiMain extends JFrame {
         //TODO: renders images
     public static JScrollPane userListPanel() {
     	
-    	test = (Interface.fetchUserList());
+    	test = (Interface.fetchUserList());    	
     	allUsers.setModel(test);
     	
         allUsers.setCellRenderer(new ListRenderer());
@@ -241,7 +242,7 @@ public class GuiMain extends JFrame {
 
     public static JScrollPane fileListPanel(String search) {
     	
-    	test = (Interface.fetchFileList());
+    	test = (Interface.fetchFileList());   	
         allFiles.setModel(test);
 
         allFiles.setCellRenderer(new ListRenderer());

@@ -106,10 +106,12 @@ public abstract class Interface {
 		for(String s:network.seenConnections){
 			ListModel a = new ListModel(s,"0");
 			result.addElement(a);
+			//System.out.println("hi");
 		}
         for(String s:network.getPeerIPAddresses()){
         	ListModel a = new ListModel(s,"1");
         	result.addElement(a);
+        	//System.out.println("ho");
 		}
         return result;
 	}
@@ -143,12 +145,18 @@ public abstract class Interface {
 	    for(String file :network.getKnownFiles()){
 	    	ListModel a = new ListModel(file, "0");
 	    	result.addElement(a);
+	    	//System.out.println("hi");
 	    }
 	    for(Peer peer:network.connections.values()){
 	    	for(String file:peer.getKnownFiles()){
 	    		ListModel a = new ListModel(file, "1");
 	    		result.addElement(a);
+	    		//System.out.println("ho");
 	    	}
+	    }
+	    int selected = result.getSize();
+	    for(int i=0; i<selected; i++){
+	    	System.out.printf("%s %s\n", result.getElementAt(i).getName(), result.getElementAt(i).getStatus());
 	    }
 	    return result;
 	}
