@@ -31,9 +31,10 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    static DefaultListModel<String> files = new DefaultListModel<String>();
+    //static DefaultListModel<String> files = new DefaultListModel<String>();
     
-    static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
+    static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
+    static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
     static JList<ListModel> allFiles = new JList<ListModel>();
     static JList<ListModel> allUsers = new JList<ListModel>();   
     
@@ -74,6 +75,7 @@ public class GuiMain extends JFrame {
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
             	updateUserSelection();
+            	
             	
                 
                 //FIXME: this gets slower as more events are added
@@ -232,8 +234,8 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-    	test = (Interface.fetchUserList());    	
-    	allUsers.setModel(test);
+    	usertest = (Interface.fetchUserList());    	
+    	allUsers.setModel(usertest);
    
         allUsers.addMouseListener(new MouseAdapter(){
         	@Override
@@ -254,9 +256,8 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	test = (Interface.fetchFileList());   	
-        allFiles.setModel(test);
-     
+    	//filetest = (Interface.fetchFileList());   	
+        allFiles.setModel(filetest);      
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
@@ -274,14 +275,14 @@ public class GuiMain extends JFrame {
 
     public static void fileSearch(String search){
     	int cap = debug.getSize();
-        test.clear();
+        filetest.clear();
         for(int i=0; i<cap; i++){
         	ListModel model = debug.elementAt(i);
         	String name = model.getName();
       
         	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	    test.addElement(add);
+        	    filetest.addElement(add);
                 
         	}
         }
@@ -290,7 +291,8 @@ public class GuiMain extends JFrame {
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
     	JLabel label = new JLabel("search for file:");
-        JTextField search = new JTextField("search");
+        JTextField search = new JTextField("", 10);
+        fileSearch(search.getText());
         search.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
