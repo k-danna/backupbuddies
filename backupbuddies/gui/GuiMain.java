@@ -230,10 +230,10 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-    	
+     	allUsers.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     	test = (Interface.fetchUserList());    	
     	allUsers.setModel(test);
-    	
+   
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -246,14 +246,10 @@ public class GuiMain extends JFrame {
         //TODO: renders images
 
     public static JScrollPane fileListPanel(String search) {
-    	
     	test = (Interface.fetchFileList());   	
         allFiles.setModel(test);
-        
-        updateFileSelection();
-       // allFiles.addListSelectionListener(new listSelectionListener() {
-
-               
+     
+            
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -462,6 +458,7 @@ public class GuiMain extends JFrame {
                 frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
+                
                 Container contentPane = frame.getContentPane();
                 SpringLayout layout = new SpringLayout();
                 contentPane.setLayout(layout);
