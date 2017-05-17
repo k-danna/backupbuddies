@@ -71,6 +71,7 @@ public class GuiMain extends JFrame {
     public static void startIntervals(int interval) {  	
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
+            	Interface.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
@@ -469,6 +470,9 @@ public class GuiMain extends JFrame {
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+            	//load network
+            	Interface.loadNetwork();
+            	
                 //start those intervals
                 startIntervals(500);
 

@@ -23,7 +23,7 @@ public abstract class Interface {
 
     //true to enable debug fetchlist methods
         //aka you dont have to connect to a network to test
-    static Boolean DEBUG = true;
+    static Boolean DEBUG = false;
     static DefaultListModel<ListModel> files = new DefaultListModel<>();
 	static DefaultListModel<ListModel> users = new DefaultListModel<>();
 	
