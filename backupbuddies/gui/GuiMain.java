@@ -31,11 +31,16 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    static DefaultListModel<String> files = new DefaultListModel<String>();
+    //static DefaultListModel<String> files = new DefaultListModel<String>();
     
-    static DefaultListModel<ListModel> test = new DefaultListModel<ListModel>();
+    static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
+    static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
     static JList<ListModel> allFiles = new JList<ListModel>();
-    static JList<ListModel> allUsers = new JList<ListModel>();
+    static JList<ListModel> allUsers = new JList<ListModel>();   
+    
+    //holds the all indices selected by the user
+    static DefaultListModel<String> lastFileState = new DefaultListModel<String>();
+    static DefaultListModel<String> lastUserState = new DefaultListModel<String>();
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
@@ -58,16 +63,20 @@ public class GuiMain extends JFrame {
         //debug = new DefaultListModel<>();
         if (type.equals("users")) debug = Interface.fetchUserList();
         else if (type.equals("files")) debug = Interface.fetchFileList();
-        
+  
         return map;
     }
 
     //updates ui on interval
-    public static void startIntervals(int interval) {
-        ActionListener updateUI = new ActionListener() {
+    public static void startIntervals(int interval) {  	
+        ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
+            	updateFileSelection();
+            	updateUserSelection();
+            	
+            	
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
@@ -225,9 +234,16 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-    	
-    	test = (Interface.fetchUserList());    	
-    	allUsers.setModel(test);
+    	usertest = (Interface.fetchUserList());    	
+    	allUsers.setModel(usertest);
+   
+        allUsers.addMouseListener(new MouseAdapter(){
+        	@Override
+        	public void mouseClicked(MouseEvent e){
+        		int selectedItem = allUsers.getSelectedIndex();
+        		lastUserState.addElement(Integer.toString(selectedItem));
+        	}
+        });
     	
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
@@ -239,12 +255,16 @@ public class GuiMain extends JFrame {
     //list of files you can recover
         //TODO: multiple selection
         //TODO: renders images
-
     public static JScrollPane fileListPanel(String search) {
-    	
-    	test = (Interface.fetchFileList());   	
-        allFiles.setModel(test);
-
+    	//filetest = (Interface.fetchFileList());   	
+        allFiles.setModel(filetest);      
+        allFiles.addMouseListener(new MouseAdapter(){
+        	@Override
+        	public void mouseClicked(MouseEvent e){
+        		int selectedItem = allFiles.getSelectedIndex();
+        		lastFileState.addElement(Integer.toString(selectedItem));
+        	}
+        });
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(300, 100));
@@ -255,14 +275,14 @@ public class GuiMain extends JFrame {
 
     public static void fileSearch(String search){
     	int cap = debug.getSize();
-        test.clear();
+        filetest.clear();
         for(int i=0; i<cap; i++){
         	ListModel model = debug.elementAt(i);
         	String name = model.getName();
       
         	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	    test.addElement(add);
+        	    filetest.addElement(add);
                 
         	}
         }
@@ -271,7 +291,8 @@ public class GuiMain extends JFrame {
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
     	JLabel label = new JLabel("search for file:");
-        JTextField search = new JTextField("search");
+        JTextField search = new JTextField("", 10);
+        fileSearch(search.getText());
         search.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -359,6 +380,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
+        final JLabel selectUser = new JLabel("users: ");
         final JButton selectAllButton = new JButton("select all");
         final JButton selectNoneButton = new JButton("select none");
         //bind methods to buttons
@@ -366,14 +388,19 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting all\n");
+                for(int i=0; i < (allUsers.getModel().getSize()); i++){
+                	lastUserState.addElement(Integer.toString(i));
+                }
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting none\n");
+                lastUserState.clear();
             }
         });
+        panel.add(selectUser);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
         return panel;
@@ -383,6 +410,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
+        final JLabel selectFiles = new JLabel("files: ");
         final JButton selectAllButton = new JButton("select all");
         final JButton selectNoneButton = new JButton("select none");
         //bind methods to buttons
@@ -390,18 +418,37 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting all\n");
+                for(int i=0; i < (allFiles.getModel().getSize()); i++){
+                	lastFileState.addElement(Integer.toString(i));
+                }
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.printf("[*] selecting none\n");
+                lastFileState.clear();
             }
         });
+        panel.add(selectFiles);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
         return panel;
     }
+    
+    public static void updateFileSelection(){
+    	for(int i=0; i<lastFileState.getSize(); i++){
+    		allFiles.addSelectionInterval(Integer.parseInt(lastFileState.elementAt(i)),
+                                          Integer.parseInt(lastFileState.elementAt(i)));
+    	}
+    }
+    public static void updateUserSelection(){
+    	for(int i=0; i<lastUserState.getSize(); i++){
+    		allUsers.addSelectionInterval(Integer.parseInt(lastUserState.elementAt(i)),
+    				                      Integer.parseInt(lastUserState.elementAt(i)));
+    	}
+    }
+    
 
     public static JPanel logPanel() {
         //create panel
@@ -423,12 +470,13 @@ public class GuiMain extends JFrame {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 //start those intervals
-                startIntervals(1000);
+                startIntervals(500);
 
                 //create the window and center it on screen
                 frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
+                
                 Container contentPane = frame.getContentPane();
                 SpringLayout layout = new SpringLayout();
                 contentPane.setLayout(layout);
