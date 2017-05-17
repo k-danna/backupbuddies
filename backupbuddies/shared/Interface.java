@@ -1,5 +1,6 @@
 package backupbuddies.shared;
 
+import backupbuddies.Properties;
 import backupbuddies.gui.ListModel;
 import backupbuddies.network.Network;
 import backupbuddies.network.Peer;
@@ -24,7 +25,7 @@ public abstract class Interface {
 
     //true to enable debug fetchlist methods
         //aka you dont have to connect to a network to test
-    static Boolean DEBUG = true;
+    static Boolean DEBUG = false;
     static DefaultListModel<ListModel> files = new DefaultListModel<>();
 	static DefaultListModel<ListModel> users = new DefaultListModel<>();
 	
@@ -184,7 +185,8 @@ public abstract class Interface {
 		System.out.printf("[+] set storage space to: %d\n", amount);
 	}
 
-	//FIXME: get event list
+	//Gets the event list
+	//Returns an array of up to Properties.LOG_MESSAGE_COUNT error messages
 	public static List<String> getEventLog() {
 		if(network != null)
 			return Arrays.asList(

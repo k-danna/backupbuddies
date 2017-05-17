@@ -67,7 +67,7 @@ public class Network implements Serializable {
 	
 	public Network(String password){
 		this.password=password;
-		storagePath = new File(System.getProperty("user.home"), "backupbuddies/files")
+		storagePath = new File(Properties.BUB_HOME, "files")
 				.getAbsolutePath();
 		
 		//Set the initial limit to 10% of your initial hard drive space

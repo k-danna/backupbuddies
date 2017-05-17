@@ -2,11 +2,13 @@ package backupbuddies.network;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.zip.GZIPInputStream;
 
 import backupbuddies.Debug;
 
@@ -192,6 +194,7 @@ final class PeerServicer implements Runnable {
 	
 	//We asked to retrieve a file, and someone is sending it
 	private void handleRetrieveResponse() throws IOException {
+		// Get file name and length
 		String fileName=inbound.readUTF();
 		long length=inbound.readLong();
 		
@@ -206,12 +209,51 @@ final class PeerServicer implements Runnable {
 		//You can overwrite existing backups
 		
 		file.createNewFile();
-		FileOutputStream out=new FileOutputStream(file);
+		
+		// Create a temporary file directory and file to read in the compressed file
+		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
+		temporaryFileDir.mkdirs();
+		File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
+		
+		FileOutputStream fout=new FileOutputStream(compressedFile);
 
+		// read inbounding compressed file into temporary file
 		for(long i=0; i<length; i++){
-			out.write(inbound.readByte());
+			fout.write(inbound.readByte());
 		}
-		out.close();
+		fout.close();
+		
+		try {
+			// decompress compressed fle into file
+			decompress(compressedFile,file);
+		} catch (Exception e) {
+			System.out.print(e);
+		}
+		compressedFile.delete();
+	}
+	
+	
+	public static void decompress(File source, File decompressed)throws Exception{
+		byte[] buffer = new byte[1024];
+		
+		// File handler for source file
+		FileInputStream fis = new FileInputStream(source);
+		
+		// File handler for decompress file
+		FileOutputStream fos = new FileOutputStream(decompressed);
+		
+		// Zipped file handler
+		GZIPInputStream gzis = new GZIPInputStream(fis);
+		
+		int read;
+		// read() returns bytes read or -1 if none is read
+		while((read = gzis.read(buffer)) != -1 ){
+			// write read amount of bytes from buffer to output file
+			fos.write(buffer,0, read);
+		}		
+		gzis.close(); 
+		fos.close();
+		fis.close();
 	}
 	
 	//Receives list of files stored on some peer
