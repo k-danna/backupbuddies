@@ -1,5 +1,6 @@
 package backupbuddies.shared;
 
+import backupbuddies.Properties;
 import backupbuddies.gui.ListModel;
 import backupbuddies.network.Network;
 import backupbuddies.network.Peer;
@@ -12,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,9 @@ public abstract class Interface {
 	//Loads the network from disk, from a standard place
 	public static boolean loadNetwork(){
 		try{
-			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
+			if(!networkFile.exists())
+				return false;
 			ObjectInputStream stream=new ObjectInputStream(new FileInputStream(networkFile));
 			network=(Network) stream.readObject();
 			if(network != null)
@@ -51,7 +55,7 @@ public abstract class Interface {
 		try{
 			if(network==null)
 				return false;
-			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
 			ObjectOutputStream stream=new ObjectOutputStream(new FileOutputStream(networkFile));
 			stream.writeObject(network);
 			stream.close();
@@ -183,15 +187,15 @@ public abstract class Interface {
 		System.out.printf("[+] set storage space to: %d\n", amount);
 	}
 
-	//FIXME: get event list
+	//Gets the event list
+	//Returns an array of up to Properties.LOG_MESSAGE_COUNT error messages
 	public static List<String> getEventLog() {
-		List<String> eventLog = new ArrayList<String>();
-		
-		eventLog.add("event 0");
-		eventLog.add("event 1");
-		eventLog.add("event 2");
-		eventLog.add("event 3");
-		return eventLog;
+		if(network != null)
+			return Arrays.asList(
+					network.getErrorLog()
+					.toArray(new String[0]));
+		else
+			return new ArrayList<>();
 	}
 
 }

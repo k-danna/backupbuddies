@@ -73,7 +73,8 @@ final class PeerServicer implements Runnable {
 				case Protocol.REPLY_RETRIEVE:
 					handleRetrieveResponse();
 					break;
-					
+				case Protocol.NOTIFY_TRANSFER_FAILED:
+					handleTransferFailed();
 				//If an invalid command is sent, kill the connection
 				//It's incompatible with us
 				default:
@@ -83,11 +84,16 @@ final class PeerServicer implements Runnable {
 				}
 			}
 		}catch(IOException e){
-			//TODO make this informative
-			e.printStackTrace();
+			System.out.println("Connection lost to "+peer.url);
 			peer.kill(e);
 			return;
 		}
+	}
+
+	private void handleTransferFailed() throws IOException {
+		String fileName = inbound.readUTF();
+		long theirLimit = inbound.readLong();
+		peer.network.log(fileName+"failed to upload: " + peer.url + " can accept " + theirLimit/1000 + " more KB of data");
 	}
 
 	//Receives a handshake
@@ -146,6 +152,16 @@ final class PeerServicer implements Runnable {
 			String fileName=inbound.readUTF();
 			long length=inbound.readLong();
 			File file=new File(peer.getStoragePath(), fileName);
+			
+			//File exceeds our allocated space
+			//Don't let them send the whole file - close the connection to indicate
+			//failure. we still want to be connected, so reconnect
+			if(!peer.network.requestSpaceForFile(length)) {
+				peer.notifyFileRejection(fileName, peer.network.bytesLimit - peer.network.bytesStored);
+				peer.kill("Cannot store oversize file: "+fileName);
+				peer.network.connect(peer.url);
+			}
+			
 			//You can overwrite existing backups
 			if(file.exists())
 				file.delete();
@@ -176,12 +192,20 @@ final class PeerServicer implements Runnable {
 		}
 	}
 	
+	//We asked to retrieve a file, and someone is sending it
 	private void handleRetrieveResponse() throws IOException {
 		// Get file name and length
 		String fileName=inbound.readUTF();
 		long length=inbound.readLong();
 		
+		//If we don't have it, we didn't request the file
+		if(!peer.network.downloadingFileLocs.containsKey(fileName))
+			peer.kill("Tried to restore file that we didn't request!");
+		
 		File file=new File(peer.network.downloadingFileLocs.get(fileName), fileName);
+		
+		peer.network.downloadingFileLocs.remove(fileName);
+
 		//You can overwrite existing backups
 		
 		file.createNewFile();

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import backupbuddies.Debug;
@@ -53,7 +54,12 @@ public class Network implements Serializable {
 	
 	public String storagePath;
 	
-	long length;
+	//Number of bytes already stored
+	long bytesStored;
+	
+	long bytesLimit;
+	
+	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
 	public Network(){
 		password=null;
@@ -61,8 +67,11 @@ public class Network implements Serializable {
 	
 	public Network(String password){
 		this.password=password;
-		storagePath = new File(System.getProperty("user.home"), "backupbuddies/files")
+		storagePath = new File(Properties.BUB_HOME, "files")
 				.getAbsolutePath();
+		
+		//Set the initial limit to 10% of your initial hard drive space
+		bytesLimit = new File(storagePath).getFreeSpace() / 10;
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
@@ -73,6 +82,7 @@ public class Network implements Serializable {
 		connections = new HashMap<>();
 		fileStorageLock = new Object();
 		downloadingFileLocs = new HashMap<>();
+		log=new ArrayDeque<>();
 		for(String s:seenConnections.keySet()){
 			//Maybe you were the one who was offline for 30 days
 			//In that case, you don't want to delete all your peers
@@ -166,8 +176,24 @@ public class Network implements Serializable {
 		return connections.get(peerName);
 	}
 	
+	//Requests and reserves space for a new file
 	public boolean requestSpaceForFile(long length){
-		return false;
+		if(bytesStored + length < bytesLimit) {
+			bytesStored += length;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public ArrayDeque<String> getErrorLog(){
+		return log.clone();
+	}
+	
+	public void log(String message){
+		log.addFirst(message);
+		if(log.size() > Properties.LOG_MESSAGE_COUNT)
+			log.removeLast();
 	}
 
 }

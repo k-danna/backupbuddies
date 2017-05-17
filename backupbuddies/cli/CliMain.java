@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import backupbuddies.Debug;
 import backupbuddies.network.Network;
+import backupbuddies.shared.Interface;
 
 public class CliMain {
 
@@ -25,22 +26,30 @@ public class CliMain {
 				flags.add(s);
 		
 		if(flags.contains("-daemon")) {
+			if(flags.contains("-load")){
+				Interface.loadNetwork();
+			}
 			//Create a network
 			int passwordPos=seek("-password", args);
-			if(passwordPos == -1 || passwordPos == args.length-1) {
-				Debug.dbg("Error: password argument not valid");
+			if(passwordPos == -1) {
+				
+			}
+			//Command ends with -password. That's not valid, ever
+			if(passwordPos == args.length-1) {
 				return;
 			}
 			String password=args[passwordPos+1];
 			
-			Network net=new Network(password);
+			Interface.login("", password);
 			
 			int peerPos=seek("-peer", args);
 			if(peerPos == -1 || peerPos == args.length-1){
 				
 			} else {
-				net.connect(args[peerPos+1]);
+				Debug.mark();
+				Interface.login(args[peerPos+1], password);
 			}
+			Interface.saveNetwork();
 		}
 			
 	}
