@@ -34,7 +34,9 @@ public abstract class Interface {
 	//Loads the network from disk, from a standard place
 	public static boolean loadNetwork(){
 		try{
-			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
+			if(!networkFile.exists())
+				return false;
 			ObjectInputStream stream=new ObjectInputStream(new FileInputStream(networkFile));
 			network=(Network) stream.readObject();
 			if(network != null)
@@ -53,7 +55,7 @@ public abstract class Interface {
 		try{
 			if(network==null)
 				return false;
-			File networkFile=new File(System.getProperty("user.home"), "backupbuddies/network.ser");
+			File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
 			ObjectOutputStream stream=new ObjectOutputStream(new FileOutputStream(networkFile));
 			stream.writeObject(network);
 			stream.close();
