@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 import backupbuddies.Debug;
 
@@ -127,14 +129,23 @@ public class Peer {
 	}
 	
 	public boolean uploadFile(Path filePath) {
-		File file;
+		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
+		temporaryFileDir.mkdirs();
+		
+		File compressedFile = new File(temporaryFileDir, "compressing.tmp");
+		
+		try {
+			compress(filePath.toFile(), compressedFile);
+		} catch (Exception e) {
+			System.out.print(e);
+		}
+		
 		long length;
 		long i=0;
 		try{
-			file=filePath.toFile();
-			length = file.length();
-			FileInputStream fileStream = new FileInputStream(file);
-
+			length = compressedFile.length();
+			FileInputStream fileStream = new FileInputStream(compressedFile);
+			
 			synchronized(this){
 				outbound.writeUTF(Protocol.REQUEST_BACKUP);
 				outbound.writeUTF(filePath.getFileName().toString());
@@ -143,6 +154,7 @@ public class Peer {
 					outbound.writeByte((byte) fileStream.read());
 				}
 				fileStream.close();
+				compressedFile.delete();
 				return true;
 			}
 		}catch(Exception e){
@@ -150,6 +162,31 @@ public class Peer {
 			return false;
 		}
 	}
+	
+	public static void compress(File source, File destination) throws Exception{
+		byte[] buffer = new byte[1024];
+		
+		// File handler for source file
+		FileInputStream fis = new FileInputStream(source);
+		
+		// File handler for destination file
+		FileOutputStream fos = new FileOutputStream(destination);
+		
+		// Zipped file handler
+		GZIPOutputStream gzos = new GZIPOutputStream(fos);
+		
+		int read;
+		// read() returns bytes read or -1 if none is read
+		while((read = fis.read(buffer)) != -1 ){
+			// write read amount of bytes from buffer to output file
+			gzos.write(buffer,0, read);
+		}
+		gzos.finish();
+		gzos.close(); 
+		fos.close();
+		fis.close();
+	}
+
 
 	public String getStoragePath() {
 		return network.getBackupStoragePath();
