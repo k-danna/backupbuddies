@@ -2,10 +2,6 @@ package backupbuddies.network;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -15,11 +11,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.zip.GZIPOutputStream;
 
 import backupbuddies.Debug;
-
-import static backupbuddies.Debug.*;
+import backupbuddies.network.packet.BackupFile;
+import backupbuddies.network.packet.ListFiles;
+import backupbuddies.network.packet.NotifyNewPeer;
+import backupbuddies.network.packet.RequestListOfFiles;
+import backupbuddies.network.packet.RequestRestoreFile;
 
 public class Peer {
 
@@ -111,6 +109,7 @@ public class Peer {
 		cleanup();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public synchronized void cleanup(){
 		peerServicer.stop();
 		peerServicer=null;
@@ -129,64 +128,9 @@ public class Peer {
 	}
 	
 	public boolean uploadFile(Path filePath) {
-		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
-		temporaryFileDir.mkdirs();
-		
-		File compressedFile = new File(temporaryFileDir, "compressing.tmp");
-		
-		try {
-			compress(filePath.toFile(), compressedFile);
-		} catch (Exception e) {
-			System.out.print(e);
-		}
-		
-		long length;
-		long i=0;
-		try{
-			length = compressedFile.length();
-			FileInputStream fileStream = new FileInputStream(compressedFile);
-			
-			synchronized(this){
-				outbound.writeUTF(Protocol.REQUEST_BACKUP);
-				outbound.writeUTF(filePath.getFileName().toString());
-				outbound.writeLong(length);
-				for(i=0; i<length; i++){
-					outbound.writeByte((byte) fileStream.read());
-				}
-				fileStream.close();
-				compressedFile.delete();
-				return true;
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-			return false;
-		}
+		return BackupFile.send(this, filePath);
 	}
 	
-	public static void compress(File source, File destination) throws Exception{
-		byte[] buffer = new byte[1024];
-		
-		// File handler for source file
-		FileInputStream fis = new FileInputStream(source);
-		
-		// File handler for destination file
-		FileOutputStream fos = new FileOutputStream(destination);
-		
-		// Zipped file handler
-		GZIPOutputStream gzos = new GZIPOutputStream(fos);
-		
-		int read;
-		// read() returns bytes read or -1 if none is read
-		while((read = fis.read(buffer)) != -1 ){
-			// write read amount of bytes from buffer to output file
-			gzos.write(buffer,0, read);
-		}
-		gzos.finish();
-		gzos.close(); 
-		fos.close();
-		fis.close();
-	}
-
 
 	public String getStoragePath() {
 		return network.getBackupStoragePath();
@@ -203,7 +147,7 @@ public class Peer {
 	public void requestUpdatedFileList() {
 		try{
 			synchronized(this){
-				outbound.writeUTF(Protocol.REQUEST_LIST_FILES);
+				RequestListOfFiles.send(outbound);
 			}
 		}catch(IOException e){
 			e.printStackTrace();
@@ -212,67 +156,34 @@ public class Peer {
 	}
 
 	public void sendStoredFileList() throws IOException {
-		File storageRoot=new File(getStoragePath());
-		String[] files = storageRoot.list();
-		if(files==null)
-			return;
 		synchronized(this){
-			outbound.writeUTF(Protocol.REPLY_LIST_FILES);
-			outbound.writeInt(files.length);
-			for(String fileName:files)
-				outbound.writeUTF(fileName);
+			ListFiles.send(this, network, outbound);
 		}
 	}
 	
 	// Method to notify a peer about another peer
-	public synchronized void notifyNewPeer( Peer peer ) throws IOException{
-		outbound.writeUTF(Protocol.NOTIFY_NEW_PEER);
-		outbound.writeUTF(peer.url);
-		Debug.dbg(peer.url);
+	public void notifyNewPeer( Peer peer ) throws IOException{
+		synchronized(this){
+			NotifyNewPeer.send(outbound, peer, this);
+		}
 	}
 	
 	public void downloadFile(String fileName) {
 		try{
 			synchronized(this){
-				outbound.writeUTF(Protocol.REQUEST_RETRIEVE);
-				outbound.writeUTF(fileName);
+				RequestRestoreFile.send(outbound, fileName);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-
-	}
-
-	public synchronized void restoreFile(String fileName, Path filePath) throws IOException {
-		synchronized(network.fileStorageLock){
-			synchronized(this){
-				File file=filePath.toFile();
-				FileInputStream fileStream = new FileInputStream(file);
-				long length=file.length();
-				
-				outbound.writeUTF(Protocol.REPLY_RETRIEVE);
-				outbound.writeUTF(filePath.getFileName().toString());
-				outbound.writeLong(length);
-				for(long i=0; i<length; i++){
-					outbound.writeByte((byte) fileStream.read());
-				}
-				fileStream.close();
-			}
-		}
-		
 	}
 
 	public Collection<String> getKnownFiles() {
 		return filesStored;
 	}
 
-	public void notifyFileRejection(String fileName, long bytesLimit) throws IOException {
-		synchronized(this){
-			outbound.writeUTF(Protocol.NOTIFY_TRANSFER_FAILED);
-			outbound.writeUTF(fileName);
-			outbound.writeLong(bytesLimit);
-		}
-		
+	public DataOutputStream getOutputStream() {
+		return outbound;
 	}
 	
 	

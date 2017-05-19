@@ -15,12 +15,9 @@ import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
 
-//do not import util.*
-//there is a Timer class in util and swing that conflict
-//currently using swing timer
-
-import backupbuddies.shared.Interface;
 import backupbuddies.gui.ListModel;
+import backupbuddies.shared.IInterface;
+
 import static backupbuddies.Debug.*;
 
 @SuppressWarnings("serial")
@@ -61,8 +58,8 @@ public class GuiMain extends JFrame {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
         //debug = new DefaultListModel<>();
-        if (type.equals("users")) debug = Interface.fetchUserList();
-        else if (type.equals("files")) debug = Interface.fetchFileList();
+        if (type.equals("users")) debug = IInterface.INSTANCE.fetchUserList();
+        else if (type.equals("files")) debug = IInterface.INSTANCE.fetchFileList();
   
         return map;
     }
@@ -71,7 +68,7 @@ public class GuiMain extends JFrame {
     public static void startIntervals(int interval) {  	
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
-            	Interface.saveNetwork();
+            	IInterface.INSTANCE.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
@@ -86,7 +83,7 @@ public class GuiMain extends JFrame {
                         //if this is negative they cleared the event log
                             //only reset prevArraysize variable
 
-                List<String> events = Interface.getEventLog();
+                List<String> events = IInterface.INSTANCE.getEventLog();
                 for (String event : events) {
                     if (!prevEvents.contains(event)) {
                         log.append(event + "\n");
@@ -111,7 +108,7 @@ public class GuiMain extends JFrame {
         
         if (browser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             saveDir.setText(browser.getSelectedFile().toString());
-            Interface.testFile(saveDir.getText());
+            IInterface.INSTANCE.setStoragePath(saveDir.getText());
         }
     }
     
@@ -125,7 +122,7 @@ public class GuiMain extends JFrame {
                 //might be easier to keep separate
         	int[] selected = allUsers.getSelectedIndices();
         	for( int i=0; i<selected.length; i++){       		        	
-        		Interface.uploadFile(browser.getSelectedFile().getName(),
+        		IInterface.INSTANCE.uploadFile(browser.getSelectedFile().getName(),
                     browser.getCurrentDirectory().toString(), 
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
@@ -143,7 +140,7 @@ public class GuiMain extends JFrame {
 		int[] selected = allFiles.getSelectedIndices();
         for(int i=0; i<selected.length; i++){
         	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
-        	Interface.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
+        	IInterface.INSTANCE.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
         }
     }
 
@@ -204,7 +201,7 @@ public class GuiMain extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Interface.login(ipField.getText(), passField.getText());
+                IInterface.INSTANCE.login(ipField.getText(), passField.getText());
             }
         });
         ipField.addMouseListener(new MouseAdapter() {
@@ -235,7 +232,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-    	usertest = (Interface.fetchUserList());    	
+    	usertest = (IInterface.INSTANCE.fetchUserList());    	
     	allUsers.setModel(usertest);
    
         allUsers.addMouseListener(new MouseAdapter(){
@@ -257,7 +254,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = (Interface.fetchFileList());   	
+    	//filetest = (Interface.INSTANCE.fetchFileList());   	
         allFiles.setModel(filetest);      
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
@@ -337,7 +334,7 @@ public class GuiMain extends JFrame {
         lockPassButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Interface.setEncryptKey(keyField.getText());
+                IInterface.INSTANCE.setEncryptKey(keyField.getText());
             }
         });
         keyField.addMouseListener(new MouseAdapter() {
@@ -359,7 +356,7 @@ public class GuiMain extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!slider.getValueIsAdjusting()) {
-                    Interface.setStorageSpace(slider.getValue());
+                    IInterface.INSTANCE.setStorageSpace(slider.getValue());
                 }
             }
         });
@@ -471,7 +468,7 @@ public class GuiMain extends JFrame {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	//load network
-            	Interface.loadNetwork();
+            	IInterface.INSTANCE.loadNetwork();
             	
                 //start those intervals
                 startIntervals(500);

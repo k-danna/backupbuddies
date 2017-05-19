@@ -4,19 +4,15 @@ package backupbuddies.network;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.Socket;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 import backupbuddies.Debug;
 import backupbuddies.Properties;
-
-import static backupbuddies.Debug.*;
 
 public class Network implements Serializable {
 
@@ -55,9 +51,9 @@ public class Network implements Serializable {
 	public String storagePath;
 	
 	//Number of bytes already stored
-	long bytesStored;
+	private long bytesStored;
 	
-	long bytesLimit;
+	private long bytesLimit;
 	
 	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
@@ -71,7 +67,7 @@ public class Network implements Serializable {
 				.getAbsolutePath();
 		
 		//Set the initial limit to 10% of your initial hard drive space
-		bytesLimit = new File(storagePath).getFreeSpace() / 10;
+		setBytesLimit(new File(storagePath).getFreeSpace() / 10);
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 	}
@@ -112,6 +108,11 @@ public class Network implements Serializable {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void resetConnection(Peer peer, String message){
+		peer.kill(message);
+		connect(peer.url);
 	}
 
 	public void setupPeer(Peer peer) throws IOException {
@@ -178,8 +179,8 @@ public class Network implements Serializable {
 	
 	//Requests and reserves space for a new file
 	public boolean requestSpaceForFile(long length){
-		if(bytesStored + length < bytesLimit) {
-			bytesStored += length;
+		if(getBytesStored() + length < getBytesLimit()) {
+			setBytesStored(getBytesStored() + length);
 			return true;
 		} else {
 			return false;
@@ -194,6 +195,29 @@ public class Network implements Serializable {
 		log.addFirst(message);
 		if(log.size() > Properties.LOG_MESSAGE_COUNT)
 			log.removeLast();
+	}
+
+	public String getAndRemoveDownloadingFileLocation(String fileName) {
+		String s = this.downloadingFileLocs.get(fileName);
+		if(s != null)
+			downloadingFileLocs.remove(s);
+		return s;
+	}
+
+	public long getBytesLimit() {
+		return bytesLimit;
+	}
+
+	public void setBytesLimit(long bytesLimit) {
+		this.bytesLimit = bytesLimit;
+	}
+
+	public long getBytesStored() {
+		return bytesStored;
+	}
+
+	public void setBytesStored(long bytesStored) {
+		this.bytesStored = bytesStored;
 	}
 
 }
