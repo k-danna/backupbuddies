@@ -2,6 +2,8 @@ package backupbuddies.shared;
 
 import java.util.List;
 
+import java.io.File;
+
 import javax.swing.DefaultListModel;
 
 import backupbuddies.gui.ListModel;
@@ -21,7 +23,7 @@ public interface IInterface {
 	void login(String ip, String pass);
 
 	/*trigger:  */
-	void uploadFile(String fileName, String fileDir, String peerName);
+	void uploadFile(File[] files, String peerName);
 
 	void downloadFile(String fileName, String fileDir);
 

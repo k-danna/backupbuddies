@@ -8,6 +8,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,15 +130,19 @@ public class GuiMain extends JFrame {
     //user selects a file and it uploads to network
     public static void chooseAndUpload() {
         JFileChooser browser = new JFileChooser();
-        browser.setDialogTitle("choose file to upload");
+        browser.setMultiSelectionEnabled(true);
+        browser.setDialogTitle("choose files to upload");
         if (browser.showOpenDialog(frame) == 
                 JFileChooser.APPROVE_OPTION) {
-                //since download will be separate name and directory
-                //might be easier to keep separate
+
+            //File[] files = browser.getSelectedFiles();
+            //for (File f : files) {
+            //    System.out.printf("%s\n", f.toPath());
+            //}
+
         	int[] selected = allUsers.getSelectedIndices();
         	for( int i=0; i<selected.length; i++){       		        	
-        		IInterface.INSTANCE.uploadFile(browser.getSelectedFile().getName(),
-                    browser.getCurrentDirectory().toString(), 
+        		IInterface.INSTANCE.uploadFile(browser.getSelectedFiles(),
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
         }
@@ -361,15 +366,18 @@ public class GuiMain extends JFrame {
         int min = 0;
         int max = 1000;
         int init = 1;
-        final JLabel sliderLabel = new JLabel("storage (GB):");
+        final JLabel sliderLabel = new JLabel("storage:");
         final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
         slider.setMajorTickSpacing(max / 10);
         slider.setPaintTicks(true);
+
+        final JLabel currStorageLabel = new JLabel(String.valueOf(slider.getValue()) + " GB");
 
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!slider.getValueIsAdjusting()) {
+                    currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
                     IInterface.INSTANCE.setStorageSpace(slider.getValue());
                 }
             }
@@ -382,6 +390,7 @@ public class GuiMain extends JFrame {
         panel.add(lockPassButton);
         panel.add(sliderLabel);
         panel.add(slider);
+        panel.add(currStorageLabel);
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
 

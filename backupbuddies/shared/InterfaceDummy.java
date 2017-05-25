@@ -3,6 +3,8 @@ package backupbuddies.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.File;
+
 import javax.swing.DefaultListModel;
 
 import backupbuddies.gui.ListModel;
@@ -35,9 +37,11 @@ public class InterfaceDummy implements IInterface {
 	}
 
 	@Override
-	public void uploadFile(String fileName, String fileDir, String peerName) {
-	    System.out.printf("[+] uploading '%s' from '%s'\n", 
-	            fileName, fileDir);
+	public void uploadFile(File[] files, String peerName) {
+	    for (File f : files) {
+            System.out.printf("[+] uploading '%s'\n", 
+                    f.toString());
+	    }
 	}
 
 	@Override
