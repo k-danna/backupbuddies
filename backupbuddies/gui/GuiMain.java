@@ -10,6 +10,7 @@ import javax.swing.event.ChangeEvent;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ import static backupbuddies.Debug.*;
 public class GuiMain extends JFrame {
   
     //load assets, lists etc before creating the gui
-    static JFrame frame;
+    static JFrame frame = new JFrame("BackupBuddies");
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
@@ -50,10 +51,23 @@ public class GuiMain extends JFrame {
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     
+    //populate the window
+    static Container contentPane = frame.getContentPane();
+    static JPanel loginPanel = loginPanel();            
+    static JPanel controlPanel = controlPanel();
+    static JScrollPane userListPanel = userListPanel();
+    static JScrollPane fileListPanel = fileListPanel("");
+    static JPanel selectUsersPanel = selectUsersPanel();
+    static JPanel selectFilesPanel = selectFilesPanel();
+    static JPanel searchPanel = searchPanel();
+    static JPanel varsPanel = varsPanel();
+    static JPanel logPanel = logPanel();
+    
+    static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
+
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
-    
     public static JList<ListModel> fetchAndProcess(String type) {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
@@ -463,6 +477,19 @@ public class GuiMain extends JFrame {
         return panel;
     }
 
+    public static SpringLayout frameLayout() {
+        SpringLayout layout = new SpringLayout();
+        //set locations for each panel
+        for (Component panel : panelLocs.keySet()) {
+            layout.putConstraint(SpringLayout.NORTH, panel, 
+                    panelLocs.get(panel).get(1), SpringLayout.NORTH, contentPane);
+            layout.putConstraint(SpringLayout.WEST, panel, 
+                    panelLocs.get(panel).get(0), SpringLayout.WEST, contentPane);
+        }
+
+        return layout;
+    }
+
     //bind panels to frame and display the gui
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -474,109 +501,31 @@ public class GuiMain extends JFrame {
                 startIntervals(500);
 
                 //create the window and center it on screen
-                frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
-                
-                Container contentPane = frame.getContentPane();
-                SpringLayout layout = new SpringLayout();
-                contentPane.setLayout(layout);
-                
-                //these values are used to center despite pack() overriding
 
-                frame.setSize(800, 400);
-
-                //frame.setLocationRelativeTo(null);
-
-                //FIXME: migrate to SpringLayout
-                    //this uses the easy yet terrible BorderLayout to
-                        //prototype each panel
-
-                //populate the window
-                JPanel loginPanel = new JPanel();
-                JPanel controlPanel = new JPanel();
-                JPanel searchPanel = new JPanel();
-                JPanel varsPanel = new JPanel();
-                JPanel logPanel = new JPanel();
-                JPanel selectUsersPanel = new JPanel();
-                JPanel selectFilesPanel = new JPanel();
-                JScrollPane userListPanel = new JScrollPane();
-                JScrollPane fileListPanel = new JScrollPane();
-                JScrollPane hit = new JScrollPane();
-                
-                
-                loginPanel = loginPanel();            
-                controlPanel = controlPanel();
-                userListPanel = userListPanel();
-                fileListPanel = fileListPanel("");
-                selectUsersPanel = selectUsersPanel();
-                selectFilesPanel = selectFilesPanel();
-                searchPanel = searchPanel();
-                varsPanel = varsPanel();
-                logPanel = logPanel();
-                                
-                contentPane.add(loginPanel);
-                contentPane.add(controlPanel);
-                contentPane.add(userListPanel);
-                contentPane.add(fileListPanel);
-                contentPane.add(selectFilesPanel);
-                contentPane.add(selectUsersPanel);
-                contentPane.add(searchPanel);
-                contentPane.add(varsPanel);
-                contentPane.add(logPanel);
-                contentPane.add(hit);
                 //set locations for each panel
-                //FIXME: these two panels not visible
-                layout.putConstraint(SpringLayout.SOUTH, selectUsersPanel, -60,
-   		                             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, selectUsersPanel, 500,
-                                     SpringLayout.WEST, contentPane);
-                
-                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, -100,
-                                     SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, selectFilesPanel, 500,
-   		                             SpringLayout.WEST, contentPane);
+                panelLocs.put(loginPanel,       Arrays.asList(50, 5));
+                panelLocs.put(userListPanel,    Arrays.asList(50, 200));
+                panelLocs.put(fileListPanel,    Arrays.asList(450, 200));
+                panelLocs.put(searchPanel,      Arrays.asList(450, 160));
+                panelLocs.put(selectFilesPanel, Arrays.asList(450, 300));
+                panelLocs.put(selectUsersPanel, Arrays.asList(50, 300));
+                panelLocs.put(controlPanel,     Arrays.asList(350, 525));
+                panelLocs.put(varsPanel,        Arrays.asList(50, 100));
+                panelLocs.put(logPanel,         Arrays.asList(5, 400));
 
-                layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
-                		             SpringLayout.SOUTH, contentPane);
+                //confirm layout
+                contentPane.setLayout(frameLayout());
+                
+                frame.setSize(800, 600);
+                frame.setLocationRelativeTo(null);
 
-                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
+                for (Component panel : panelLocs.keySet()) {
+                    contentPane.add(panel);
+                }
 
-                		             SpringLayout.SOUTH, contentPane);
- //               layout.putConstraint(SpringLayout.EAST, logPanel, 50,
- //               		             SpringLayout.WEST, contentPane);
-
-                layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
-                		             SpringLayout.NORTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
-   		                             SpringLayout.WEST, contentPane);               
-                
-                layout.putConstraint(SpringLayout.WEST, userListPanel, 5,
-   		                             SpringLayout.WEST, contentPane);
-                layout.putConstraint(SpringLayout.NORTH, userListPanel, 5,
-                                     SpringLayout.SOUTH, loginPanel);
-                
-                layout.putConstraint(SpringLayout.NORTH, controlPanel, 5,
-                                     SpringLayout.SOUTH, userListPanel);
-                layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
-                                     SpringLayout.WEST, contentPane);
-                
-                layout.putConstraint(SpringLayout.WEST, fileListPanel, 20,
-   		                             SpringLayout.EAST, userListPanel);
-                layout.putConstraint(SpringLayout.NORTH, fileListPanel, 5,
-                                     SpringLayout.SOUTH, loginPanel);
-                
-                layout.putConstraint(SpringLayout.WEST, searchPanel, 25,
-                                     SpringLayout.EAST, userListPanel);
-                layout.putConstraint(SpringLayout.NORTH, searchPanel, 7,
-                                     SpringLayout.NORTH, contentPane);
-   
-                
                 //display the window
-                    //pack - layout manager auto sizes and auto locates
-                        //fixes size issue with insets/border of frame
-                        //aka use minimum frame size to display the content
-                //frame.pack();
                 frame.validate();
                 frame.repaint();
                 frame.setVisible(true);
