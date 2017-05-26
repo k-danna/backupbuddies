@@ -51,6 +51,7 @@ public class GuiMain extends JFrame {
     static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
+    static boolean firstSearch = false;
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -81,16 +82,20 @@ public class GuiMain extends JFrame {
     }
 
     //updates ui on interval
-    public static void startIntervals(int interval) {  	
+    public static void startIntervals(int interval) {
+
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
             	IInterface.INSTANCE.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
-            	updateUserSelection();
+            	updateUserSelection();  
             	
-            	
+                if(firstSearch == false){
+                	fileSearch("");
+                	firstSearch = true;
+                }
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
