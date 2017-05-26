@@ -210,6 +210,8 @@ public class GuiMain extends JFrame {
     public static JPanel loginPanel() {
         //create panel
         final JPanel loginPanel = new JPanel();
+        BoxLayout layout = new BoxLayout(loginPanel, BoxLayout.Y_AXIS);
+        loginPanel.setLayout(layout);
 
         //create components
         final JLabel loginLabel = new JLabel("join a network:");
@@ -242,8 +244,8 @@ public class GuiMain extends JFrame {
         loginPanel.add(ipField);
         loginPanel.add(passField);
         loginPanel.add(loginButton);
-        loginPanel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
+        //loginPanel.setComponentOrientation(
+        //        ComponentOrientation.LEFT_TO_RIGHT);
 
         return loginPanel;    
     }
