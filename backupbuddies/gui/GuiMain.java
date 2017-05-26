@@ -8,26 +8,25 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.lang.*;
 
-//do not import util.*
-//there is a Timer class in util and swing that conflict
-//currently using swing timer
-
-import backupbuddies.shared.Interface;
 import backupbuddies.gui.ListModel;
+import backupbuddies.shared.IInterface;
+
 import static backupbuddies.Debug.*;
 
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
     //load assets, lists etc before creating the gui
-    static JFrame frame;
+    static JFrame frame = new JFrame("BackupBuddies");
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
@@ -53,16 +52,29 @@ public class GuiMain extends JFrame {
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     
+    //populate the window
+    static Container contentPane = frame.getContentPane();
+    static JPanel loginPanel = loginPanel();            
+    static JPanel controlPanel = controlPanel();
+    static JScrollPane userListPanel = userListPanel();
+    static JScrollPane fileListPanel = fileListPanel("");
+    static JPanel selectUsersPanel = selectUsersPanel();
+    static JPanel selectFilesPanel = selectFilesPanel();
+    static JPanel searchPanel = searchPanel();
+    static JPanel varsPanel = varsPanel();
+    static JPanel logPanel = logPanel();
+    
+    static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
+
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
-    
     public static JList<ListModel> fetchAndProcess(String type) {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
         //debug = new DefaultListModel<>();
-        if (type.equals("users")) debug = Interface.fetchUserList();
-        else if (type.equals("files")) debug = Interface.fetchFileList();
+        if (type.equals("users")) debug = IInterface.INSTANCE.fetchUserList();
+        else if (type.equals("files")) debug = IInterface.INSTANCE.fetchFileList();
   
         return map;
     }
@@ -71,7 +83,7 @@ public class GuiMain extends JFrame {
     public static void startIntervals(int interval) {  	
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
-            	Interface.saveNetwork();
+            	IInterface.INSTANCE.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
@@ -86,7 +98,7 @@ public class GuiMain extends JFrame {
                         //if this is negative they cleared the event log
                             //only reset prevArraysize variable
 
-                List<String> events = Interface.getEventLog();
+                List<String> events = IInterface.INSTANCE.getEventLog();
                 for (String event : events) {
                     if (!prevEvents.contains(event)) {
                         log.append(event + "\n");
@@ -111,22 +123,26 @@ public class GuiMain extends JFrame {
         
         if (browser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             saveDir.setText(browser.getSelectedFile().toString());
-            Interface.testFile(saveDir.getText());
+            IInterface.INSTANCE.setStoragePath(saveDir.getText());
         }
     }
     
     //user selects a file and it uploads to network
     public static void chooseAndUpload() {
         JFileChooser browser = new JFileChooser();
-        browser.setDialogTitle("choose file to upload");
+        browser.setMultiSelectionEnabled(true);
+        browser.setDialogTitle("choose files to upload");
         if (browser.showOpenDialog(frame) == 
                 JFileChooser.APPROVE_OPTION) {
-                //since download will be separate name and directory
-                //might be easier to keep separate
+
+            //File[] files = browser.getSelectedFiles();
+            //for (File f : files) {
+            //    System.out.printf("%s\n", f.toPath());
+            //}
+
         	int[] selected = allUsers.getSelectedIndices();
         	for( int i=0; i<selected.length; i++){       		        	
-        		Interface.uploadFile(browser.getSelectedFile().getName(),
-                    browser.getCurrentDirectory().toString(), 
+        		IInterface.INSTANCE.uploadFile(browser.getSelectedFiles(),
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
         }
@@ -143,7 +159,7 @@ public class GuiMain extends JFrame {
 		int[] selected = allFiles.getSelectedIndices();
         for(int i=0; i<selected.length; i++){
         	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
-        	Interface.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
+        	IInterface.INSTANCE.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
         }
     }
 
@@ -204,7 +220,7 @@ public class GuiMain extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Interface.login(ipField.getText(), passField.getText());
+                IInterface.INSTANCE.login(ipField.getText(), passField.getText());
             }
         });
         ipField.addMouseListener(new MouseAdapter() {
@@ -235,7 +251,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane userListPanel() {
-    	usertest = (Interface.fetchUserList());    	
+    	usertest = (IInterface.INSTANCE.fetchUserList());    	
     	allUsers.setModel(usertest);
    
         allUsers.addMouseListener(new MouseAdapter(){
@@ -257,7 +273,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = (Interface.fetchFileList());   	
+    	//filetest = (Interface.INSTANCE.fetchFileList());   	
         allFiles.setModel(filetest);      
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
@@ -337,7 +353,7 @@ public class GuiMain extends JFrame {
         lockPassButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Interface.setEncryptKey(keyField.getText());
+                IInterface.INSTANCE.setEncryptKey(keyField.getText());
             }
         });
         keyField.addMouseListener(new MouseAdapter() {
@@ -350,16 +366,19 @@ public class GuiMain extends JFrame {
         int min = 0;
         int max = 1000;
         int init = 1;
-        final JLabel sliderLabel = new JLabel("storage (GB):");
+        final JLabel sliderLabel = new JLabel("storage:");
         final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
         slider.setMajorTickSpacing(max / 10);
         slider.setPaintTicks(true);
+
+        final JLabel currStorageLabel = new JLabel(String.valueOf(slider.getValue()) + " GB");
 
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!slider.getValueIsAdjusting()) {
-                    Interface.setStorageSpace(slider.getValue());
+                    currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
+                    IInterface.INSTANCE.setStorageSpace(slider.getValue());
                 }
             }
         });
@@ -371,6 +390,7 @@ public class GuiMain extends JFrame {
         panel.add(lockPassButton);
         panel.add(sliderLabel);
         panel.add(slider);
+        panel.add(currStorageLabel);
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
 
@@ -466,120 +486,55 @@ public class GuiMain extends JFrame {
         return panel;
     }
 
+    public static SpringLayout frameLayout() {
+        SpringLayout layout = new SpringLayout();
+        //set locations for each panel
+        for (Component panel : panelLocs.keySet()) {
+            layout.putConstraint(SpringLayout.NORTH, panel, 
+                    panelLocs.get(panel).get(1), SpringLayout.NORTH, contentPane);
+            layout.putConstraint(SpringLayout.WEST, panel, 
+                    panelLocs.get(panel).get(0), SpringLayout.WEST, contentPane);
+        }
+
+        return layout;
+    }
+
     //bind panels to frame and display the gui
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	//load network
-            	Interface.loadNetwork();
+            	IInterface.INSTANCE.loadNetwork();
             	
                 //start those intervals
                 startIntervals(500);
 
                 //create the window and center it on screen
-                frame = new JFrame("BackupBuddies");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
-                
-                Container contentPane = frame.getContentPane();
-                SpringLayout layout = new SpringLayout();
-                contentPane.setLayout(layout);
-                
-                //these values are used to center despite pack() overriding
 
-                frame.setSize(800, 400);
-
-                //frame.setLocationRelativeTo(null);
-
-                //FIXME: migrate to SpringLayout
-                    //this uses the easy yet terrible BorderLayout to
-                        //prototype each panel
-
-                //populate the window
-                JPanel loginPanel = new JPanel();
-                JPanel controlPanel = new JPanel();
-                JPanel searchPanel = new JPanel();
-                JPanel varsPanel = new JPanel();
-                JPanel logPanel = new JPanel();
-                JPanel selectUsersPanel = new JPanel();
-                JPanel selectFilesPanel = new JPanel();
-                JScrollPane userListPanel = new JScrollPane();
-                JScrollPane fileListPanel = new JScrollPane();
-                JScrollPane hit = new JScrollPane();
-                
-                
-                loginPanel = loginPanel();            
-                controlPanel = controlPanel();
-                userListPanel = userListPanel();
-                fileListPanel = fileListPanel("");
-                selectUsersPanel = selectUsersPanel();
-                selectFilesPanel = selectFilesPanel();
-                searchPanel = searchPanel();
-                varsPanel = varsPanel();
-                logPanel = logPanel();
-                                
-                contentPane.add(loginPanel);
-                contentPane.add(controlPanel);
-                contentPane.add(userListPanel);
-                contentPane.add(fileListPanel);
-                contentPane.add(selectFilesPanel);
-                contentPane.add(selectUsersPanel);
-                contentPane.add(searchPanel);
-                contentPane.add(varsPanel);
-                contentPane.add(logPanel);
-                contentPane.add(hit);
                 //set locations for each panel
-                //FIXME: these two panels not visible
-                layout.putConstraint(SpringLayout.SOUTH, selectUsersPanel, -60,
-   		                             SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, selectUsersPanel, 500,
-                                     SpringLayout.WEST, contentPane);
-                
-                layout.putConstraint(SpringLayout.SOUTH, selectFilesPanel, -100,
-                                     SpringLayout.SOUTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, selectFilesPanel, 500,
-   		                             SpringLayout.WEST, contentPane);
+                panelLocs.put(loginPanel,       Arrays.asList(50, 5));
+                panelLocs.put(userListPanel,    Arrays.asList(50, 200));
+                panelLocs.put(fileListPanel,    Arrays.asList(450, 200));
+                panelLocs.put(searchPanel,      Arrays.asList(450, 160));
+                panelLocs.put(selectFilesPanel, Arrays.asList(450, 300));
+                panelLocs.put(selectUsersPanel, Arrays.asList(50, 300));
+                panelLocs.put(controlPanel,     Arrays.asList(350, 525));
+                panelLocs.put(varsPanel,        Arrays.asList(50, 100));
+                panelLocs.put(logPanel,         Arrays.asList(5, 400));
 
-                layout.putConstraint(SpringLayout.SOUTH, varsPanel, 5,
-                		             SpringLayout.SOUTH, contentPane);
+                //confirm layout
+                contentPane.setLayout(frameLayout());
+                
+                frame.setSize(800, 600);
+                frame.setLocationRelativeTo(null);
 
-                layout.putConstraint(SpringLayout.SOUTH, logPanel, -50,
+                for (Component panel : panelLocs.keySet()) {
+                    contentPane.add(panel);
+                }
 
-                		             SpringLayout.SOUTH, contentPane);
- //               layout.putConstraint(SpringLayout.EAST, logPanel, 50,
- //               		             SpringLayout.WEST, contentPane);
-
-                layout.putConstraint(SpringLayout.NORTH, loginPanel, 5,
-                		             SpringLayout.NORTH, contentPane);
-                layout.putConstraint(SpringLayout.WEST, loginPanel, 5,
-   		                             SpringLayout.WEST, contentPane);               
-                
-                layout.putConstraint(SpringLayout.WEST, userListPanel, 5,
-   		                             SpringLayout.WEST, contentPane);
-                layout.putConstraint(SpringLayout.NORTH, userListPanel, 5,
-                                     SpringLayout.SOUTH, loginPanel);
-                
-                layout.putConstraint(SpringLayout.NORTH, controlPanel, 5,
-                                     SpringLayout.SOUTH, userListPanel);
-                layout.putConstraint(SpringLayout.WEST, controlPanel, 5,
-                                     SpringLayout.WEST, contentPane);
-                
-                layout.putConstraint(SpringLayout.WEST, fileListPanel, 20,
-   		                             SpringLayout.EAST, userListPanel);
-                layout.putConstraint(SpringLayout.NORTH, fileListPanel, 5,
-                                     SpringLayout.SOUTH, loginPanel);
-                
-                layout.putConstraint(SpringLayout.WEST, searchPanel, 25,
-                                     SpringLayout.EAST, userListPanel);
-                layout.putConstraint(SpringLayout.NORTH, searchPanel, 7,
-                                     SpringLayout.NORTH, contentPane);
-   
-                
                 //display the window
-                    //pack - layout manager auto sizes and auto locates
-                        //fixes size issue with insets/border of frame
-                        //aka use minimum frame size to display the content
-                //frame.pack();
                 frame.validate();
                 frame.repaint();
                 frame.setVisible(true);

@@ -1,28 +1,43 @@
 package backupbuddies.network;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.zip.GZIPInputStream;
 
 import backupbuddies.Debug;
-
-import static backupbuddies.Debug.*;
+import backupbuddies.network.packet.BackupFile;
+import backupbuddies.network.packet.ListFiles;
+import backupbuddies.network.packet.NotifyNewPeer;
+import backupbuddies.network.packet.NotifyTransferFailed;
+import backupbuddies.network.packet.ReplyRestoreFile;
+import backupbuddies.network.packet.RequestListOfFiles;
+import backupbuddies.network.packet.RequestRestoreFile;
 
 final class PeerServicer implements Runnable {
 
 	private final Peer peer;
 	
 	private final DataInputStream inbound;
+	
+	private HashMap<String, IPacketHandler> packets = new HashMap<>();
 
 	PeerServicer(Peer peer, DataInputStream inbound) {
 		this.peer = peer;
 		this.inbound = inbound;
+
+		registerPacket(new RequestListOfFiles());
+		registerPacket(new ListFiles());
+		
+		registerPacket(new NotifyNewPeer());
+		
+		registerPacket(new BackupFile());
+		
+		registerPacket(new RequestRestoreFile());
+		registerPacket(new ReplyRestoreFile());
+		
+		registerPacket(new NotifyTransferFailed());
 	}
 
 	@Override
@@ -45,43 +60,22 @@ final class PeerServicer implements Runnable {
 			while(!peer.isDead()){
 				String command=inbound.readUTF();
 				if(command==null){
-					dbg(command);
 					peer.kill("Null command");
 					return;
 				}
-				//This is where messages are handled
-				//To add a new message type, add a case for it
-				switch(command){
-				case Protocol.REQUEST_BACKUP:
-					handleBackupRequest();
-					break;
 				
-				//Ask for and receive file list
-				case Protocol.REQUEST_LIST_FILES:
-					peer.sendStoredFileList();
-					break;
-				case Protocol.REPLY_LIST_FILES:
-					handleListResponse();
-					break;
-				case Protocol.NOTIFY_NEW_PEER:
-					handleNewPeer();
-					break;
-					
-				case Protocol.REQUEST_RETRIEVE:
-					handleRetrieveRequest();
-					break;
-				case Protocol.REPLY_RETRIEVE:
-					handleRetrieveResponse();
-					break;
-				case Protocol.NOTIFY_TRANSFER_FAILED:
-					handleTransferFailed();
-				//If an invalid command is sent, kill the connection
-				//It's incompatible with us
-				default:
-					
-					peer.kill("Bad command: "+command);
-					break;
+				IPacketHandler packetHandler = packets.get(command);
+				if(packetHandler==null){
+					peer.kill("Illegal command: "+command);
+					return;
+				} else {
+					//Acquire a lock on the peer
+					//This is often needed - packets may require replies.
+					synchronized(peer){
+						packetHandler.handlePacket(peer, peer.network, inbound);
+					}
 				}
+				
 			}
 		}catch(IOException e){
 			System.out.println("Connection lost to "+peer.url);
@@ -89,11 +83,9 @@ final class PeerServicer implements Runnable {
 			return;
 		}
 	}
-
-	private void handleTransferFailed() throws IOException {
-		String fileName = inbound.readUTF();
-		long theirLimit = inbound.readLong();
-		peer.network.log(fileName+"failed to upload: " + peer.url + " can accept " + theirLimit/1000 + " more KB of data");
+	
+	private void registerPacket(IPacketHandler packet){
+		packets.put(packet.getIdentifier(), packet);
 	}
 
 	//Receives a handshake
@@ -144,133 +136,5 @@ final class PeerServicer implements Runnable {
 		}
 		
 		return true;
-	}
-	
-	//Backs up a file
-	private void handleBackupRequest() throws IOException{
-		synchronized(peer.network.fileStorageLock){
-			String fileName=inbound.readUTF();
-			long length=inbound.readLong();
-			File file=new File(peer.getStoragePath(), fileName);
-			
-			//File exceeds our allocated space
-			//Don't let them send the whole file - close the connection to indicate
-			//failure. we still want to be connected, so reconnect
-			if(!peer.network.requestSpaceForFile(length)) {
-				peer.notifyFileRejection(fileName, peer.network.bytesLimit - peer.network.bytesStored);
-				peer.kill("Cannot store oversize file: "+fileName);
-				peer.network.connect(peer.url);
-			}
-			
-			//You can overwrite existing backups
-			if(file.exists())
-				file.delete();
-
-			file.getParentFile().mkdirs();
-
-			file.createNewFile();
-			FileOutputStream out=new FileOutputStream(file);
-
-			for(long i=0; i<length; i++){
-				out.write(inbound.readByte());
-			}
-			out.close();
-		}
-	}
-	
-	//Handles Retrieve request for a file
-	private void handleRetrieveRequest() throws IOException{
-		synchronized(peer.network.fileStorageLock){
-			String fileName=inbound.readUTF();
-			String fileDir = peer.network.getBackupStoragePath();
-			Path filePath = new File(fileDir,fileName).toPath();
-			try{
-				peer.restoreFile(fileName, filePath);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	//We asked to retrieve a file, and someone is sending it
-	private void handleRetrieveResponse() throws IOException {
-		// Get file name and length
-		String fileName=inbound.readUTF();
-		long length=inbound.readLong();
-		
-		//If we don't have it, we didn't request the file
-		if(!peer.network.downloadingFileLocs.containsKey(fileName))
-			peer.kill("Tried to restore file that we didn't request!");
-		
-		File file=new File(peer.network.downloadingFileLocs.get(fileName), fileName);
-		
-		peer.network.downloadingFileLocs.remove(fileName);
-
-		//You can overwrite existing backups
-		
-		file.createNewFile();
-		
-		// Create a temporary file directory and file to read in the compressed file
-		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
-		temporaryFileDir.mkdirs();
-		File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
-		
-		FileOutputStream fout=new FileOutputStream(compressedFile);
-
-		// read inbounding compressed file into temporary file
-		for(long i=0; i<length; i++){
-			fout.write(inbound.readByte());
-		}
-		fout.close();
-		
-		try {
-			// decompress compressed fle into file
-			decompress(compressedFile,file);
-		} catch (Exception e) {
-			System.out.print(e);
-		}
-		compressedFile.delete();
-	}
-	
-	
-	public static void decompress(File source, File decompressed)throws Exception{
-		byte[] buffer = new byte[1024];
-		
-		// File handler for source file
-		FileInputStream fis = new FileInputStream(source);
-		
-		// File handler for decompress file
-		FileOutputStream fos = new FileOutputStream(decompressed);
-		
-		// Zipped file handler
-		GZIPInputStream gzis = new GZIPInputStream(fis);
-		
-		int read;
-		// read() returns bytes read or -1 if none is read
-		while((read = gzis.read(buffer)) != -1 ){
-			// write read amount of bytes from buffer to output file
-			fos.write(buffer,0, read);
-		}		
-		gzis.close(); 
-		fos.close();
-		fis.close();
-	}
-	
-	//Receives list of files stored on some peer
-	private void handleListResponse() throws IOException {
-		int files=inbound.readInt();
-		for(int i=0; i<files; i++){
-			peer.recordStoredFile(inbound.readUTF());
-		}
-	}
-	
-	//Receives new peer and attempts to connect with them
-	public void handleNewPeer() throws IOException{
-		String newPeer = inbound.readUTF();
-		try{
-			peer.network.connect(newPeer);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 }

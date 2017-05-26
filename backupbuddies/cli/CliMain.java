@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import backupbuddies.Debug;
 import backupbuddies.network.Network;
-import backupbuddies.shared.Interface;
+import backupbuddies.shared.IInterface;
 
 public class CliMain {
 
@@ -27,7 +27,7 @@ public class CliMain {
 		
 		if(flags.contains("-daemon")) {
 			if(flags.contains("-load")){
-				Interface.loadNetwork();
+				IInterface.INSTANCE.loadNetwork();
 			}
 			//Create a network
 			int passwordPos=seek("-password", args);
@@ -40,16 +40,16 @@ public class CliMain {
 			}
 			String password=args[passwordPos+1];
 			
-			Interface.login("", password);
+			IInterface.INSTANCE.login("", password);
 			
 			int peerPos=seek("-peer", args);
 			if(peerPos == -1 || peerPos == args.length-1){
 				
 			} else {
 				Debug.mark();
-				Interface.login(args[peerPos+1], password);
+				IInterface.INSTANCE.login(args[peerPos+1], password);
 			}
-			Interface.saveNetwork();
+			IInterface.INSTANCE.saveNetwork();
 		}
 			
 	}
