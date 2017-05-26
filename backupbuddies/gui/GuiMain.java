@@ -62,6 +62,7 @@ public class GuiMain extends JFrame {
     static JPanel selectFilesPanel = selectFilesPanel();
     static JPanel searchPanel = searchPanel();
     static JPanel varsPanel = varsPanel();
+    static JPanel storagePanel = storagePanel();
     static JPanel logPanel = logPanel();
     
     static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
@@ -363,7 +364,44 @@ public class GuiMain extends JFrame {
             }
         });
 
-        int min = 0;
+        /*int min = 0;
+        int max = 1000;
+        int init = 1;
+        final JLabel sliderLabel = new JLabel("storage:");
+        final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
+        slider.setMajorTickSpacing(max / 10);
+        slider.setPaintTicks(true);
+
+        final JLabel currStorageLabel = new JLabel(String.valueOf(slider.getValue()) + " GB");
+
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!slider.getValueIsAdjusting()) {
+                    currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
+                    IInterface.INSTANCE.setStorageSpace(slider.getValue());
+                }
+            }
+        });*/
+
+
+        //add components to panel and specify orientation
+        panel.add(varsPanelLabel);
+        panel.add(keyField);
+        panel.add(lockPassButton);
+        //panel.add(sliderLabel);
+        //panel.add(slider);
+        //panel.add(currStorageLabel);
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+
+        return panel;    
+    }
+    
+    public static JPanel storagePanel(){
+    	JPanel panel = new JPanel();
+    	
+    	int min = 0;
         int max = 1000;
         int init = 1;
         final JLabel sliderLabel = new JLabel("storage:");
@@ -382,19 +420,14 @@ public class GuiMain extends JFrame {
                 }
             }
         });
-
-
-        //add components to panel and specify orientation
-        panel.add(varsPanelLabel);
-        panel.add(keyField);
-        panel.add(lockPassButton);
+        
         panel.add(sliderLabel);
         panel.add(slider);
         panel.add(currStorageLabel);
         panel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
-
-        return panel;    
+        		ComponentOrientation.LEFT_TO_RIGHT);
+        
+        return panel;
     }
 
     public static JPanel selectUsersPanel() {
@@ -522,6 +555,7 @@ public class GuiMain extends JFrame {
                 panelLocs.put(selectUsersPanel, Arrays.asList(50, 300));
                 panelLocs.put(controlPanel,     Arrays.asList(350, 525));
                 panelLocs.put(varsPanel,        Arrays.asList(50, 100));
+                panelLocs.put(storagePanel,     Arrays.asList(450, 100));
                 panelLocs.put(logPanel,         Arrays.asList(5, 400));
 
                 //confirm layout
