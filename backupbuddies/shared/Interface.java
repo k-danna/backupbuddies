@@ -86,13 +86,17 @@ public class Interface implements IInterface {
 	 * @see backupbuddies.shared.IInterface#uploadFile(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void uploadFile(String fileName, String fileDir, String peerName) {
-		Path filePath = new File(fileDir,fileName).toPath();				//
+	public void uploadFile(File[] files, String peerName) {
+	    for (File f : files) {
+            Path filePath = f.toPath();
 
-		Peer peer = network.getPeer(peerName);
-		peer.uploadFile(filePath);
-		peer.requestUpdatedFileList();
+            System.out.println("debug");
+            System.out.println(filePath);
 
+            Peer peer = network.getPeer(peerName);
+            peer.uploadFile(filePath);
+            peer.requestUpdatedFileList();
+        }
 	}
 
 	/* (non-Javadoc)
