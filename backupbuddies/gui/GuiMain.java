@@ -35,7 +35,7 @@ public class GuiMain extends JFrame {
     static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
     static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
     static JList<ListModel> allFiles = new JList<ListModel>();
-    static JList<ListModel> allUsers = new JList<ListModel>();   
+    static JList<ListModel> allUsers = new JList<ListModel>();
     
     //holds the all indices selected by the user
     static DefaultListModel<String> lastFileState = new DefaultListModel<String>();
@@ -110,6 +110,7 @@ public class GuiMain extends JFrame {
 
             }
         };
+        
         Timer timer = new Timer(interval, updateUI);
         timer.setRepeats(true);
         timer.start();
@@ -244,8 +245,6 @@ public class GuiMain extends JFrame {
         loginPanel.add(ipField);
         loginPanel.add(passField);
         loginPanel.add(loginButton);
-        //loginPanel.setComponentOrientation(
-        //        ComponentOrientation.LEFT_TO_RIGHT);
 
         return loginPanel;    
     }
@@ -346,7 +345,9 @@ public class GuiMain extends JFrame {
     public static JPanel varsPanel() {
         //create panel
         final JPanel panel = new JPanel();
-
+        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(layout);
+        
         //create components
         final JLabel varsPanelLabel = new JLabel("enter encryption key:");
         final JButton lockPassButton = new JButton("confirm key");
@@ -366,34 +367,10 @@ public class GuiMain extends JFrame {
             }
         });
 
-        /*int min = 0;
-        int max = 1000;
-        int init = 1;
-        final JLabel sliderLabel = new JLabel("storage:");
-        final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
-        slider.setMajorTickSpacing(max / 10);
-        slider.setPaintTicks(true);
-
-        final JLabel currStorageLabel = new JLabel(String.valueOf(slider.getValue()) + " GB");
-
-        slider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (!slider.getValueIsAdjusting()) {
-                    currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
-                    IInterface.INSTANCE.setStorageSpace(slider.getValue());
-                }
-            }
-        });*/
-
-
         //add components to panel and specify orientation
         panel.add(varsPanelLabel);
         panel.add(keyField);
         panel.add(lockPassButton);
-        //panel.add(sliderLabel);
-        //panel.add(slider);
-        //panel.add(currStorageLabel);
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
 
