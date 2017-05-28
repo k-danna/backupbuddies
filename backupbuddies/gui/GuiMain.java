@@ -35,7 +35,7 @@ public class GuiMain extends JFrame {
     static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
     static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
     static JList<ListModel> allFiles = new JList<ListModel>();
-    static JList<ListModel> allUsers = new JList<ListModel>();   
+    static JList<ListModel> allUsers = new JList<ListModel>();
     
     //holds the all indices selected by the user
     static DefaultListModel<String> lastFileState = new DefaultListModel<String>();
@@ -51,6 +51,7 @@ public class GuiMain extends JFrame {
     static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
+    static boolean firstSearch = false;
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -62,6 +63,7 @@ public class GuiMain extends JFrame {
     static JPanel selectFilesPanel = selectFilesPanel();
     static JPanel searchPanel = searchPanel();
     static JPanel varsPanel = varsPanel();
+    static JPanel storagePanel = storagePanel();
     static JPanel logPanel = logPanel();
     
     static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
@@ -80,16 +82,20 @@ public class GuiMain extends JFrame {
     }
 
     //updates ui on interval
-    public static void startIntervals(int interval) {  	
+    public static void startIntervals(int interval) {
+
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
             	IInterface.INSTANCE.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
-            	updateUserSelection();
+            	updateUserSelection();  
             	
-            	
+                if(firstSearch == false){
+                	fileSearch("");
+                	firstSearch = true;
+                }
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
@@ -109,6 +115,7 @@ public class GuiMain extends JFrame {
 
             }
         };
+        
         Timer timer = new Timer(interval, updateUI);
         timer.setRepeats(true);
         timer.start();
@@ -209,6 +216,8 @@ public class GuiMain extends JFrame {
     public static JPanel loginPanel() {
         //create panel
         final JPanel loginPanel = new JPanel();
+        BoxLayout layout = new BoxLayout(loginPanel, BoxLayout.Y_AXIS);
+        loginPanel.setLayout(layout);
 
         //create components
         final JLabel loginLabel = new JLabel("join a network:");
@@ -236,13 +245,12 @@ public class GuiMain extends JFrame {
             }
         });
 
+       // loginButton.setBorder(new RoundedBorder(10));
         //add components to panel and specify orientation
         loginPanel.add(loginLabel);
         loginPanel.add(ipField);
         loginPanel.add(passField);
         loginPanel.add(loginButton);
-        loginPanel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
 
         return loginPanel;    
     }
@@ -264,7 +272,7 @@ public class GuiMain extends JFrame {
     	
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
-        pane.setPreferredSize(new Dimension(300, 100));
+        pane.setPreferredSize(new Dimension(250, 400));
         
         return pane;
     }
@@ -284,7 +292,7 @@ public class GuiMain extends JFrame {
         });
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
-        pane.setPreferredSize(new Dimension(300, 100));
+        pane.setPreferredSize(new Dimension(250, 400));
        
         return pane;
        
@@ -343,7 +351,9 @@ public class GuiMain extends JFrame {
     public static JPanel varsPanel() {
         //create panel
         final JPanel panel = new JPanel();
-
+        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(layout);
+        
         //create components
         final JLabel varsPanelLabel = new JLabel("enter encryption key:");
         final JButton lockPassButton = new JButton("confirm key");
@@ -363,11 +373,25 @@ public class GuiMain extends JFrame {
             }
         });
 
-        int min = 0;
+        //add components to panel and specify orientation
+        panel.add(varsPanelLabel);
+        panel.add(keyField);
+        panel.add(lockPassButton);
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+
+        return panel;    
+    }
+    
+    public static JPanel storagePanel(){
+    	JPanel panel = new JPanel();
+    	
+    	int min = 0;
         int max = 1000;
         int init = 1;
         final JLabel sliderLabel = new JLabel("storage:");
         final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
+        slider.setPreferredSize(new Dimension(200, 30));
         slider.setMajorTickSpacing(max / 10);
         slider.setPaintTicks(true);
 
@@ -382,28 +406,23 @@ public class GuiMain extends JFrame {
                 }
             }
         });
-
-
-        //add components to panel and specify orientation
-        panel.add(varsPanelLabel);
-        panel.add(keyField);
-        panel.add(lockPassButton);
+        
         panel.add(sliderLabel);
         panel.add(slider);
         panel.add(currStorageLabel);
         panel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
-
-        return panel;    
+        		ComponentOrientation.LEFT_TO_RIGHT);
+        
+        return panel;
     }
 
     public static JPanel selectUsersPanel() {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectUser = new JLabel("users: ");
-        final JButton selectAllButton = new JButton("select all");
-        final JButton selectNoneButton = new JButton("select none");
+        final JLabel selectUser = new JLabel("select: ");
+        final JButton selectAllButton = new JButton("all");
+        final JButton selectNoneButton = new JButton("none");
         //bind methods to buttons
         selectAllButton.addActionListener(new ActionListener() {
             @Override
@@ -431,9 +450,9 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectFiles = new JLabel("files: ");
-        final JButton selectAllButton = new JButton("select all");
-        final JButton selectNoneButton = new JButton("select none");
+        final JLabel selectFiles = new JLabel("select: ");
+        final JButton selectAllButton = new JButton("all");
+        final JButton selectNoneButton = new JButton("none");
         //bind methods to buttons
         selectAllButton.addActionListener(new ActionListener() {
             @Override
@@ -515,19 +534,20 @@ public class GuiMain extends JFrame {
 
                 //set locations for each panel
                 panelLocs.put(loginPanel,       Arrays.asList(50, 5));
-                panelLocs.put(userListPanel,    Arrays.asList(50, 200));
-                panelLocs.put(fileListPanel,    Arrays.asList(450, 200));
-                panelLocs.put(searchPanel,      Arrays.asList(450, 160));
-                panelLocs.put(selectFilesPanel, Arrays.asList(450, 300));
-                panelLocs.put(selectUsersPanel, Arrays.asList(50, 300));
+                panelLocs.put(userListPanel,    Arrays.asList(350, 80));
+                panelLocs.put(fileListPanel,    Arrays.asList(650, 80));
+                panelLocs.put(searchPanel,      Arrays.asList(650, 10));
+                panelLocs.put(selectFilesPanel, Arrays.asList(650, 40));
+                panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
                 panelLocs.put(controlPanel,     Arrays.asList(350, 525));
                 panelLocs.put(varsPanel,        Arrays.asList(50, 100));
+                panelLocs.put(storagePanel,     Arrays.asList(5, 200));
                 panelLocs.put(logPanel,         Arrays.asList(5, 400));
 
                 //confirm layout
                 contentPane.setLayout(frameLayout());
                 
-                frame.setSize(800, 600);
+                frame.setSize(1000, 600);
                 frame.setLocationRelativeTo(null);
 
                 for (Component panel : panelLocs.keySet()) {
