@@ -49,6 +49,11 @@ public class InterfaceDummy implements IInterface {
 	    System.out.printf("[+] downloading '%s' to '%s'\n", 
 	            fileName, fileDir);
 	}
+	
+	private void maybeAdd(DefaultListModel<ListModel> users, ListModel a){
+		if(Math.random() < 0.75)
+			users.addElement(a);
+	}
 
 	@Override
 	public DefaultListModel<ListModel> fetchUserList() {
@@ -61,12 +66,12 @@ public class InterfaceDummy implements IInterface {
         ListModel e = new ListModel("onlineUser2","1");
         ListModel f = new ListModel("onlineUser3","1");
         
-        users.addElement(a);
-        users.addElement(b);
-        users.addElement(c);
-        users.addElement(d);
-        users.addElement(e);
-        users.addElement(f);
+        maybeAdd(users,a);
+        maybeAdd(users,b);
+        maybeAdd(users,c);
+        maybeAdd(users,d);
+        maybeAdd(users,e);
+        maybeAdd(users,f);
         return users;
 	}
 
@@ -85,12 +90,12 @@ public class InterfaceDummy implements IInterface {
         ListModel h = new ListModel("availableFile3","1");
         ListModel i = new ListModel("fileInTransit3","2");
         
-        files.addElement(a);
-        files.addElement(b);
-        files.addElement(c);
-        files.addElement(d);
-        files.addElement(e);
-        files.addElement(f);
+        maybeAdd(files,a);
+        maybeAdd(files,b);
+        maybeAdd(files,c);
+        maybeAdd(files,d);
+        maybeAdd(files,e);
+        maybeAdd(files,f);
         return files;    
 	}
 
@@ -117,4 +122,8 @@ public class InterfaceDummy implements IInterface {
 		return ls;
 	}
 
+	public void setDisplayName(String newName) {
+		System.out.printf("[+] Setting display name to '%s'\n", newName);
+	}
+	
 }
