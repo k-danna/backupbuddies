@@ -3,7 +3,6 @@ package backupbuddies.cli;
 import java.util.HashSet;
 
 import backupbuddies.Debug;
-import backupbuddies.network.Network;
 import backupbuddies.shared.IInterface;
 
 public class CliMain {
