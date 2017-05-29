@@ -273,7 +273,7 @@ public class GuiMain extends JFrame {
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(250, 400));
-        
+        allUsers.setSelectionBackground(Color.green);
         return pane;
     }
 
@@ -281,7 +281,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = (Interface.INSTANCE.fetchFileList());   	
+    	//filetest = (IInterface.INSTANCE.fetchFileList());   	
         allFiles.setModel(filetest);      
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
@@ -293,6 +293,7 @@ public class GuiMain extends JFrame {
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(250, 400));
+        allFiles.setSelectionBackground(Color.green);
        
         return pane;
        
