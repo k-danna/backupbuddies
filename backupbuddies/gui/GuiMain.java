@@ -28,6 +28,7 @@ public class GuiMain extends JFrame {
     //colors
     //static final Color mainColor = new Color(250, 200, 0);
     static final Color colorBlue = new Color(41, 129, 217);
+    static final Color textColor = new Color(255,235,205);
     static final Color colorGreen = Color.GREEN;
     static final Color colorOrange = Color.ORANGE;
     static final Color colorCyan = Color.CYAN;
@@ -238,8 +239,8 @@ public class GuiMain extends JFrame {
         loginPanel.setLayout(layout);
 
         //create components
-        final JLabel loginLabel = new JLabel("join a network:");
-        final JButton loginButton = new JButton("join");
+        final JLabel loginLabel = new JLabel("Join a Network:");
+        final JButton loginButton = new JButton("Join");
         final JTextField ipField = new JTextField("network ip");
         final JTextField passField = new JTextField("network password");
         ipField.setEnabled(false);
@@ -271,6 +272,8 @@ public class GuiMain extends JFrame {
 
        // loginButton.setBorder(new RoundedBorder(10));
         //add components to panel and specify orientation
+        loginLabel.setForeground(textColor);
+        loginLabel.setFont(new Font("Courier New", Font.BOLD, 18));
         loginPanel.add(loginLabel);
         loginPanel.add(ipField);
         loginPanel.add(passField);
@@ -296,8 +299,9 @@ public class GuiMain extends JFrame {
     	
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
-        pane.setPreferredSize(new Dimension(250, 400));
-        allUsers.setSelectionBackground(Color.green);
+        pane.setPreferredSize(new Dimension(250, 440));
+        //allUsers.setSelectionBackground(Color.green);
+        allUsers.setBackground(textColor);
         return pane;
     }
 
@@ -316,8 +320,9 @@ public class GuiMain extends JFrame {
         });
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
-        pane.setPreferredSize(new Dimension(250, 400));
-        allFiles.setSelectionBackground(Color.green);
+        pane.setPreferredSize(new Dimension(250, 440));
+        //allFiles.setSelectionBackground(Color.green);
+        allFiles.setBackground(textColor);
        
         return pane;
        
@@ -340,7 +345,7 @@ public class GuiMain extends JFrame {
     
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
-    	JLabel label = new JLabel("search for file:");
+    	JLabel label = new JLabel("Search:");
         JTextField search = new JTextField("", 10);
         fileSearch(search.getText());
         search.addMouseListener(new MouseAdapter() {
@@ -367,7 +372,8 @@ public class GuiMain extends JFrame {
 				fileSearch(search.getText());				
 			}
         });
-        
+        label.setForeground(textColor);
+        label.setFont(new Font("Courier New", Font.BOLD, 18));
         panel.add(label);
         panel.add(search);
         return panel;
@@ -380,7 +386,7 @@ public class GuiMain extends JFrame {
         panel.setLayout(layout);
         
         //create components
-        final JLabel varsPanelLabel = new JLabel("enter encryption key:");
+        final JLabel varsPanelLabel = new JLabel("Enter Encryption Key:");
         final JButton lockPassButton = new JButton("confirm key");
         final JTextField keyField = new JTextField("encryption key");
         keyField.setEnabled(false);
@@ -402,6 +408,8 @@ public class GuiMain extends JFrame {
         });
 
         //add components to panel and specify orientation
+        varsPanelLabel.setForeground(textColor);
+        varsPanelLabel.setFont(new Font("Courier New", Font.BOLD, 18));
         panel.add(varsPanelLabel);
         panel.add(keyField);
         panel.add(lockPassButton);
@@ -448,7 +456,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectUser = new JLabel("select: ");
+        final JLabel selectUser = new JLabel("Select Peer: ");
         final JButton selectAllButton = new JButton("all");
         final JButton selectNoneButton = new JButton("none");
         //bind methods to buttons
@@ -468,6 +476,8 @@ public class GuiMain extends JFrame {
                 lastUserState.clear();
             }
         });
+        selectUser.setForeground(textColor);
+        selectUser.setFont(new Font("Courier New", Font.BOLD, 18));
         panel.add(selectUser);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
@@ -478,7 +488,7 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectFiles = new JLabel("select: ");
+        final JLabel selectFiles = new JLabel("Select File: ");
         final JButton selectAllButton = new JButton("all");
         final JButton selectNoneButton = new JButton("none");
         //bind methods to buttons
@@ -498,6 +508,8 @@ public class GuiMain extends JFrame {
                 lastFileState.clear();
             }
         });
+        selectFiles.setForeground(textColor);
+        selectFiles.setFont(new Font("Courier New", Font.BOLD, 18));
         panel.add(selectFiles);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
