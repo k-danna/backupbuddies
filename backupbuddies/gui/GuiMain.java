@@ -25,6 +25,15 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
+    //colors
+    //static final Color mainColor = new Color(250, 200, 0);
+    static final Color colorBlue = new Color(41, 129, 217);
+    static final Color colorGreen = Color.GREEN;
+    static final Color colorOrange = Color.ORANGE;
+    static final Color colorCyan = Color.CYAN;
+    static final Color colorWhite = Color.WHITE;
+    static final Color colorGray = Color.DARK_GRAY; //black
+
     //load assets, lists etc before creating the gui
     static JFrame frame = new JFrame("BackupBuddies");
     static JTextField saveDir = new JTextField();
@@ -174,12 +183,20 @@ public class GuiMain extends JFrame {
     public static JPanel controlPanel() {
         //create panel
         JPanel controlPanel = new JPanel();
+        GridLayout layout = new GridLayout(2, 1, 0, 10);
+        controlPanel.setLayout(layout);
         
         //create components
         JLabel fileLabel = new JLabel("backup your files");
         JButton uploadButton = new JButton("upload");
         JButton downloadButton = new JButton("download");
         JButton pathButton = new JButton("save to...");
+
+        //set button colors
+        //uploadButton.setForeground(colorGreen); //text color
+        //uploadButton.setBackground(colorGreen);
+        //uploadButton.setContentAreaFilled(false);
+        //uploadButton.setOpaque(true);
 
         //bind methods to buttons
         uploadButton.addActionListener(new ActionListener() {
@@ -202,12 +219,13 @@ public class GuiMain extends JFrame {
         });
 
         //add components to panel and specify orientation
-        controlPanel.add(fileLabel);
-        controlPanel.add(pathButton);
+        controlPanel.setPreferredSize(new Dimension(250, 150));
+        //controlPanel.add(fileLabel);
         controlPanel.add(uploadButton);
         controlPanel.add(downloadButton);
-        controlPanel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
+        //controlPanel.add(pathButton);
+        //controlPanel.setComponentOrientation(
+        //        ComponentOrientation.LEFT_TO_RIGHT);
 
         return controlPanel;
     }
@@ -224,6 +242,8 @@ public class GuiMain extends JFrame {
         final JButton loginButton = new JButton("join");
         final JTextField ipField = new JTextField("network ip");
         final JTextField passField = new JTextField("network password");
+        ipField.setEnabled(false);
+        passField.setEnabled(false);
         
         //bind methods to buttons
         loginButton.addActionListener(new ActionListener() {
@@ -236,12 +256,16 @@ public class GuiMain extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 ipField.setText("");
+                ipField.setEnabled(true);
+                ipField.requestFocus();
             }
         });
         passField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 passField.setText("");
+                passField.setEnabled(true);
+                passField.requestFocus();
             }
         });
 
@@ -358,7 +382,8 @@ public class GuiMain extends JFrame {
         final JLabel varsPanelLabel = new JLabel("enter encryption key:");
         final JButton lockPassButton = new JButton("confirm key");
         final JTextField keyField = new JTextField("encryption key");
-        
+        keyField.setEnabled(false);
+
         //bind methods to buttons
         lockPassButton.addActionListener(new ActionListener() {
             @Override
@@ -370,6 +395,8 @@ public class GuiMain extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 keyField.setText("");
+                keyField.setEnabled(true);
+                keyField.requestFocus();
             }
         });
 
@@ -493,6 +520,8 @@ public class GuiMain extends JFrame {
     public static JPanel logPanel() {
         //create panel
         final JPanel panel = new JPanel();
+        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(layout);
 
         //create components
         final JLabel logLabel = new JLabel("event log");
@@ -532,17 +561,19 @@ public class GuiMain extends JFrame {
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
 
-                //set locations for each panel
-                panelLocs.put(loginPanel,       Arrays.asList(50, 5));
+                //left column locations
+                panelLocs.put(loginPanel,       Arrays.asList(50, 10));
+                panelLocs.put(varsPanel,        Arrays.asList(50, 120));
+                panelLocs.put(controlPanel,     Arrays.asList(50, 210));
+                panelLocs.put(storagePanel,     Arrays.asList(5, 370));
+                panelLocs.put(logPanel,         Arrays.asList(50, 420));
+                //middle column locatinos
                 panelLocs.put(userListPanel,    Arrays.asList(350, 80));
-                panelLocs.put(fileListPanel,    Arrays.asList(650, 80));
+                panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
+                //right column locations
                 panelLocs.put(searchPanel,      Arrays.asList(650, 10));
                 panelLocs.put(selectFilesPanel, Arrays.asList(650, 40));
-                panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
-                panelLocs.put(controlPanel,     Arrays.asList(350, 525));
-                panelLocs.put(varsPanel,        Arrays.asList(50, 100));
-                panelLocs.put(storagePanel,     Arrays.asList(5, 200));
-                panelLocs.put(logPanel,         Arrays.asList(5, 400));
+                panelLocs.put(fileListPanel,    Arrays.asList(650, 80));
 
                 //confirm layout
                 contentPane.setLayout(frameLayout());
@@ -553,6 +584,18 @@ public class GuiMain extends JFrame {
                 for (Component panel : panelLocs.keySet()) {
                     contentPane.add(panel);
                 }
+
+                //set background color
+                Color globalColor = colorBlue;
+                frame.getContentPane().setBackground(globalColor);
+                loginPanel.setBackground(globalColor);
+                varsPanel.setBackground(globalColor);
+                storagePanel.setBackground(globalColor);
+                logPanel.setBackground(globalColor);
+                searchPanel.setBackground(globalColor);
+                selectFilesPanel.setBackground(globalColor);
+                selectUsersPanel.setBackground(globalColor);
+                controlPanel.setBackground(globalColor);
 
                 //display the window
                 frame.validate();
