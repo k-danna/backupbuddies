@@ -272,6 +272,11 @@ public class GuiMain extends JFrame {
 
        // loginButton.setBorder(new RoundedBorder(10));
         //add components to panel and specify orientation
+       // loginButton.setOpaque(false);
+       // loginButton.setBorderPainted(false);
+       // loginButton.setFocusPainted(false);
+        //loginButton.setForeground(Color.BLUE);
+        //loginButton.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
         loginLabel.setForeground(textColor);
         loginLabel.setFont(new Font("Courier New", Font.BOLD, 18));
         loginPanel.add(loginLabel);
@@ -477,7 +482,7 @@ public class GuiMain extends JFrame {
             }
         });
         selectUser.setForeground(textColor);
-        selectUser.setFont(new Font("Courier New", Font.BOLD, 18));
+        selectUser.setFont(new Font("Courier New", Font.BOLD, 16));
         panel.add(selectUser);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
@@ -509,7 +514,7 @@ public class GuiMain extends JFrame {
             }
         });
         selectFiles.setForeground(textColor);
-        selectFiles.setFont(new Font("Courier New", Font.BOLD, 18));
+        selectFiles.setFont(new Font("Courier New", Font.BOLD, 16));
         panel.add(selectFiles);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
