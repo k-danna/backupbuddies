@@ -56,9 +56,9 @@ public class GuiMain extends JFrame {
     static final JTextArea log = new JTextArea(5, 20);
     static List<String> prevEvents = new ArrayList<>();
     
-    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowCircle.png");
-    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
+    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedderCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowerCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenerCircle.png");
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     static boolean firstSearch = false;
