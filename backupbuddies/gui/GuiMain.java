@@ -123,11 +123,10 @@ public class GuiMain extends JFrame {
                             //only reset prevArraysize variable
 
                 List<String> events = IInterface.INSTANCE.getEventLog();
+            	log.setText("");
                 for (String event : events) {
-                    if (!prevEvents.contains(event)) {
-                        log.append(event + "\n");
-                        log.setCaretPosition(log.getDocument().getLength());
-                    }
+                    log.append(event + "\n");
+                    log.setCaretPosition(log.getDocument().getLength());
                 }
                 prevEvents = events;
 
