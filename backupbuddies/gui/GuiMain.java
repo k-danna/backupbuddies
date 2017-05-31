@@ -105,7 +105,7 @@ public class GuiMain extends JFrame {
             	fileSearch(globalSearch);
             	
                 if(firstSearch == false){
-            //    	fileSearch("");
+                	fileSearch("");
                 	firstSearch = true;
                 }
                 
