@@ -103,7 +103,7 @@ public class GuiMain extends JFrame {
             	updateUserSelection();  
             	
                 if(firstSearch == false){
-                	fileSearch("");
+           //     	fileSearch("");
                 	firstSearch = true;
                 }
                 
@@ -321,7 +321,7 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = (IInterface.INSTANCE.fetchFileList());   	
+    	filetest = (IInterface.INSTANCE.fetchFileList());   	
         allFiles.setModel(filetest);      
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
@@ -340,7 +340,7 @@ public class GuiMain extends JFrame {
        
     }
 
-    public static void fileSearch(String search){
+   /* public static void fileSearch(String search){
     	int cap = debug.getSize();
         filetest.clear();
         for(int i=0; i<cap; i++){
@@ -353,14 +353,14 @@ public class GuiMain extends JFrame {
                 
         	}
         }
-    }
+    }*/
     
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
     	JLabel label = new JLabel("Search:");
         JTextField search = new JTextField("search...", 12);
         search.setEnabled(false);
-        fileSearch(search.getText());
+       // fileSearch(search.getText());
         search.setBackground(listColor);
         search.addMouseListener(new MouseAdapter() {
             @Override
@@ -380,12 +380,12 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				fileSearch(search.getText());
+			//	fileSearch(search.getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				fileSearch(search.getText());				
+			//	fileSearch(search.getText());				
 			}
         });
         label.setForeground(textColor);
