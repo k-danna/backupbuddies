@@ -108,7 +108,12 @@ public class GuiMain extends JFrame {
                 	fileSearch("");
                 	firstSearch = true;
                 }
-                fileSearch(globalSearch);
+                int[] selected = new int[lastFileState.getSize()];
+                for(int i=0; i<lastFileState.getSize(); i++){
+                	selected[i] = Integer.parseInt(lastFileState.getElementAt(i));
+                }
+                allFiles.setSelectedIndices(selected);
+             //   fileSearch(globalSearch);
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
@@ -166,7 +171,7 @@ public class GuiMain extends JFrame {
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
         }
-        fileSearch("");
+        //fileSearch("");
     }
 
     //user downloads a file to save directory (and chooses if not set)
@@ -333,10 +338,14 @@ public class GuiMain extends JFrame {
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
     	filetest = (IInterface.INSTANCE.fetchFileList());   	
+    	//allFiles.setModel(filetest);
         allFiles.setModel(files);
         for(int i=0; i< files.size(); i++){
         	System.out.printf("%s\n", files.getElementAt(i));
         }
+    	/*for(int i=0; i< filetest.size(); i++){
+        	System.out.printf("%s\n", filetest.getElementAt(i));
+        }*/
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
