@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import backupbuddies.Debug;
 import backupbuddies.network.packet.BackupFile;
+import backupbuddies.network.packet.Handshake;
 import backupbuddies.network.packet.ListFiles;
 import backupbuddies.network.packet.NotifyNewPeer;
 import backupbuddies.network.packet.RequestListOfFiles;
@@ -29,8 +30,8 @@ public class Peer {
 	private Thread peerServicer;
 
 	public final String url;
+	public String displayName;
 
-	boolean requireHandshake;
 	//String password;
 
 	Network network;
@@ -39,16 +40,16 @@ public class Peer {
 	
 	
 	//This is the UUID we generate
-	final String token;
+	public final String token;
 
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
 	Peer(String url, Network net) throws IOException{
-		this(new Socket(url, Protocol.DEFAULT_PORT), true, net);
+		this(new Socket(url, Protocol.DEFAULT_PORT), net);
 	}
 
-	Peer(Socket socket, boolean sendHandshake, Network net) {
+	Peer(Socket socket, Network net) {
 		this.network=net;
 		
 		//Generate our token at random
@@ -62,8 +63,7 @@ public class Peer {
 			outbound = new DataOutputStream(socket.getOutputStream());
 			DataInputStream inbound = new DataInputStream(socket.getInputStream());
 
-			requireHandshake = !sendHandshake;
-			sendHandshake();
+			Handshake.sendHandshake(outbound, token, network);
 
 			peerServicer = new Thread(new PeerServicer(this, inbound));
 			peerServicer.start();
@@ -71,31 +71,9 @@ public class Peer {
 			this.kill(e);
 		}
 	}
-
-	//Sends a handshake message
-	private synchronized void sendHandshake() throws IOException {
-		outbound.writeUTF(Protocol.HANDSHAKE);
-		outbound.writeUTF(token);
-	}
 	
-	public synchronized void sendLoginToken(String theirToken) throws IOException {
-		String loginKey = token + theirToken + network.password;
-		
-		byte[] ourHash = computeHash(loginKey);
-		
-		outbound.write(ourHash);
-	}
-	
-	static byte[] computeHash(String input){
-		try{
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			byte[] hashBytes = md.digest(input.getBytes());
-			return hashBytes;
-		}catch(NoSuchAlgorithmException e){
-			//We're hosed
-			throw new RuntimeException(e);
-		}
-
+	Peer(OfflinePeer offline, Network net) throws IOException{
+		this(offline.url, net);
 	}
 
 	public boolean isDead(){
@@ -105,14 +83,18 @@ public class Peer {
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(Object error){
 		Debug.dbg(error);
+		if(error instanceof Exception)
+			((Exception) error).printStackTrace();
 		network.onConnectionDie(this);
 		cleanup();
 	}
 	
 	@SuppressWarnings("deprecation")
 	public synchronized void cleanup(){
-		peerServicer.stop();
-		peerServicer=null;
+		if(peerServicer != null){
+			peerServicer.stop();
+			peerServicer=null;
+		}
 		try{
 			outbound.close();
 		}catch(IOException e){
@@ -186,9 +168,12 @@ public class Peer {
 		return outbound;
 	}
 	
-	
-	
-	
-	
+	public OfflinePeer getPersistentData(){
+		return new OfflinePeer(this.url, this.displayName, this.filesStored);
+	}
+
+	public Network getNetwork() {
+		return network;
+	}
 
 }

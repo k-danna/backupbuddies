@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import backupbuddies.Debug;
 import backupbuddies.network.packet.BackupFile;
+import backupbuddies.network.packet.Handshake;
 import backupbuddies.network.packet.ListFiles;
 import backupbuddies.network.packet.NotifyNewPeer;
 import backupbuddies.network.packet.NotifyTransferFailed;
@@ -46,7 +47,7 @@ final class PeerServicer implements Runnable {
 			// If they fail to handshake properly, they're either not Backup
 			// Buddies or don't have the password. Don't take their commands.
 			try{
-				checkHandshake();
+				Handshake.checkHandshake(peer, inbound);
 			}catch(IllegalArgumentException e){
 				e.printStackTrace();
 				peer.kill("Bad handshake");
@@ -88,53 +89,4 @@ final class PeerServicer implements Runnable {
 		packets.put(packet.getIdentifier(), packet);
 	}
 
-	//Receives a handshake
-	private boolean checkHandshake() throws IOException, IllegalArgumentException {
-		String handshake=inbound.readUTF();
-		if(handshake==null)
-			throw new IllegalArgumentException();
-
-		if(!(handshake.equals(Protocol.HANDSHAKE)))
-			throw new IllegalArgumentException();
-
-		//Check password
-		String theirToken=inbound.readUTF();
-
-		if(theirToken==null)
-			throw new IllegalArgumentException();
-		
-		//Check that they sent us a valid UUID
-		//This throws an IAE if the UUID is not valid
-		UUID.fromString(theirToken);
-		
-		//Prevents an attack where
-		//		A = attacker
-		//		B = honest peer
-		//B sends their token
-		//A waits for this, then sends back the same token
-		//B sends hash(their token + their token + password)
-		//A sends that same hash back
-		//B accepts it because swapping the tokens doesn't change it
-		if(peer.token.equals(theirToken))
-			throw new IllegalArgumentException();
-		
-		peer.sendLoginToken(theirToken);
-		
-		byte[] targetHash = Peer.computeHash(theirToken + peer.token + peer.network.password);
-		
-		byte[] theirHash = new byte[targetHash.length];
-		
-		if(inbound.read(theirHash) != theirHash.length)
-			throw new IllegalArgumentException();
-		
-		for(int i=0; i<theirHash.length; i++) {
-			if(theirHash[i] != targetHash[i]) {
-				Debug.dbg(Arrays.toString(targetHash));
-				Debug.dbg(Arrays.toString(theirHash));				
-				throw new IllegalArgumentException("Byte "+i+" mismatched!");
-			}
-		}
-		
-		return true;
-	}
 }

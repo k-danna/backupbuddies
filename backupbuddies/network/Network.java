@@ -4,12 +4,15 @@ package backupbuddies.network;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import backupbuddies.Debug;
 import backupbuddies.Properties;
@@ -17,15 +20,15 @@ import backupbuddies.Properties;
 public class Network implements Serializable {
 
 
-	private static final long serialVersionUID = -6752762844617097329L;
+	private static final long serialVersionUID = 2;
 
 	public final String password;
 
-	//You can look up peers by their IP
+	//You can look up peers by their hostname
 	//TODO is this what the GUI team needs?
 	public transient HashMap<String, Peer> connections = new HashMap<>();
 	
-	//All connections we have ever seen
+	//All connections we have ever seen, with timeouts
 	public HashMap<String, Long> seenConnections = new HashMap<>();
 
 	/*
@@ -42,6 +45,12 @@ public class Network implements Serializable {
 	 */
 	List<String> eventLog = new ArrayList<>();
 	
+	/*
+	 * Key: IP address
+	 * Value: An OfflinePeer
+	 */
+	public HashMap<String, OfflinePeer> offlinePeers = new HashMap<>();
+	
 	//A lock for the file storage
 	public transient Object fileStorageLock = new Object();
 	
@@ -57,9 +66,7 @@ public class Network implements Serializable {
 	
 	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
-	public Network(){
-		password=null;
-	}
+	String displayName;
 	
 	public Network(String password){
 		this.password=password;
@@ -70,6 +77,8 @@ public class Network implements Serializable {
 		setBytesLimit(new File(storagePath).getFreeSpace() / 10);
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
+		
+		displayName = guessComputerName();
 	}
 	
 	//Apparently transient things don't get auto-created
@@ -98,12 +107,9 @@ public class Network implements Serializable {
 		synchronized(connections){
 			if(url.equals(""))
 				return;
-			//Don't open a duplicate connection if one dies
-			if(connections.containsKey(url))
-				return;
 			try{
 				Peer peer=new Peer(url, this);
-				setupPeer(peer);
+				killPeerIfDuplicate(peer);
 			}catch(IOException e){
 				e.printStackTrace();
 			}
@@ -115,32 +121,35 @@ public class Network implements Serializable {
 		connect(peer.url);
 	}
 
-	public void setupPeer(Peer peer) throws IOException {
+	public void killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
-			if(connections.containsKey(peer.url))
+			if(connections.containsKey(peer.displayName))
 				//Can't use kill() - that removes it from connections
 				peer.cleanup();
-			// Check if the new peer is connected 
-			if(!peer.isDead()) {
-				// Send new peer a list of peers we are already connected to
-				for(Peer i: connections.values() ){
-					peer.notifyNewPeer(i);
-					i.notifyNewPeer(peer);
-				}
-				//Connect with peer
-				connections.put(peer.url,peer);
-				seenConnections.put(peer.url, System.currentTimeMillis());
-				// Inform list of peers connected to about new peer
-			}
 		}
+	}
+	
+	//Notifies the network that the given Peer has completed a valid handshake
+	public void onValidHandshake(Peer peer) throws IOException{
+		// Send new peer a list of peers we are already connected to
+		for(Peer i: connections.values() ){
+			peer.notifyNewPeer(i);
+			i.notifyNewPeer(peer);
+		}
+		//Connect with peer
+		connections.put(peer.displayName, peer);
+		seenConnections.put(peer.url, System.currentTimeMillis());
+		OfflinePeer offline = peer.getPersistentData();
+		offlinePeers.put(peer.url, offline);
+		// Inform list of peers connected to about new peer
 	}
 
 	//If a Peer/connection fails, we shouldn't keep it around in connections
 	//Remove it
 	public void onConnectionDie(Peer peer) {
 		synchronized(connections){
-			connections.remove(peer.url);
+			connections.remove(peer.displayName);
 		}
 	}
 
@@ -151,7 +160,7 @@ public class Network implements Serializable {
 		}
 	}
 
-	public Collection<String> getPeerIPAddresses(){
+	public Collection<String> getPeerDisplayNames(){
 		synchronized(connections){
 			return connections.keySet();
 		}
@@ -168,12 +177,24 @@ public class Network implements Serializable {
 			return (Collection<String>) seenFiles.clone();
 		}
 	}
+
+	public String guessComputerName(){
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			System.out.println("Failed to guess host name! Making something up...");
+			return UUID.randomUUID().toString();
+		}
+
+	}
 	
+	//Leaves a message for the file downloading system saying that we requested
+	//a download, as well as where to put it once we get it.
 	public void setFileLoc(String fileName, String fileDir) {
 		this.downloadingFileLocs.put(fileName, fileDir);
 	}
 	
-	public Peer getPeer(String peerName){
+	public Peer getPeerByDisplayName(String peerName){
 		return connections.get(peerName);
 	}
 	
@@ -220,4 +241,12 @@ public class Network implements Serializable {
 		this.bytesStored = bytesStored;
 	}
 
+	public String getDisplayName() {
+		return this.displayName;
+	}
+
+	public void setDisplayName(String newName) {
+		this.displayName=newName;
+	}
+	
 }
