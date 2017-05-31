@@ -105,7 +105,7 @@ public class GuiMain extends JFrame {
             	fileSearch(globalSearch);
             	
                 if(firstSearch == false){
-            //    	fileSearch("");
+                	fileSearch("");
                 	firstSearch = true;
                 }
                 
@@ -165,6 +165,7 @@ public class GuiMain extends JFrame {
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
         }
+        fileSearch("");
     }
 
     //user downloads a file to save directory (and chooses if not set)
