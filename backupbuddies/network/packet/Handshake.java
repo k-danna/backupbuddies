@@ -77,13 +77,9 @@ public class Handshake {
 	
 	//Sends a handshake message
 	public static void sendHandshake(DataOutputStream outbound, String token, Network net) throws IOException {
-		Debug.mark();
 		outbound.writeUTF(Protocol.MAGIC_NUMBER);
-		Debug.mark();
 		outbound.writeUTF(net.getDisplayName());
-		Debug.dbg(token);
 		outbound.writeUTF(token);
-		Debug.mark();
 	}
 	
 	private static void sendLoginToken(String token, String theirToken, Network network, DataOutputStream outbound) throws IOException {

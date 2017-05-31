@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
@@ -30,7 +31,7 @@ public class BackupFile implements IPacketHandler {
 		return Protocol.REQUEST_BACKUP;
 	}
 	
-	public static synchronized boolean send(Peer peer, Path filePath){
+	public static synchronized boolean send(Peer peer, Network network, Path filePath){
 		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
 		temporaryFileDir.mkdirs();
 		
@@ -40,15 +41,14 @@ public class BackupFile implements IPacketHandler {
 		} catch (Exception e) {
 			System.out.print(e);
 		}
-						// Encrypt File
-		// Key can only be 16 chars for now
-		String key = "sixteen chars!!!";
+		
+		String key = network.encryptionKey;
 		File encryptedFile = new File(temporaryFileDir, "encrypting.tmp");
 		// Encrpt compressed file
 		try {
 			encrypt(key, compressedFile, encryptedFile);
 		} catch (Exception e) {
-			System.out.print(e);
+			e.printStackTrace();
 		}
 		
 		long length;
@@ -133,8 +133,11 @@ public class BackupFile implements IPacketHandler {
 	}
 	
 	private static void encrypt( String key, File inputFile, File outputFile) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] hashBytes = md.digest(key.getBytes());
+		
 		int cipherMode = Cipher.ENCRYPT_MODE;
-		Key secretKey = new SecretKeySpec(key.getBytes(), Properties.ALGORITHM);
+		Key secretKey = new SecretKeySpec(hashBytes, Properties.ALGORITHM);
 		Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
 		cipher.init(cipherMode, secretKey);
              

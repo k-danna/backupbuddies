@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 
 import javax.crypto.Cipher;
@@ -90,24 +91,22 @@ public class ReplyRestoreFile implements IPacketHandler {
 
 			// Encrypt File
 			// Key can only be 16 chars for now
-			String key = "sixteen chars!!!";
+			String key = network.encryptionKey;
 			try {
 				// decrypt encryptedFile file into file
 				decrypt(key, encryptedFile,compressedFile);
-			} catch (Exception e) {
-				System.out.print(e);
-			}
-			
-			try {
-				// decompress compressed file into encryptedFile
-				decompress(compressedFile,outputFile);
-			} catch (Exception e) {
-				System.out.print(e);
-			}
-			
+				encryptedFile.delete();
 
-			compressedFile.delete();
-			encryptedFile.delete();
+				try {
+					// decompress compressed file into encryptedFile
+					decompress(compressedFile,outputFile);
+					compressedFile.delete();
+				} catch (Exception e) {
+					network.log("Decompression failed: "+e.getMessage());
+				}
+			} catch (Exception e) {
+				network.log("Decryption failed: "+e.getMessage());
+			}
 		}
 	}
 	
@@ -136,8 +135,11 @@ public class ReplyRestoreFile implements IPacketHandler {
 	
     private static void decrypt( String key, File source, File decrypted) throws Exception {
         try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			byte[] hashBytes = md.digest(key.getBytes());
+        	
         	int cipherMode = Cipher.DECRYPT_MODE;
-            Key secretKey = new SecretKeySpec(key.getBytes(),Properties.ALGORITHM);
+            Key secretKey = new SecretKeySpec(hashBytes,Properties.ALGORITHM);
             Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
             cipher.init(cipherMode, secretKey);
              

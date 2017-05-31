@@ -112,7 +112,7 @@ public class Peer {
 	}
 	
 	public boolean uploadFile(Path filePath) {
-		return BackupFile.send(this, filePath);
+		return BackupFile.send(this, network, filePath);
 	}
 	
 

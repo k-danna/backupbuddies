@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -128,18 +129,17 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public DefaultListModel<ListModel> fetchUserList(){
-		//DEBUG set at top of class
-		users.clear();
-
-		//DefaultListModel<ListModel> result=new DefaultListModel<>();
-		if(network==null)
+		if(network==null) {
+			users.clear();
 			return users;
+		}
 		
+		ArrayList<ListModel> things=new ArrayList<>();
 		HashSet<String> onlineUsers = new HashSet<String>();
 
 		for(Peer peer:network.connections.values()){
 			ListModel a = new ListModel(peer.displayName,"1");
-			users.addElement(a);
+			things.add(a);
 			onlineUsers.add(peer.url);
 			//System.out.println("ho");
 		}
@@ -148,14 +148,19 @@ public class Interface implements IInterface {
 			if(offlineData == null){
 				Debug.dbg("This should not happen!");
 				ListModel a = new ListModel(someIP,"0");
-				users.addElement(a);
+				things.add(a);
 			}
 			if(onlineUsers.contains(offlineData.url))
 				continue;
 			ListModel a = new ListModel(offlineData.displayName,"0");
-			users.addElement(a);
+			things.add(a);
 			//System.out.println("hi");
 		}
+		
+		users.clear();
+		Collections.sort(things);
+		for(ListModel lm:things)
+			users.addElement(lm);
 		return users;
 	}
 
@@ -164,18 +169,19 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public DefaultListModel<ListModel> fetchFileList(){
-		files.clear();
-		if(network==null)
+		if(network==null) {
+			files.clear();
 			return files;
-
+		}
+		
+		ArrayList<ListModel> things=new ArrayList<>();
 		HashSet<String> onlineFiles = new HashSet<String>();
 		
 		for(Peer peer:network.connections.values()){
 			for(String file:peer.getKnownFiles()){
 				ListModel a = new ListModel(file, "1");
-				files.addElement(a);
+				things.add(a);
 				onlineFiles.add(file);
-				//System.out.println("ho");
 			}
 		}
 		
@@ -183,9 +189,13 @@ public class Interface implements IInterface {
 			if(onlineFiles.contains(file))
 				continue;
 			ListModel a = new ListModel(file, "0");
-			files.addElement(a);
-			//System.out.println("hi");
+			things.add(a);
 		}
+		
+		files.clear();
+		Collections.sort(things);
+		for(ListModel a:things)
+			files.addElement(a);
 		return files;
 	}
 
@@ -202,6 +212,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void setEncryptKey(String key) {
+		network.encryptionKey=key;
 		System.out.printf("[+] set encrypt key to: %s\n", key);
 	}
 
@@ -272,6 +283,6 @@ public class Interface implements IInterface {
 	private long gibibytesToBytes(int a){
 		return ((long)a) << 30;
 	}
-
+	
 }
 
