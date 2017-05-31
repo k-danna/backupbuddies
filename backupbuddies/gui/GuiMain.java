@@ -187,6 +187,7 @@ public class GuiMain extends JFrame {
     //upload, download, save control buttons
     public static JPanel controlPanel() {
         //create panel
+    	JFrame failedUpload = new JFrame();
         JPanel controlPanel = new JPanel();
         GridLayout layout = new GridLayout(2, 1, 0, 10);
         controlPanel.setLayout(layout);
@@ -210,7 +211,13 @@ public class GuiMain extends JFrame {
         uploadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chooseAndUpload();
+            	if (allUsers.getSelectedIndex() == -1){
+            		System.out.printf("please select a user\n");
+            		JOptionPane.showMessageDialog(failedUpload,
+            				"please select a user");
+            	}else{
+                    chooseAndUpload();
+            	}
             }
         });
         pathButton.addActionListener(new ActionListener() {
