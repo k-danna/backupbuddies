@@ -6,9 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import backupbuddies.Debug;
 
@@ -20,6 +24,10 @@ final class PeerServicer implements Runnable {
 	
 	private final DataInputStream inbound;
 
+	// Used to encrypt and decrypt 
+    private static final String ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES";	
+	
 	PeerServicer(Peer peer, DataInputStream inbound) {
 		this.peer = peer;
 		this.inbound = inbound;
@@ -176,6 +184,7 @@ final class PeerServicer implements Runnable {
 		}
 	}
 	
+
 	private void handleRetrieveResponse() throws IOException {
 		// Get file name and length
 		String fileName=inbound.readUTF();
@@ -198,15 +207,29 @@ final class PeerServicer implements Runnable {
 			fout.write(inbound.readByte());
 		}
 		fout.close();
-		
+
+		File encryptedFile = new File(temporaryFileDir, "decrypting.tmp");
+ 
 		try {
-			// decompress compressed fle into file
-			decompress(compressedFile,file);
+			// decompress compressed file into encryptedFile
+			decompress(compressedFile,encryptedFile);
+		} catch (Exception e) {
+			System.out.print(e);
+		}
+		
+						// Encrypt File
+		// Key can only be 16 chars for now
+		String key = "sixteen chars!!!";
+		try {
+			// decrypt encryptedFile file into file
+			decrypt(key, encryptedFile,file);
 		} catch (Exception e) {
 			System.out.print(e);
 		}
 		compressedFile.delete();
+		encryptedFile.delete();
 	}
+	
 	
 	
 	public static void decompress(File source, File decompressed)throws Exception{
@@ -231,6 +254,33 @@ final class PeerServicer implements Runnable {
 		fos.close();
 		fis.close();
 	}
+	
+	
+    private static void decrypt( String key, File source, File decrypted) throws Exception {
+        try {
+        	int cipherMode = Cipher.DECRYPT_MODE;
+            Key secretKey = new SecretKeySpec(key.getBytes(),ALGORITHM);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(cipherMode, secretKey);
+             
+            FileInputStream inputStream = new FileInputStream(source);
+            byte[] inputBytes = new byte[(int) source.length()];
+            inputStream.read(inputBytes);
+             
+            byte[] outputBytes = cipher.doFinal(inputBytes);
+             
+            FileOutputStream outputStream = new FileOutputStream(decrypted);
+            outputStream.write(outputBytes);
+             
+            inputStream.close();
+            outputStream.close();
+             
+        } catch (Exception ex) {
+            throw new Exception(ex);
+        }
+    }
+    
+	
 	
 	//Receives list of files stored on some peer
 	private void handleListResponse() throws IOException {

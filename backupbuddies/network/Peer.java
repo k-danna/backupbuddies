@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -16,6 +17,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import backupbuddies.Debug;
 
@@ -39,7 +43,10 @@ public class Peer {
 	
 	Set<String> filesStored=new HashSet<>();
 	
-	
+	// Used to encrypt and decrypt 
+    private static final String ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES";	
+    
 	//This is the UUID we generate
 	final String token;
 
@@ -128,23 +135,33 @@ public class Peer {
 		isDead=true;
 	}
 	
+
+
 	public boolean uploadFile(Path filePath) {
+						// Compress File
 		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
 		temporaryFileDir.mkdirs();
-		
 		File compressedFile = new File(temporaryFileDir, "compressing.tmp");
-		
 		try {
 			compress(filePath.toFile(), compressedFile);
 		} catch (Exception e) {
 			System.out.print(e);
 		}
-		
+						// Encrypt File
+		// Key can only be 16 chars for now
+		String key = "sixteen chars!!!";
+		File encryptedFile = new File(temporaryFileDir, "encrypting.tmp");
+		// Encrpt compressed file
+		try {
+			encrypt(key, compressedFile, encryptedFile);
+		} catch (Exception e) {
+			System.out.print(e);
+		}
 		long length;
 		long i=0;
 		try{
-			length = compressedFile.length();
-			FileInputStream fileStream = new FileInputStream(compressedFile);
+			length = encryptedFile.length();
+			FileInputStream fileStream = new FileInputStream(encryptedFile);
 			
 			synchronized(this){
 				outbound.writeUTF(Protocol.REQUEST_BACKUP);
@@ -155,6 +172,7 @@ public class Peer {
 				}
 				fileStream.close();
 				compressedFile.delete();
+				encryptedFile.delete();
 				return true;
 			}
 		}catch(Exception e){
@@ -162,6 +180,7 @@ public class Peer {
 			return false;
 		}
 	}
+	
 	
 	public static void compress(File source, File destination) throws Exception{
 		byte[] buffer = new byte[1024];
@@ -187,6 +206,24 @@ public class Peer {
 		fis.close();
 	}
 
+	private static void encrypt( String key, File inputFile, File outputFile) throws Exception {
+		int cipherMode = Cipher.ENCRYPT_MODE;
+		Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+		Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+		cipher.init(cipherMode, secretKey);
+             
+		FileInputStream inputStream = new FileInputStream(inputFile);
+		byte[] inputBytes = new byte[(int) inputFile.length()];
+		inputStream.read(inputBytes);
+             
+		byte[] outputBytes = cipher.doFinal(inputBytes);
+             
+		FileOutputStream outputStream = new FileOutputStream(outputFile);
+		outputStream.write(outputBytes);
+		inputStream.close();
+		outputStream.close();
+    }
+    
 
 	public String getStoragePath() {
 		return network.getBackupStoragePath();
