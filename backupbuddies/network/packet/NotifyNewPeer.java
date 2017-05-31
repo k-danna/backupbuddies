@@ -38,6 +38,7 @@ public class NotifyNewPeer implements IPacketHandler {
 		try{
 			network.connect(newPeer);
 		}catch(Exception e){
+			network.log("Failed to connect to "+newPeer);
 			e.printStackTrace();
 		}
 	}

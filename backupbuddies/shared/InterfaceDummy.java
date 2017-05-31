@@ -128,5 +128,20 @@ public class InterfaceDummy implements IInterface {
 	public void setDisplayName(String newName) {
 		System.out.printf("[+] Setting display name to '%s'\n", newName);
 	}
+
+	@Override
+	public String getDisplayName() {
+		return "TestDisplayName";
+	}
+
+	@Override
+	public int getStorageSpace() {
+		return 68;
+	}
+
+	@Override
+	public int getStorageSpaceLimit() {
+		return 212;
+	}
 	
 }

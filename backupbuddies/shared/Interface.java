@@ -211,7 +211,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void setStorageSpace(int amount) {
-		System.out.printf("[+] set storage space to: %d\n", amount);
+		network.setBytesLimit(gibibytesToBytes(amount));
 	}
 
 	//Gets the event list
@@ -230,7 +230,7 @@ public class Interface implements IInterface {
 	}
 
 	public static IInterface make() {
-		boolean DEBUG = true;
+		boolean DEBUG = false;
 		if(DEBUG) {
 			return new InterfaceDummy();
 		} else {
@@ -241,6 +241,36 @@ public class Interface implements IInterface {
 	@Override
 	public void setDisplayName(String newName) {
 		network.setDisplayName(newName);
+	}
+
+	@Override
+	public String getDisplayName() {
+		return network.getDisplayName();
+	}
+
+	@Override
+	public int getStorageSpaceLimit(){
+		return bytesToGibibytes(network.getFileSystemFreeBytes());
+	}
+	
+	@Override
+	public int getStorageSpace() {
+		return bytesToGibibytes(network.getBytesLimit());
+	}
+	
+	private int bytesToGibibytes(long a){
+		//In gibibytes (
+		// 2^30 ~ 10^6
+		long gibibytes = a >> (30);
+		//If storageGigs isn't an integer number, round it up 
+		if(gibibytes << 30 < a) {
+			gibibytes ++;
+		}
+		return (int) gibibytes;
+	}
+	
+	private long gibibytesToBytes(int a){
+		return ((long)a) << 30;
 	}
 
 }

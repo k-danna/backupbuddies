@@ -74,7 +74,7 @@ public class Network implements Serializable {
 				.getAbsolutePath();
 		
 		//Set the initial limit to 10% of your initial hard drive space
-		setBytesLimit(new File(storagePath).getFreeSpace() / 10);
+		setBytesLimit(getFileSystemFreeBytes() / 10);
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 		
@@ -247,6 +247,10 @@ public class Network implements Serializable {
 
 	public void setDisplayName(String newName) {
 		this.displayName=newName;
+	}
+
+	public long getFileSystemFreeBytes() {
+		return new File(storagePath).getFreeSpace();
 	}
 	
 }
