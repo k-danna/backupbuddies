@@ -40,7 +40,7 @@ public class GuiMain extends JFrame {
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    //static DefaultListModel<String> files = new DefaultListModel<String>();
+    static final DefaultListModel<ListModel> files = new DefaultListModel<ListModel>();
     
     static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
     static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
@@ -62,6 +62,7 @@ public class GuiMain extends JFrame {
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     static boolean firstSearch = false;
+    static String globalSearch = "";
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -101,9 +102,10 @@ public class GuiMain extends JFrame {
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
             	updateUserSelection();  
+            	fileSearch(globalSearch);
             	
                 if(firstSearch == false){
-           //     	fileSearch("");
+            //    	fileSearch("");
                 	firstSearch = true;
                 }
                 
@@ -322,7 +324,10 @@ public class GuiMain extends JFrame {
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
     	filetest = (IInterface.INSTANCE.fetchFileList());   	
-        allFiles.setModel(filetest);      
+        allFiles.setModel(files);
+        for(int i=0; i< files.size(); i++){
+        	System.out.printf("%s\n", files.getElementAt(i));
+        }
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
@@ -340,20 +345,22 @@ public class GuiMain extends JFrame {
        
     }
 
-   /* public static void fileSearch(String search){
-    	int cap = debug.getSize();
-        filetest.clear();
+    public static void fileSearch(String search){
+    	//int cap = debug.getSize();
+    	int cap = filetest.getSize();
+        files.clear();
         for(int i=0; i<cap; i++){
-        	ListModel model = debug.elementAt(i);
+        	//ListModel model = debug.elementAt(i);
+        	ListModel model = filetest.elementAt(i);
         	String name = model.getName();
       
         	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	    filetest.addElement(add);
-                
+        	    //filetest.addElement(add);
+                files.addElement(add);;
         	}
         }
-    }*/
+    }
     
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
@@ -380,12 +387,14 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-			//	fileSearch(search.getText());
+				fileSearch(search.getText());
+				globalSearch = search.getText();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-			//	fileSearch(search.getText());				
+				fileSearch(search.getText());	
+				globalSearch = search.getText();
 			}
         });
         label.setForeground(textColor);
