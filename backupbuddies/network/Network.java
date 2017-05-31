@@ -33,6 +33,7 @@ public class Network implements Serializable {
 	public transient HashMap<String, Peer> connections = new HashMap<>();
 	
 	//All connections we have ever seen, with timeouts
+	//Format is IP -> time
 	public HashMap<String, Long> seenConnections = new HashMap<>();
 
 	/*
@@ -118,6 +119,14 @@ public class Network implements Serializable {
 		synchronized(connections){
 			if(url.equals(""))
 				return;
+			
+			//Check for duplicates properly, before connecting to anything
+			if(offlinePeers.containsKey(url)) {
+				String hname = offlinePeers.get(url).displayName;
+				if(hname != null && connections.get(hname) != null)
+					return;
+			}
+			
 			try{
 				Peer peer=new Peer(url, this);
 				killPeerIfDuplicate(peer);
@@ -151,6 +160,7 @@ public class Network implements Serializable {
 		for(Peer i: connections.values() ){
 			peer.notifyNewPeer(i);
 			i.notifyNewPeer(peer);
+			Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
 		}
 		//Connect with peer
 		connections.put(peer.displayName, peer);
