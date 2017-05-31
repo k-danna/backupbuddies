@@ -208,10 +208,10 @@ public class GuiMain extends JFrame {
     
         //set button colors
         //uploadButton.setForeground(colorGreen); //text color
-        //uploadButton.setBackground(Color.GRAY);
+        //uploadButton.setBackground(backgroundColor);
         //uploadButton.setContentAreaFilled(false);
         //uploadButton.setOpaque(true);
-
+        
         //bind methods to buttons
         uploadButton.addActionListener(new ActionListener() {
             @Override
@@ -480,6 +480,7 @@ public class GuiMain extends JFrame {
         sliderLabel.setForeground(textColor);
         sliderLabel.setFont(font);
         final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
+        slider.setBackground(colorBlue);
         slider.setPreferredSize(new Dimension(200, 30));
         slider.setMajorTickSpacing(max / 10);
         slider.setPaintTicks(true);
@@ -724,7 +725,7 @@ public class GuiMain extends JFrame {
                 //confirm layout
                 contentPane.setLayout(frameLayout());
                 
-                frame.setSize(1000, 600);
+                frame.setSize(1000, 620);
                 frame.setLocationRelativeTo(null);
 
                 for (Component panel : panelLocs.keySet()) {
