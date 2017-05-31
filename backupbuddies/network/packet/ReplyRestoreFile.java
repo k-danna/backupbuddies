@@ -7,7 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.Key;
 import java.util.zip.GZIPInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import backupbuddies.Properties;
 import backupbuddies.network.IPacketHandler;
@@ -62,18 +66,21 @@ public class ReplyRestoreFile implements IPacketHandler {
 			if(location==null)
 				peer.kill("Tried to restore file that we didn't request!");
 
-			File file=new File(location, fileName);
+			File outputFile=new File(location, fileName);
 
 			//You can overwrite existing backups
 
-			file.createNewFile();
+			outputFile.createNewFile();
 
 			// Create a temporary file directory and file to read in the compressed file
 			File temporaryFileDir = new File(Properties.BUB_HOME, "temp");
 			temporaryFileDir.mkdirs();
-			File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
+			
+			File encryptedFile = new File(temporaryFileDir, "decrypting.tmp");
 
-			FileOutputStream fout=new FileOutputStream(compressedFile);
+			File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
+			
+			FileOutputStream fout=new FileOutputStream(encryptedFile);
 
 			// read inbounding compressed file into temporary file
 			for(long i=0; i<length; i++){
@@ -81,13 +88,26 @@ public class ReplyRestoreFile implements IPacketHandler {
 			}
 			fout.close();
 
+			// Encrypt File
+			// Key can only be 16 chars for now
+			String key = "sixteen chars!!!";
 			try {
-				// decompress compressed fle into file
-				decompress(compressedFile,file);
+				// decrypt encryptedFile file into file
+				decrypt(key, encryptedFile,compressedFile);
 			} catch (Exception e) {
 				System.out.print(e);
 			}
+			
+			try {
+				// decompress compressed file into encryptedFile
+				decompress(compressedFile,outputFile);
+			} catch (Exception e) {
+				System.out.print(e);
+			}
+			
+
 			compressedFile.delete();
+			encryptedFile.delete();
 		}
 	}
 	
@@ -113,5 +133,29 @@ public class ReplyRestoreFile implements IPacketHandler {
 		fos.close();
 		fis.close();
 	}
+	
+    private static void decrypt( String key, File source, File decrypted) throws Exception {
+        try {
+        	int cipherMode = Cipher.DECRYPT_MODE;
+            Key secretKey = new SecretKeySpec(key.getBytes(),Properties.ALGORITHM);
+            Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
+            cipher.init(cipherMode, secretKey);
+             
+            FileInputStream inputStream = new FileInputStream(source);
+            byte[] inputBytes = new byte[(int) source.length()];
+            inputStream.read(inputBytes);
+             
+            byte[] outputBytes = cipher.doFinal(inputBytes);
+             
+            FileOutputStream outputStream = new FileOutputStream(decrypted);
+            outputStream.write(outputBytes);
+             
+            inputStream.close();
+            outputStream.close();
+             
+        } catch (Exception ex) {
+            throw new Exception(ex);
+        }
+    }
 
 }
