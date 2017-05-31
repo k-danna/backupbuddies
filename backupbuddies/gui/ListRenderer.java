@@ -23,11 +23,11 @@ public class ListRenderer extends JLabel implements ListCellRenderer<ListModel> 
         ImageIcon imageIcon = new ImageIcon();
        // java.net.URL image = ("Desktop/pitures/person.png");
         if (status == "0"){
-        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/RedCircle.png"));
+        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/RedderCircle.png"));
         }else if(status == "1"){
-        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/GreenCircle.png"));
+        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/GreenerCircle.png"));
         }else if(status == "2"){
-        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/YellowCircle.png"));
+        	imageIcon = new ImageIcon(getClass().getResource("/backupbuddies/gui/assets/YellowerCircle.png"));
         }
          
         setIcon(imageIcon);

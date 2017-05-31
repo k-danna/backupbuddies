@@ -25,12 +25,22 @@ import static backupbuddies.Debug.*;
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
   
+    //colors
+    //static final Color colorBlue = new Color(53, 129, 184);
+    static final Color colorBlue = new Color(80, 80, 80);
+    static final Color textColor = new Color(220, 220, 220);
+    static final Color buttonTextColor = new Color(40, 40, 40);
+    static final Color listColor = new Color(255, 255, 255);
+    static final Color backgroundColor = new Color(92, 146, 194);
+    static final Color colorGray = new Color(20, 20, 20);
+    static final Font font = new Font("Papyrus", Font.BOLD, 18);
+
     //load assets, lists etc before creating the gui
     static JFrame frame = new JFrame("BackupBuddies");
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
-    //static DefaultListModel<String> files = new DefaultListModel<String>();
+    static final DefaultListModel<ListModel> files = new DefaultListModel<ListModel>();
     
     static DefaultListModel<ListModel> filetest = new DefaultListModel<ListModel>();
     static DefaultListModel<ListModel> usertest = new DefaultListModel<ListModel>();
@@ -46,12 +56,13 @@ public class GuiMain extends JFrame {
     static final JTextArea log = new JTextArea(5, 20);
     static List<String> prevEvents = new ArrayList<>();
     
-    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedCircle.png");
-    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowCircle.png");
-    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenCircle.png");
+    static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedderCircle.png");
+    static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowerCircle.png");
+    static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenerCircle.png");
     static JList<ListModel> userMap = fetchAndProcess("users");
     static JList<ListModel> fileMap = fetchAndProcess("files");
     static boolean firstSearch = false;
+    static String globalSearch = "";
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -91,9 +102,10 @@ public class GuiMain extends JFrame {
                 fileMap = fetchAndProcess("files");
             	updateFileSelection();
             	updateUserSelection();  
+            	fileSearch(globalSearch);
             	
                 if(firstSearch == false){
-                	fileSearch("");
+            //    	fileSearch("");
                 	firstSearch = true;
                 }
                 
@@ -174,12 +186,23 @@ public class GuiMain extends JFrame {
     public static JPanel controlPanel() {
         //create panel
         JPanel controlPanel = new JPanel();
+        GridLayout layout = new GridLayout(2, 1, 0, 10);
+        controlPanel.setLayout(layout);
         
         //create components
         JLabel fileLabel = new JLabel("backup your files");
         JButton uploadButton = new JButton("upload");
         JButton downloadButton = new JButton("download");
         JButton pathButton = new JButton("save to...");
+
+        downloadButton.setForeground(buttonTextColor);
+        uploadButton.setForeground(buttonTextColor);
+    
+        //set button colors
+        //uploadButton.setForeground(colorGreen); //text color
+        //uploadButton.setBackground(Color.GRAY);
+        //uploadButton.setContentAreaFilled(false);
+        //uploadButton.setOpaque(true);
 
         //bind methods to buttons
         uploadButton.addActionListener(new ActionListener() {
@@ -202,12 +225,13 @@ public class GuiMain extends JFrame {
         });
 
         //add components to panel and specify orientation
-        controlPanel.add(fileLabel);
-        controlPanel.add(pathButton);
+        controlPanel.setPreferredSize(new Dimension(250, 150));
+        //controlPanel.add(fileLabel);
         controlPanel.add(uploadButton);
         controlPanel.add(downloadButton);
-        controlPanel.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT);
+        //controlPanel.add(pathButton);
+        //controlPanel.setComponentOrientation(
+        //        ComponentOrientation.LEFT_TO_RIGHT);
 
         return controlPanel;
     }
@@ -220,10 +244,16 @@ public class GuiMain extends JFrame {
         loginPanel.setLayout(layout);
 
         //create components
-        final JLabel loginLabel = new JLabel("join a network:");
-        final JButton loginButton = new JButton("join");
-        final JTextField ipField = new JTextField("network ip");
-        final JTextField passField = new JTextField("network password");
+        final JLabel loginLabel = new JLabel("Join a Network:");
+        final JButton loginButton = new JButton("Join");
+        final JTextField ipField = new JTextField("network ip...");
+        final JTextField passField = new JTextField("network password...");
+        ipField.setEnabled(false);
+        passField.setEnabled(false);
+
+        ipField.setBackground(listColor);
+        passField.setBackground(listColor);
+        loginButton.setForeground(buttonTextColor);
         
         //bind methods to buttons
         loginButton.addActionListener(new ActionListener() {
@@ -236,17 +266,28 @@ public class GuiMain extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 ipField.setText("");
+                ipField.setEnabled(true);
+                ipField.requestFocus();
             }
         });
         passField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 passField.setText("");
+                passField.setEnabled(true);
+                passField.requestFocus();
             }
         });
 
        // loginButton.setBorder(new RoundedBorder(10));
         //add components to panel and specify orientation
+       // loginButton.setOpaque(false);
+       // loginButton.setBorderPainted(false);
+       // loginButton.setFocusPainted(false);
+        //loginButton.setForeground(Color.BLUE);
+        //loginButton.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
+        loginLabel.setForeground(textColor);
+        loginLabel.setFont(font);
         loginPanel.add(loginLabel);
         loginPanel.add(ipField);
         loginPanel.add(passField);
@@ -272,8 +313,9 @@ public class GuiMain extends JFrame {
     	
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
-        pane.setPreferredSize(new Dimension(250, 400));
-        
+        pane.setPreferredSize(new Dimension(250, 440));
+        //allUsers.setSelectionBackground(Color.green);
+        allUsers.setBackground(listColor);
         return pane;
     }
 
@@ -281,8 +323,11 @@ public class GuiMain extends JFrame {
         //TODO: multiple selection
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = (Interface.INSTANCE.fetchFileList());   	
-        allFiles.setModel(filetest);      
+    	filetest = (IInterface.INSTANCE.fetchFileList());   	
+        allFiles.setModel(files);
+        for(int i=0; i< files.size(); i++){
+        	System.out.printf("%s\n", files.getElementAt(i));
+        }
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
@@ -292,36 +337,44 @@ public class GuiMain extends JFrame {
         });
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
-        pane.setPreferredSize(new Dimension(250, 400));
+        pane.setPreferredSize(new Dimension(250, 440));
+        //allFiles.setSelectionBackground(Color.green);
+        allFiles.setBackground(listColor);
        
         return pane;
        
     }
 
     public static void fileSearch(String search){
-    	int cap = debug.getSize();
-        filetest.clear();
+    	//int cap = debug.getSize();
+    	int cap = filetest.getSize();
+        files.clear();
         for(int i=0; i<cap; i++){
-        	ListModel model = debug.elementAt(i);
+        	//ListModel model = debug.elementAt(i);
+        	ListModel model = filetest.elementAt(i);
         	String name = model.getName();
       
         	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	    filetest.addElement(add);
-                
+        	    //filetest.addElement(add);
+                files.addElement(add);;
         	}
         }
     }
     
     public static JPanel searchPanel() {
     	JPanel panel = new JPanel();
-    	JLabel label = new JLabel("search for file:");
-        JTextField search = new JTextField("", 10);
-        fileSearch(search.getText());
+    	JLabel label = new JLabel("Search:");
+        JTextField search = new JTextField("search...", 12);
+        search.setEnabled(false);
+       // fileSearch(search.getText());
+        search.setBackground(listColor);
         search.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 search.setText("");
+                search.setEnabled(true);
+                search.requestFocus();
             }
         });
         
@@ -335,14 +388,17 @@ public class GuiMain extends JFrame {
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
 				fileSearch(search.getText());
+				globalSearch = search.getText();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				fileSearch(search.getText());				
+				fileSearch(search.getText());	
+				globalSearch = search.getText();
 			}
         });
-        
+        label.setForeground(textColor);
+        label.setFont(font);
         panel.add(label);
         panel.add(search);
         return panel;
@@ -355,10 +411,14 @@ public class GuiMain extends JFrame {
         panel.setLayout(layout);
         
         //create components
-        final JLabel varsPanelLabel = new JLabel("enter encryption key:");
+        final JLabel varsPanelLabel = new JLabel("Enter Encryption Key:");
         final JButton lockPassButton = new JButton("confirm key");
-        final JTextField keyField = new JTextField("encryption key");
-        
+        final JTextField keyField = new JTextField("key...");
+        keyField.setEnabled(false);
+        keyField.setBackground(listColor);
+
+        lockPassButton.setForeground(buttonTextColor);
+
         //bind methods to buttons
         lockPassButton.addActionListener(new ActionListener() {
             @Override
@@ -370,10 +430,14 @@ public class GuiMain extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 keyField.setText("");
+                keyField.setEnabled(true);
+                keyField.requestFocus();
             }
         });
 
         //add components to panel and specify orientation
+        varsPanelLabel.setForeground(textColor);
+        varsPanelLabel.setFont(font);
         panel.add(varsPanelLabel);
         panel.add(keyField);
         panel.add(lockPassButton);
@@ -386,16 +450,25 @@ public class GuiMain extends JFrame {
     public static JPanel storagePanel(){
     	JPanel panel = new JPanel();
     	
+        GridLayout layout = new GridLayout(2, 2, 0, 0);
+        panel.setLayout(layout);
+        panel.setPreferredSize(new Dimension(280, 50));
+
     	int min = 0;
-        int max = 1000;
+        int max = 100;
         int init = 1;
-        final JLabel sliderLabel = new JLabel("storage:");
+        final JLabel sliderLabel = new JLabel("Storage:");
+        final JLabel positionLabel = new JLabel("");
+        sliderLabel.setForeground(textColor);
+        sliderLabel.setFont(font);
         final JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, init);
         slider.setPreferredSize(new Dimension(200, 30));
         slider.setMajorTickSpacing(max / 10);
         slider.setPaintTicks(true);
 
         final JLabel currStorageLabel = new JLabel(String.valueOf(slider.getValue()) + " GB");
+        currStorageLabel.setForeground(textColor);
+        currStorageLabel.setFont(font);
 
         slider.addChangeListener(new ChangeListener() {
             @Override
@@ -408,6 +481,7 @@ public class GuiMain extends JFrame {
         });
         
         panel.add(sliderLabel);
+        panel.add(positionLabel);
         panel.add(slider);
         panel.add(currStorageLabel);
         panel.setComponentOrientation(
@@ -420,9 +494,13 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectUser = new JLabel("select: ");
+        final JLabel selectUser = new JLabel("Select Peer: ");
         final JButton selectAllButton = new JButton("all");
         final JButton selectNoneButton = new JButton("none");
+
+        selectAllButton.setForeground(buttonTextColor);
+        selectNoneButton.setForeground(buttonTextColor);
+
         //bind methods to buttons
         selectAllButton.addActionListener(new ActionListener() {
             @Override
@@ -440,6 +518,8 @@ public class GuiMain extends JFrame {
                 lastUserState.clear();
             }
         });
+        selectUser.setForeground(textColor);
+        selectUser.setFont(font);
         panel.add(selectUser);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
@@ -450,9 +530,13 @@ public class GuiMain extends JFrame {
         //create panel
         final JPanel panel = new JPanel();
 
-        final JLabel selectFiles = new JLabel("select: ");
+        final JLabel selectFiles = new JLabel("Select File: ");
         final JButton selectAllButton = new JButton("all");
         final JButton selectNoneButton = new JButton("none");
+
+        selectAllButton.setForeground(buttonTextColor);
+        selectNoneButton.setForeground(buttonTextColor);
+
         //bind methods to buttons
         selectAllButton.addActionListener(new ActionListener() {
             @Override
@@ -470,6 +554,8 @@ public class GuiMain extends JFrame {
                 lastFileState.clear();
             }
         });
+        selectFiles.setForeground(textColor);
+        selectFiles.setFont(font);
         panel.add(selectFiles);
         panel.add(selectAllButton);
         panel.add(selectNoneButton);
@@ -493,12 +579,18 @@ public class GuiMain extends JFrame {
     public static JPanel logPanel() {
         //create panel
         final JPanel panel = new JPanel();
+        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(layout);
 
         //create components
-        final JLabel logLabel = new JLabel("event log");
+        final JLabel logLabel = new JLabel("Event Log:");
+        logLabel.setForeground(textColor);
+        logLabel.setFont(font);
         log.setEditable(false);
 
         //log.append(text + newline)
+
+        log.setBackground(listColor);
 
         panel.add(logLabel);
         panel.add(log);
@@ -518,6 +610,27 @@ public class GuiMain extends JFrame {
         return layout;
     }
 
+    public static JPanel leftColorPanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(colorBlue);
+        panel.setPreferredSize(new Dimension(310, 600));
+        return panel;
+    }
+
+    public static JPanel linePanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(colorGray);
+        panel.setPreferredSize(new Dimension(318, 600));
+        return panel;
+    }
+
+    public static JPanel topColorPanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(colorGray);
+        panel.setPreferredSize(new Dimension(1000, 100));
+        return panel;
+    }
+
     //bind panels to frame and display the gui
     public static void startGui() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -532,17 +645,21 @@ public class GuiMain extends JFrame {
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
 
-                //set locations for each panel
-                panelLocs.put(loginPanel,       Arrays.asList(50, 5));
-                panelLocs.put(userListPanel,    Arrays.asList(350, 80));
-                panelLocs.put(fileListPanel,    Arrays.asList(650, 80));
+                //add color panel
+
+                //left column locations
+                panelLocs.put(loginPanel,       Arrays.asList(30, 10));
+                panelLocs.put(varsPanel,        Arrays.asList(30, 120));
+                panelLocs.put(controlPanel,     Arrays.asList(30, 210));
+                panelLocs.put(logPanel,         Arrays.asList(30, 425));
+                panelLocs.put(storagePanel,     Arrays.asList(30, 365));
+                //middle column locatinos
+                panelLocs.put(userListPanel,    Arrays.asList(370, 80));
+                panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
+                //right column locations
                 panelLocs.put(searchPanel,      Arrays.asList(650, 10));
                 panelLocs.put(selectFilesPanel, Arrays.asList(650, 40));
-                panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
-                panelLocs.put(controlPanel,     Arrays.asList(350, 525));
-                panelLocs.put(varsPanel,        Arrays.asList(50, 100));
-                panelLocs.put(storagePanel,     Arrays.asList(5, 200));
-                panelLocs.put(logPanel,         Arrays.asList(5, 400));
+                panelLocs.put(fileListPanel,    Arrays.asList(670, 80));
 
                 //confirm layout
                 contentPane.setLayout(frameLayout());
@@ -553,6 +670,24 @@ public class GuiMain extends JFrame {
                 for (Component panel : panelLocs.keySet()) {
                     contentPane.add(panel);
                 }
+                contentPane.add(leftColorPanel());
+                contentPane.add(linePanel());
+                //contentPane.add(topColorPanel());
+
+                //set background color
+                Color globalColor = colorBlue;
+                //background stuff
+                frame.getContentPane().setBackground(backgroundColor);
+                searchPanel.setBackground(backgroundColor);
+                selectFilesPanel.setBackground(backgroundColor);
+                selectUsersPanel.setBackground(backgroundColor);
+
+                //left panel stuff
+                loginPanel.setBackground(globalColor);
+                varsPanel.setBackground(globalColor);
+                storagePanel.setBackground(globalColor);
+                logPanel.setBackground(globalColor);
+                controlPanel.setBackground(globalColor);
 
                 //display the window
                 frame.validate();
