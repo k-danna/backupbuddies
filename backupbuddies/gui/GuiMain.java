@@ -108,6 +108,7 @@ public class GuiMain extends JFrame {
                 	fileSearch("");
                 	firstSearch = true;
                 }
+                fileSearch(globalSearch);
                 
                 //FIXME: this gets slower as more events are added
                     //prevArray --> int (length of last returned array)
