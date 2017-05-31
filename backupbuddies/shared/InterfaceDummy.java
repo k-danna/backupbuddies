@@ -117,11 +117,11 @@ public class InterfaceDummy implements IInterface {
 		System.out.printf("[+] Setting storage limit to '%d'\n", amount);
 	}
 
+	ArrayList<String> ls=new ArrayList<>();
+	
 	@Override
 	public List<String> getEventLog() {
-		ArrayList<String> ls=new ArrayList<>();
-		ls.add("Event 1");
-		ls.add("Event 2");
+		ls.add("Event "+Math.random());
 		return ls;
 	}
 
