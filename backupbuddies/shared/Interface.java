@@ -4,18 +4,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
 
+import backupbuddies.Debug;
 import backupbuddies.Properties;
 import backupbuddies.gui.ListModel;
 import backupbuddies.network.Network;
+import backupbuddies.network.OfflinePeer;
 import backupbuddies.network.Peer;
 
 
@@ -32,8 +36,8 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public boolean loadNetwork(){
+		File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
 		try{
-			File networkFile=new File(Properties.BUB_HOME, Properties.NETWORK_FILE);
 			if(!networkFile.exists())
 				return false;
 			ObjectInputStream stream=new ObjectInputStream(new FileInputStream(networkFile));
@@ -42,11 +46,15 @@ public class Interface implements IInterface {
 				network.init();
 			stream.close();
 			return network != null;
-		}catch(IOException | ClassCastException | ClassNotFoundException e){
-			//Mostly for debugging
+		}catch(InvalidClassException e){
+			System.out.println("Save format changed!");
+			networkFile.delete();
+		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
+		return false;
 	}
 
 	//Saves the network to disk, in a standard place
@@ -86,14 +94,14 @@ public class Interface implements IInterface {
 	 * @see backupbuddies.shared.IInterface#uploadFile(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void uploadFile(File[] files, String peerName) {
+	public void uploadFile(File[] files, String peerDisplayName) {
 	    for (File f : files) {
             Path filePath = f.toPath();
 
             System.out.println("debug");
             System.out.println(filePath);
 
-            Peer peer = network.getPeer(peerName);
+            Peer peer = network.getPeerByDisplayName(peerDisplayName);
             peer.uploadFile(filePath);
             peer.requestUpdatedFileList();
         }
@@ -107,7 +115,11 @@ public class Interface implements IInterface {
 		network.setFileLoc(fileName, fileDir);
 
 		for(Peer peer:network.getPeers()){
-			peer.downloadFile(fileName);
+			//Only download once
+			if(peer.getKnownFiles().contains(fileName)){
+				peer.downloadFile(fileName);
+				return;
+			}
 		}
 	}
 
@@ -122,15 +134,27 @@ public class Interface implements IInterface {
 		//DefaultListModel<ListModel> result=new DefaultListModel<>();
 		if(network==null)
 			return users;
-		for(String s:network.seenConnections.keySet()){
-			ListModel a = new ListModel(s,"0");
+		
+		HashSet<String> onlineUsers = new HashSet<String>();
+
+		for(Peer peer:network.connections.values()){
+			ListModel a = new ListModel(peer.displayName,"1");
+			users.addElement(a);
+			onlineUsers.add(peer.url);
+			//System.out.println("ho");
+		}
+		for(String someIP:network.seenConnections.keySet()){
+			OfflinePeer offlineData = network.offlinePeers.get(someIP);
+			if(offlineData == null){
+				Debug.dbg("This should not happen!");
+				ListModel a = new ListModel(someIP,"0");
+				users.addElement(a);
+			}
+			if(onlineUsers.contains(offlineData.url))
+				continue;
+			ListModel a = new ListModel(offlineData.displayName,"0");
 			users.addElement(a);
 			//System.out.println("hi");
-		}
-		for(String s:network.getPeerIPAddresses()){
-			ListModel a = new ListModel(s,"1");
-			users.addElement(a);
-			//System.out.println("ho");
 		}
 		return users;
 	}
@@ -144,17 +168,23 @@ public class Interface implements IInterface {
 		if(network==null)
 			return files;
 
-		for(String file :network.getKnownFiles()){
-			ListModel a = new ListModel(file, "0");
-			files.addElement(a);
-			//System.out.println("hi");
-		}
+		HashSet<String> onlineFiles = new HashSet<String>();
+		
 		for(Peer peer:network.connections.values()){
 			for(String file:peer.getKnownFiles()){
 				ListModel a = new ListModel(file, "1");
 				files.addElement(a);
+				onlineFiles.add(file);
 				//System.out.println("ho");
 			}
+		}
+		
+		for(String file :network.getKnownFiles()){
+			if(onlineFiles.contains(file))
+				continue;
+			ListModel a = new ListModel(file, "0");
+			files.addElement(a);
+			//System.out.println("hi");
 		}
 		return files;
 	}
@@ -206,6 +236,11 @@ public class Interface implements IInterface {
 		} else {
 			return new Interface();
 		}
+	}
+
+	@Override
+	public void setDisplayName(String newName) {
+		network.setDisplayName(newName);
 	}
 
 }

@@ -96,6 +96,9 @@ public class InterfaceDummy implements IInterface {
         maybeAdd(files,d);
         maybeAdd(files,e);
         maybeAdd(files,f);
+        maybeAdd(files,g);
+        maybeAdd(files,h);
+        maybeAdd(files,i);
         return files;    
 	}
 

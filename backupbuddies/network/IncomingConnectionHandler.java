@@ -35,9 +35,9 @@ class IncomingConnectionHandler implements Runnable {
 		{
 			try {
 				Socket incomingSocket = serverSocket.accept();
-				Peer peer=new Peer(incomingSocket, false, this.network);
+				Peer peer=new Peer(incomingSocket, this.network);
 				Debug.dbg(peer.url);
-				network.setupPeer(peer);
+				network.killPeerIfDuplicate(peer);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -9,7 +9,7 @@ public class Protocol {
 	
 	// Handshake constant - if things don't send this after opening,
 	// they're probably not BackupBuddies
-	public static final String HANDSHAKE = "BackupBuddies v0.2";
+	public static final String MAGIC_NUMBER = "BackupBuddies v0.3";
 	
 	//These function as message IDs. They need to be unique.
 	//They're supposed to be a bit meaningful as well - not that

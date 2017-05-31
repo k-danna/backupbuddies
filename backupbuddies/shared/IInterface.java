@@ -34,6 +34,8 @@ public interface IInterface {
 	void setStoragePath(String fileDir);
 
 	void setEncryptKey(String key);
+	
+	void setDisplayName(String newName);
 
 	//FIXME: pass storage amount
 	void setStorageSpace(int amount);
@@ -41,5 +43,5 @@ public interface IInterface {
 	//Gets the event list
 	//Returns an array of up to Properties.LOG_MESSAGE_COUNT error messages
 	List<String> getEventLog();
-
+	
 }
