@@ -4,6 +4,7 @@ package backupbuddies.network;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayDeque;
@@ -110,7 +111,9 @@ public class Network implements Serializable {
 			try{
 				Peer peer=new Peer(url, this);
 				killPeerIfDuplicate(peer);
-			}catch(IOException e){
+			} catch(ConnectException e){
+				this.log("Could not connnect to "+url);
+			} catch(IOException e){
 				e.printStackTrace();
 			}
 		}
@@ -124,9 +127,11 @@ public class Network implements Serializable {
 	public void killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
-			if(connections.containsKey(peer.displayName))
+			if(connections.containsKey(peer.displayName)) {
+				Debug.dbg("Peer "+peer.displayName+" is already connected!");
 				//Can't use kill() - that removes it from connections
-				peer.cleanup();
+				peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
+			}
 		}
 	}
 	
