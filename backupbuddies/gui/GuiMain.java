@@ -53,7 +53,7 @@ public class GuiMain extends JFrame {
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
-    static final JTextArea log = new JTextArea(5, 23);
+    static final JTextArea log = new JTextArea(6, 20);
     static List<String> prevEvents = new ArrayList<>();
     
     static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedderCircle.png");
@@ -76,6 +76,7 @@ public class GuiMain extends JFrame {
     static JPanel varsPanel = varsPanel();
     static JPanel storagePanel = storagePanel();
     static JPanel logPanel = logPanel();
+    static JPanel namePanel = namePanel();
     
     static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
 
@@ -216,9 +217,9 @@ public class GuiMain extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
             	if (allUsers.getSelectedIndex() == -1){
-            		System.out.printf("please select a user\n");
-            		JOptionPane.showMessageDialog(failedUpload,
-            				"please select a user");
+            	    String upError = "Please select at least one user\n";
+            		System.out.printf(upError);
+            		JOptionPane.showMessageDialog(failedUpload, upError);
             	}else{
                     chooseAndUpload();
             	}
@@ -610,7 +611,7 @@ public class GuiMain extends JFrame {
         log.setBackground(listColor);
 
         panel.add(logLabel);
-        panel.add(log);
+        panel.add(new JScrollPane(log));
         return panel;
     }
 
@@ -627,6 +628,49 @@ public class GuiMain extends JFrame {
         return layout;
     }
 
+    public static JPanel namePanel() {
+        //create panel
+        final JPanel panel = new JPanel();
+        //BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        //panel.setLayout(layout);
+        
+        //create components
+        final JLabel nameLabel = new JLabel("Enter Device Name: ");
+        final JButton lockNameButton = new JButton("set");
+        final JTextField nameField = new JTextField("name...",10);
+        nameField.setEnabled(false);
+        nameField.setBackground(listColor);
+
+        lockNameButton.setForeground(buttonTextColor);
+
+        //bind methods to buttons
+        lockNameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                IInterface.INSTANCE.setDisplayName(nameField.getText());
+            }
+        });
+        nameField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                nameField.setText("");
+                nameField.setEnabled(true);
+                nameField.requestFocus();
+            }
+        });
+
+        //add components to panel and specify orientation
+        nameLabel.setForeground(textColor);
+        nameLabel.setFont(font);
+        panel.add(nameLabel);
+        panel.add(nameField);
+        panel.add(lockNameButton);
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+
+        return panel;    
+    }
+    
     public static JPanel leftColorPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(colorBlue);
@@ -662,8 +706,6 @@ public class GuiMain extends JFrame {
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
 
-                //add color panel
-
                 //left column locations
                 panelLocs.put(loginPanel,       Arrays.asList(30, 10));
                 panelLocs.put(varsPanel,        Arrays.asList(30, 120));
@@ -677,6 +719,7 @@ public class GuiMain extends JFrame {
                 panelLocs.put(searchPanel,      Arrays.asList(650, 10));
                 panelLocs.put(selectFilesPanel, Arrays.asList(650, 40));
                 panelLocs.put(fileListPanel,    Arrays.asList(670, 80));
+                panelLocs.put(namePanel,        Arrays.asList(610, 540));
 
                 //confirm layout
                 contentPane.setLayout(frameLayout());
@@ -698,6 +741,7 @@ public class GuiMain extends JFrame {
                 searchPanel.setBackground(backgroundColor);
                 selectFilesPanel.setBackground(backgroundColor);
                 selectUsersPanel.setBackground(backgroundColor);
+                namePanel.setBackground(backgroundColor);
 
                 //left panel stuff
                 loginPanel.setBackground(globalColor);
