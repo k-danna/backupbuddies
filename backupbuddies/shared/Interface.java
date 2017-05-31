@@ -194,7 +194,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void setStoragePath(String fileDir){
-		network.storagePath=fileDir;
+		//network.storagePath=fileDir;
 	}
 
 	/* (non-Javadoc)

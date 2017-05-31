@@ -30,13 +30,12 @@ public class RequestRestoreFile implements IPacketHandler {
 	@Override
 	public void handlePacket(Peer peer, Network network, DataInputStream input) throws IOException {
 		synchronized(network.fileStorageLock){
-			String fileName=input.readUTF();
-			String fileDir = network.getBackupStoragePath();
-			Path filePath = new File(fileDir,fileName).toPath();
-			try{
-				ReplyRestoreFile.send(network, filePath, peer.getOutputStream());
-			}catch(Exception e){
-				e.printStackTrace();
+			String fileNameWhole=input.readUTF();
+			if(fileNameWhole.contains("/")) {
+				String[] parts=fileNameWhole.split("/");
+				ReplyRestoreFile.send(network, parts[0], parts[1], peer.getOutputStream());
+			} else {
+				ReplyRestoreFile.send(network, null, fileNameWhole, peer.getOutputStream());
 			}
 		}
 

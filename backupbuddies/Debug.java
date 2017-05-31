@@ -47,5 +47,11 @@ public abstract class Debug {
 	public static void mark() {
 		printWithCaller("executed");
 	}
+
+	public static void caller() {
+		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+		String caller=trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber();
+		printWithCaller("Called from "+caller);
+	}
 	
 }

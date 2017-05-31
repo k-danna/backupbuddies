@@ -58,7 +58,7 @@ public class Network implements Serializable {
 	//A hash map from file names to the paths to store them at
 	transient HashMap<String, String> downloadingFileLocs = new HashMap<>();
 	
-	public String storagePath;
+	public final String storagePath;
 	
 	//Number of bytes already stored
 	private long bytesStored;

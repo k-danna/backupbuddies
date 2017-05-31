@@ -26,13 +26,18 @@ public class ReplyRestoreFile implements IPacketHandler {
 		return Protocol.REPLY_RETRIEVE;
 	}
 
-	public static void send(Network network, Path filePath, DataOutputStream outbound) throws IOException {
-		File file=filePath.toFile();
+	public static void send(Network network, String dirName, String fileName, DataOutputStream outbound) throws IOException {
+		File file;
+		if(dirName == null){
+			file=new File(network.storagePath, fileName);
+		} else {
+			file=new File(new File(network.storagePath, dirName),fileName);
+		}
 		FileInputStream fileStream = new FileInputStream(file);
 		long length=file.length();
 
 		outbound.writeUTF(Protocol.REPLY_RETRIEVE);
-		outbound.writeUTF(filePath.getFileName().toString());
+		outbound.writeUTF(dirName+"/"+fileName);
 		outbound.writeLong(length);
 		for(long i=0; i<length; i++){
 			outbound.writeByte((byte) fileStream.read());
@@ -43,11 +48,17 @@ public class ReplyRestoreFile implements IPacketHandler {
 	public void handlePacket(Peer peer, Network network, DataInputStream inbound) throws IOException {
 		synchronized(network.fileStorageLock){
 			// Get file name and length
-			String fileName=inbound.readUTF();
+			String fileNameWhole=inbound.readUTF();
+			String fileName;
+			if(fileNameWhole.contains("/")) {
+				fileName=fileNameWhole.split("/")[1];
+			} else {
+				fileName=fileNameWhole;
+			}
 			long length=inbound.readLong();
 
 			//If we don't have it, we didn't request the file
-			String location=network.getAndRemoveDownloadingFileLocation(fileName);
+			String location=network.getAndRemoveDownloadingFileLocation(fileNameWhole);
 			if(location==null)
 				peer.kill("Tried to restore file that we didn't request!");
 

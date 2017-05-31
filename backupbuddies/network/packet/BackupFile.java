@@ -67,7 +67,7 @@ public class BackupFile implements IPacketHandler {
 		synchronized(network.fileStorageLock){
 			String fileName=inbound.readUTF();
 			long length=inbound.readLong();
-			File file=new File(peer.getStoragePath(), fileName);
+			File file=new File(new File(peer.getStoragePath(), peer.displayName), fileName);
 			
 			//File exceeds our allocated space
 			//Don't let them send the whole file - close the connection to indicate
