@@ -53,7 +53,7 @@ public class GuiMain extends JFrame {
     
     static DefaultListModel<ListModel> debug = new DefaultListModel<ListModel>();
     
-    static final JTextArea log = new JTextArea(5, 20);
+    static final JTextArea log = new JTextArea(5, 23);
     static List<String> prevEvents = new ArrayList<>();
     
     static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedderCircle.png");
@@ -247,7 +247,7 @@ public class GuiMain extends JFrame {
         //create components
         final JLabel loginLabel = new JLabel("Join a Network:");
         final JButton loginButton = new JButton("Join");
-        final JTextField ipField = new JTextField("network ip...");
+        final JTextField ipField = new JTextField("network ip...", 21);
         final JTextField passField = new JTextField("network password...");
         ipField.setEnabled(false);
         passField.setEnabled(false);
@@ -414,7 +414,7 @@ public class GuiMain extends JFrame {
         //create components
         final JLabel varsPanelLabel = new JLabel("Enter Encryption Key:");
         final JButton lockPassButton = new JButton("confirm key");
-        final JTextField keyField = new JTextField("key...");
+        final JTextField keyField = new JTextField("key...",10);
         keyField.setEnabled(false);
         keyField.setBackground(listColor);
 
