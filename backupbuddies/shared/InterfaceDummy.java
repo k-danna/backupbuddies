@@ -75,7 +75,6 @@ public class InterfaceDummy implements IInterface {
         return users;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public DefaultListModel<ListModel> fetchFileList() {
 		files.clear();

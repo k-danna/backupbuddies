@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,8 +84,7 @@ public class Network implements Serializable {
 		
 		//Set the initial limit to 5% of your initial hard drive space
 		long freeBytes = getFileSystemFreeBytes();
-		setBytesLimit(getFileSystemFreeBytes() / 20);
-		Debug.dbg(bytesLimit);
+		setBytesLimit(freeBytes / 20);
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 		
