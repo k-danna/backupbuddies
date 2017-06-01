@@ -4,7 +4,7 @@ import javax.swing.ImageIcon;
 
 import backupbuddies.gui.GuiMain;
 
-public class ListModel {
+public class ListModel implements Comparable<ListModel> {
 	private String name;
 	private String status;
 	
@@ -27,5 +27,10 @@ public class ListModel {
 	
 	public String toString(){
 		return name;
+	}
+
+	@Override
+	public int compareTo(ListModel other) {
+		return name.compareTo(other.name);
 	}
 }

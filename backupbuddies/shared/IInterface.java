@@ -36,12 +36,25 @@ public interface IInterface {
 	void setEncryptKey(String key);
 	
 	void setDisplayName(String newName);
+	
+	String getDisplayName();
+
 
 	//FIXME: pass storage amount
 	void setStorageSpace(int amount);
 
+	int getStorageSpace();
+	
+	/**
+	 * @return the absolute maximum we can physically store, by filling
+	 * every free byte of the disk
+	 */
+	int getStorageSpaceLimit();
+
+	
 	//Gets the event list
 	//Returns an array of up to Properties.LOG_MESSAGE_COUNT error messages
 	List<String> getEventLog();
+
 	
 }

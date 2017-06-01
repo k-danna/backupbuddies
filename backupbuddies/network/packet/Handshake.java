@@ -20,11 +20,11 @@ public class Handshake {
 	
 	//Receives a handshake
 	public static boolean checkHandshake(Peer peer, DataInputStream inbound) throws IOException, IllegalArgumentException {
-		String handshake=inbound.readUTF();
-		if(handshake==null)
+		String magicNumber=inbound.readUTF();
+		if(magicNumber==null)
 			throw new IllegalArgumentException();
 
-		if(!(handshake.equals(Protocol.MAGIC_NUMBER)))
+		if(!(magicNumber.equals(Protocol.MAGIC_NUMBER)))
 			throw new IllegalArgumentException();
 
 		//Their display name
@@ -57,8 +57,10 @@ public class Handshake {
 		
 		byte[] theirHash = new byte[targetHash.length];
 		
-		if(inbound.read(theirHash) != theirHash.length)
-			throw new IllegalArgumentException();
+		int theirBytesRead = inbound.read(theirHash);
+		
+		if(theirBytesRead != theirHash.length)
+			throw new IllegalArgumentException("Read "+theirBytesRead+", required "+theirHash.length);
 		
 		for(int i=0; i<theirHash.length; i++) {
 			if(theirHash[i] != targetHash[i]) {
@@ -97,7 +99,6 @@ public class Handshake {
 			//We're hosed
 			throw new RuntimeException(e);
 		}
-
 	}
 
 }

@@ -36,8 +36,10 @@ public class NotifyNewPeer implements IPacketHandler {
 	public void handlePacket(Peer peer, Network network, DataInputStream input) throws IOException {
 		String newPeer = input.readUTF();
 		try{
+			Debug.dbg("Trying to connect to "+newPeer);
 			network.connect(newPeer);
 		}catch(Exception e){
+			network.log("Failed to connect to "+newPeer);
 			e.printStackTrace();
 		}
 	}

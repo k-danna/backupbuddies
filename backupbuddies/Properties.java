@@ -13,6 +13,9 @@ public class Properties {
 	
 	public static final String NETWORK_FILE = "network.ser";
 	
+    public static final String ALGORITHM = "AES";
+    public static final String TRANSFORMATION = "AES";	
+	
 	static{
 		try{
 			BUB_HOME.mkdirs();

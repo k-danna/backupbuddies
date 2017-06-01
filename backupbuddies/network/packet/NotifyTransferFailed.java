@@ -26,7 +26,7 @@ public class NotifyTransferFailed implements IPacketHandler {
 	public void handlePacket(Peer peer, Network network, DataInputStream inbound) throws IOException {
 		String fileName = inbound.readUTF();
 		long theirLimit = inbound.readLong();
-		network.log(fileName+"failed to upload: " + peer.url + " can accept " + theirLimit/1000 + " more KB of data");
+		network.log(fileName+"failed to upload: " + peer.url + " can accept " + (theirLimit >> 30) + " more GB of data");
 	}
 
 }

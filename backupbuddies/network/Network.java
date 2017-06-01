@@ -4,8 +4,12 @@ package backupbuddies.network;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +24,7 @@ import backupbuddies.Properties;
 public class Network implements Serializable {
 
 
-	private static final long serialVersionUID = 2;
+	private static final long serialVersionUID = 3;
 
 	public final String password;
 
@@ -29,6 +33,7 @@ public class Network implements Serializable {
 	public transient HashMap<String, Peer> connections = new HashMap<>();
 	
 	//All connections we have ever seen, with timeouts
+	//Format is IP -> time
 	public HashMap<String, Long> seenConnections = new HashMap<>();
 
 	/*
@@ -57,7 +62,10 @@ public class Network implements Serializable {
 	//A hash map from file names to the paths to store them at
 	transient HashMap<String, String> downloadingFileLocs = new HashMap<>();
 	
-	public String storagePath;
+	//The currently active encryption key
+	public String encryptionKey = "";
+	
+	public final String storagePath;
 	
 	//Number of bytes already stored
 	private long bytesStored;
@@ -69,12 +77,16 @@ public class Network implements Serializable {
 	String displayName;
 	
 	public Network(String password){
+		Debug.mark();
 		this.password=password;
-		storagePath = new File(Properties.BUB_HOME, "files")
-				.getAbsolutePath();
+		File f = new File(Properties.BUB_HOME, "files");
+		f.mkdirs();
+		storagePath=f.getAbsolutePath();
 		
-		//Set the initial limit to 10% of your initial hard drive space
-		setBytesLimit(new File(storagePath).getFreeSpace() / 10);
+		//Set the initial limit to 5% of your initial hard drive space
+		long freeBytes = getFileSystemFreeBytes();
+		setBytesLimit(getFileSystemFreeBytes() / 20);
+		Debug.dbg(bytesLimit);
 		
 		new Thread(new IncomingConnectionHandler(this)).start();
 		
@@ -107,10 +119,20 @@ public class Network implements Serializable {
 		synchronized(connections){
 			if(url.equals(""))
 				return;
+			
+			//Check for duplicates properly, before connecting to anything
+			if(offlinePeers.containsKey(url)) {
+				String hname = offlinePeers.get(url).displayName;
+				if(hname != null && connections.get(hname) != null)
+					return;
+			}
+			
 			try{
 				Peer peer=new Peer(url, this);
 				killPeerIfDuplicate(peer);
-			}catch(IOException e){
+			} catch(ConnectException e){
+				this.log("Could not connnect to "+url);
+			} catch(IOException e){
 				e.printStackTrace();
 			}
 		}
@@ -124,9 +146,11 @@ public class Network implements Serializable {
 	public void killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
-			if(connections.containsKey(peer.displayName))
+			if(connections.containsKey(peer.displayName)) {
+				Debug.dbg("Peer "+peer.displayName+" is already connected!");
 				//Can't use kill() - that removes it from connections
-				peer.cleanup();
+				peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
+			}
 		}
 	}
 	
@@ -136,6 +160,7 @@ public class Network implements Serializable {
 		for(Peer i: connections.values() ){
 			peer.notifyNewPeer(i);
 			i.notifyNewPeer(peer);
+			Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
 		}
 		//Connect with peer
 		connections.put(peer.displayName, peer);
@@ -248,5 +273,16 @@ public class Network implements Serializable {
 	public void setDisplayName(String newName) {
 		this.displayName=newName;
 	}
-	
+
+	public long getFileSystemFreeBytes() {
+		try {
+			FileStore store = Files.getFileStore(new File(storagePath).toPath());
+			return store.getUsableSpace();
+		} catch (IOException e) {
+			e.printStackTrace();
+			//1 GB
+			return 1024*1024*1024;
+		}
+	}
+
 }

@@ -7,7 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.Key;
+import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import backupbuddies.Properties;
 import backupbuddies.network.IPacketHandler;
@@ -26,13 +31,18 @@ public class ReplyRestoreFile implements IPacketHandler {
 		return Protocol.REPLY_RETRIEVE;
 	}
 
-	public static void send(Network network, Path filePath, DataOutputStream outbound) throws IOException {
-		File file=filePath.toFile();
+	public static void send(Network network, String dirName, String fileName, DataOutputStream outbound) throws IOException {
+		File file;
+		if(dirName == null){
+			file=new File(network.storagePath, fileName);
+		} else {
+			file=new File(new File(network.storagePath, dirName),fileName);
+		}
 		FileInputStream fileStream = new FileInputStream(file);
 		long length=file.length();
 
 		outbound.writeUTF(Protocol.REPLY_RETRIEVE);
-		outbound.writeUTF(filePath.getFileName().toString());
+		outbound.writeUTF(dirName+"/"+fileName);
 		outbound.writeLong(length);
 		for(long i=0; i<length; i++){
 			outbound.writeByte((byte) fileStream.read());
@@ -43,26 +53,35 @@ public class ReplyRestoreFile implements IPacketHandler {
 	public void handlePacket(Peer peer, Network network, DataInputStream inbound) throws IOException {
 		synchronized(network.fileStorageLock){
 			// Get file name and length
-			String fileName=inbound.readUTF();
+			String fileNameWhole=inbound.readUTF();
+			String fileName;
+			if(fileNameWhole.contains("/")) {
+				fileName=fileNameWhole.split("/")[1];
+			} else {
+				fileName=fileNameWhole;
+			}
 			long length=inbound.readLong();
 
 			//If we don't have it, we didn't request the file
-			String location=network.getAndRemoveDownloadingFileLocation(fileName);
+			String location=network.getAndRemoveDownloadingFileLocation(fileNameWhole);
 			if(location==null)
 				peer.kill("Tried to restore file that we didn't request!");
 
-			File file=new File(location, fileName);
+			File outputFile=new File(location, fileName);
 
 			//You can overwrite existing backups
 
-			file.createNewFile();
+			outputFile.createNewFile();
 
 			// Create a temporary file directory and file to read in the compressed file
 			File temporaryFileDir = new File(Properties.BUB_HOME, "temp");
 			temporaryFileDir.mkdirs();
-			File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
+			
+			File encryptedFile = new File(temporaryFileDir, "decrypting.tmp");
 
-			FileOutputStream fout=new FileOutputStream(compressedFile);
+			File compressedFile = new File(temporaryFileDir, "decompressing.tmp");
+			
+			FileOutputStream fout=new FileOutputStream(encryptedFile);
 
 			// read inbounding compressed file into temporary file
 			for(long i=0; i<length; i++){
@@ -70,13 +89,24 @@ public class ReplyRestoreFile implements IPacketHandler {
 			}
 			fout.close();
 
+			// Encrypt File
+			// Key can only be 16 chars for now
+			String key = network.encryptionKey;
 			try {
-				// decompress compressed fle into file
-				decompress(compressedFile,file);
+				// decrypt encryptedFile file into file
+				decrypt(key, encryptedFile,compressedFile);
+				encryptedFile.delete();
+
+				try {
+					// decompress compressed file into encryptedFile
+					decompress(compressedFile,outputFile);
+					compressedFile.delete();
+				} catch (Exception e) {
+					network.log("Decompression failed: "+e.getMessage());
+				}
 			} catch (Exception e) {
-				System.out.print(e);
+				network.log("Decryption failed: "+e.getMessage());
 			}
-			compressedFile.delete();
 		}
 	}
 	
@@ -102,5 +132,32 @@ public class ReplyRestoreFile implements IPacketHandler {
 		fos.close();
 		fis.close();
 	}
+	
+    private static void decrypt( String key, File source, File decrypted) throws Exception {
+        try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			byte[] hashBytes = md.digest(key.getBytes());
+        	
+        	int cipherMode = Cipher.DECRYPT_MODE;
+            Key secretKey = new SecretKeySpec(hashBytes,Properties.ALGORITHM);
+            Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
+            cipher.init(cipherMode, secretKey);
+             
+            FileInputStream inputStream = new FileInputStream(source);
+            byte[] inputBytes = new byte[(int) source.length()];
+            inputStream.read(inputBytes);
+             
+            byte[] outputBytes = cipher.doFinal(inputBytes);
+             
+            FileOutputStream outputStream = new FileOutputStream(decrypted);
+            outputStream.write(outputBytes);
+             
+            inputStream.close();
+            outputStream.close();
+             
+        } catch (Exception ex) {
+            throw new Exception(ex);
+        }
+    }
 
 }

@@ -7,8 +7,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.Key;
+import java.security.MessageDigest;
 import java.util.zip.GZIPOutputStream;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+import backupbuddies.Properties;
 import backupbuddies.network.IPacketHandler;
 import backupbuddies.network.Network;
 import backupbuddies.network.Peer;
@@ -25,23 +31,31 @@ public class BackupFile implements IPacketHandler {
 		return Protocol.REQUEST_BACKUP;
 	}
 	
-	public static boolean send(Peer peer, Path filePath){
+	public static synchronized boolean send(Peer peer, Network network, Path filePath){
 		File temporaryFileDir = new File(System.getProperty("user.home"), "backupbuddies/temp");
 		temporaryFileDir.mkdirs();
 		
 		File compressedFile = new File(temporaryFileDir, "compressing.tmp");
-		
 		try {
 			compress(filePath.toFile(), compressedFile);
 		} catch (Exception e) {
 			System.out.print(e);
 		}
 		
+		String key = network.encryptionKey;
+		File encryptedFile = new File(temporaryFileDir, "encrypting.tmp");
+		// Encrpt compressed file
+		try {
+			encrypt(key, compressedFile, encryptedFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		long length;
 		long i=0;
 		try{
-			length = compressedFile.length();
-			FileInputStream fileStream = new FileInputStream(compressedFile);
+			length = encryptedFile.length();
+			FileInputStream fileStream = new FileInputStream(encryptedFile);
 			
 			DataOutputStream outbound=peer.getOutputStream();
 			
@@ -54,6 +68,7 @@ public class BackupFile implements IPacketHandler {
 				}
 				fileStream.close();
 				compressedFile.delete();
+				encryptedFile.delete();
 				return true;
 			}
 		}catch(Exception e){
@@ -67,7 +82,7 @@ public class BackupFile implements IPacketHandler {
 		synchronized(network.fileStorageLock){
 			String fileName=inbound.readUTF();
 			long length=inbound.readLong();
-			File file=new File(peer.getStoragePath(), fileName);
+			File file=new File(new File(peer.getStoragePath(), peer.displayName), fileName);
 			
 			//File exceeds our allocated space
 			//Don't let them send the whole file - close the connection to indicate
@@ -116,5 +131,28 @@ public class BackupFile implements IPacketHandler {
 		fos.close();
 		fis.close();
 	}
+	
+	private static void encrypt( String key, File inputFile, File outputFile) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] hashBytes = md.digest(key.getBytes());
+		
+		int cipherMode = Cipher.ENCRYPT_MODE;
+		Key secretKey = new SecretKeySpec(hashBytes, Properties.ALGORITHM);
+		Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
+		cipher.init(cipherMode, secretKey);
+             
+		FileInputStream inputStream = new FileInputStream(inputFile);
+		byte[] inputBytes = new byte[(int) inputFile.length()];
+		inputStream.read(inputBytes);
+             
+		byte[] outputBytes = cipher.doFinal(inputBytes);
+             
+		FileOutputStream outputStream = new FileOutputStream(outputFile);
+		outputStream.write(outputBytes);
+		inputStream.close();
+		outputStream.close();
+    }
+	
+	
 
 }

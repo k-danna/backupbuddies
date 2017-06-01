@@ -83,15 +83,17 @@ public class Peer {
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(Object error){
 		Debug.dbg(error);
+		Debug.caller();
 		if(error instanceof Exception)
 			((Exception) error).printStackTrace();
 		network.onConnectionDie(this);
-		cleanup();
+		cleanup(error);
 	}
 	
 	@SuppressWarnings("deprecation")
-	public synchronized void cleanup(){
+	public synchronized void cleanup(Object error){
 		if(peerServicer != null){
+			network.log("Peer killed:" +error);
 			peerServicer.stop();
 			peerServicer=null;
 		}
@@ -110,7 +112,7 @@ public class Peer {
 	}
 	
 	public boolean uploadFile(Path filePath) {
-		return BackupFile.send(this, filePath);
+		return BackupFile.send(this, network, filePath);
 	}
 	
 
