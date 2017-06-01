@@ -407,12 +407,14 @@ public class GuiMain extends JFrame {
 			public void insertUpdate(DocumentEvent arg0) {
 				fileSearch(search.getText());
 				globalSearch = search.getText();
+				lastFileState.clear();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
 				fileSearch(search.getText());	
 				globalSearch = search.getText();
+				lastFileState.clear();
 			}
         });
         label.setForeground(textColor);
