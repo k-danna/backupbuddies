@@ -215,6 +215,7 @@ public class Interface implements IInterface {
 	public void setEncryptKey(String key) {
 		network.encryptionKey=key;
 		System.out.printf("[+] set encrypt key to: %s\n", key);
+		network.log("Set encrypt key to: "+ key);
 	}
 
 	//FIXME: pass storage amount
@@ -224,6 +225,7 @@ public class Interface implements IInterface {
 	@Override
 	public void setStorageSpace(int amount) {
 		network.setBytesLimit(gibibytesToBytes(amount));
+		network.log("Set available storage to: "+ amount + " GB");
 	}
 
 	//Gets the event list

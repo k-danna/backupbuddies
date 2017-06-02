@@ -98,7 +98,7 @@ public class Peer {
 	@SuppressWarnings("deprecation")
 	public synchronized void cleanup(Object error){
 		if(peerServicer != null){
-			network.log("Peer killed:" +error);
+			network.log("unknown connection error: " +error);
 			peerServicer.stop();
 			peerServicer=null;
 		}
