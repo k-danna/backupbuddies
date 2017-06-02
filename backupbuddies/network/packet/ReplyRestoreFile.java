@@ -59,6 +59,7 @@ public class ReplyRestoreFile implements IPacketHandler {
 			} else {
 				fileName=fileNameWhole;
 			}
+            network.log("downloading file " + fileName);
 			long length=inbound.readLong();
 
 			//If we don't have it, we didn't request the file
@@ -84,9 +85,15 @@ public class ReplyRestoreFile implements IPacketHandler {
 
 			// read inbounding compressed file into temporary file
 			for(long i=0; i<length; i++){
-				fout.write(inbound.readByte());
+			    try {
+				    fout.write(inbound.readByte());
+				}
+				catch (Exception e) {
+                    network.log("download failed " + fileName);
+				}
 			}
 			fout.close();
+            network.log("successfully downloaded " + fileName);
 
 			// Encrypt File
 			// Key can only be 16 chars for now
