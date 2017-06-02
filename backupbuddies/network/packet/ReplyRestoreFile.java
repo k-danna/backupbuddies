@@ -47,7 +47,6 @@ public class ReplyRestoreFile implements IPacketHandler {
 			outbound.writeByte((byte) fileStream.read());
 		}
 		fileStream.close();
-		network.log("Restored file: "+fileName);
 	}
 	@Override
 	public void handlePacket(Peer peer, Network network, DataInputStream inbound) throws IOException {
