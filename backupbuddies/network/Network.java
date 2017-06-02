@@ -86,6 +86,13 @@ public class Network implements Serializable {
 	private static Thread ich;
 	
 	@SuppressWarnings("deprecation")
+	private static void setupConnectionHandler(Network net){
+		if(ich != null)
+			ich.stop();
+		ich=new Thread(new IncomingConnectionHandler(net));
+		ich.start();
+	}
+	
 	public Network(){
 		Debug.mark();
 		
@@ -93,12 +100,9 @@ public class Network implements Serializable {
 		long freeBytes = getFileSystemFreeBytes();
 		setBytesLimit(freeBytes / 20);
 		
-		if(ich != null)
-			ich.stop();
-		ich=new Thread(new IncomingConnectionHandler(this));
-		ich.start();
-		
 		displayName = guessComputerName();
+		
+		setupConnectionHandler(this);
 	}
 	
 	//Apparently transient things don't get auto-created
@@ -121,7 +125,8 @@ public class Network implements Serializable {
 				seenConnections.remove(s);
 			}
 		}
-		new Thread(new IncomingConnectionHandler(this)).start();
+
+		setupConnectionHandler(this);
 	}
 	/*
 	 * Creates a connection to a URL
