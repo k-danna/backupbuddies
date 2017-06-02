@@ -180,16 +180,16 @@ public class Interface implements IInterface {
 		
 		for(Peer peer:network.connections.values()){
 			for(String file:peer.getKnownFiles()){
-				ListModel a = new ListModel(file, "1");
+				ListModel a = new ListModel(file.replaceAll("/", " : "), "1");
 				things.add(a);
-				onlineFiles.add(file);
+				onlineFiles.add(file.replaceAll("/", " : "));
 			}
 		}
 		
 		for(String file :network.getKnownFiles()){
-			if(onlineFiles.contains(file))
+			if(onlineFiles.contains(file.replaceAll("/", " : ")))
 				continue;
-			ListModel a = new ListModel(file, "0");
+			ListModel a = new ListModel(file.replaceAll("/", " : "), "0");
 			things.add(a);
 		}
 		
