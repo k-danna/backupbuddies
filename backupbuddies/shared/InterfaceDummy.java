@@ -150,5 +150,10 @@ public class InterfaceDummy implements IInterface {
 	public int getStorageSpaceLimit() {
 		return 212;
 	}
+
+	@Override
+	public boolean networkExists() {
+		return true;
+	}
 	
 }

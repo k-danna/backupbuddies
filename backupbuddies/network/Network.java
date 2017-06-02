@@ -79,12 +79,13 @@ public class Network implements Serializable {
 	
 	private long bytesLimit=0;
 	
-	transient ArrayDeque<String> log=new ArrayDeque<>();
+	static transient ArrayDeque<String> log=new ArrayDeque<>();
 	
 	String displayName=Network.guessComputerName();
 	
 	private static Thread ich;
 	
+	@SuppressWarnings("deprecation")
 	public Network(){
 		Debug.mark();
 		
@@ -152,9 +153,9 @@ public class Network implements Serializable {
 				}
 			}
 			if(haveValidConnection) {
-				this.log("connected: " + url);
+				log("connected: " + url);
 			} else
-				this.log("conn. failed: "+url);
+				log("conn. failed: "+url);
 		}
 	}
 	
@@ -267,7 +268,7 @@ public class Network implements Serializable {
 		return log.clone();
 	}
 	
-	public void log(String message){
+	public static void log(String message){
 		log.addFirst(message);
 		if(log.size() > Properties.LOG_MESSAGE_COUNT)
 			log.removeLast();

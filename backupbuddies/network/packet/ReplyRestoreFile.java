@@ -33,9 +33,9 @@ public class ReplyRestoreFile implements IPacketHandler {
 	public static void send(Network network, String dirName, String fileName, DataOutputStream outbound) throws IOException {
 		File file;
 		if(dirName == null){
-			file=new File(network.storagePath, fileName);
+			file=new File(Network.storagePath, fileName);
 		} else {
-			file=new File(new File(network.storagePath, dirName),fileName);
+			file=new File(new File(Network.storagePath, dirName),fileName);
 		}
 		FileInputStream fileStream = new FileInputStream(file);
 		long length=file.length();
@@ -59,7 +59,7 @@ public class ReplyRestoreFile implements IPacketHandler {
 			} else {
 				fileName=fileNameWhole;
 			}
-            network.log("downloading file " + fileName);
+            Network.log("downloading file " + fileName);
 			long length=inbound.readLong();
 
 			//If we don't have it, we didn't request the file
@@ -89,7 +89,7 @@ public class ReplyRestoreFile implements IPacketHandler {
 				    fout.write(inbound.readByte());
 				}
 				catch (Exception e) {
-                    network.log("download failed " + fileName);
+                    Network.log("download failed " + fileName);
 				}
 			}
 			fout.close();
@@ -106,12 +106,12 @@ public class ReplyRestoreFile implements IPacketHandler {
 					// decompress compressed file into encryptedFile
 					decompress(compressedFile,outputFile);
 					compressedFile.delete();
-		            network.log("Restored " + fileName);
+		            Network.log("Restored " + fileName);
 				} catch (Exception e) {
-					network.log("Decompression failed: "+e.getMessage());
+					Network.log("Decompression failed: "+e.getMessage());
 				}
 			} catch (Exception e) {
-				network.log("Decryption failed: "+fileName+" (key:"+key+")");
+				Network.log("Decryption failed: "+fileName+" (key:"+key+")");
 			}
 		}
 	}

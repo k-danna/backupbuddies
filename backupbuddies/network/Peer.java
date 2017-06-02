@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import backupbuddies.Debug;
 import backupbuddies.network.packet.BackupFile;
 import backupbuddies.network.packet.Handshake;
 import backupbuddies.network.packet.ListFiles;
