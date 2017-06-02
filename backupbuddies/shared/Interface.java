@@ -246,7 +246,7 @@ public class Interface implements IInterface {
 	}
 
 	public static IInterface make() {
-		boolean DEBUG = false;
+		boolean DEBUG = true;
 		if(DEBUG) {
 			return new InterfaceDummy();
 		} else {
