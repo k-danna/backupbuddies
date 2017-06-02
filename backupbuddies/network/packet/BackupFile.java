@@ -48,7 +48,7 @@ public class BackupFile implements IPacketHandler {
 		try {
 			encrypt(key, compressedFile, encryptedFile);
 		} catch (Exception e) {
-			network.log("Encryption failed!");
+			Network.log("Encryption failed!");
 			e.printStackTrace();
 			return false;
 		}
@@ -56,7 +56,7 @@ public class BackupFile implements IPacketHandler {
 		long length;
 		long i=0;
 		try{
-		    network.log("Sending encrypted file " + filePath);
+		    Network.log("Sending encrypted file " + filePath);
 			length = encryptedFile.length();
 			FileInputStream fileStream = new FileInputStream(encryptedFile);
 			
@@ -72,12 +72,12 @@ public class BackupFile implements IPacketHandler {
 				fileStream.close();
 				compressedFile.delete();
 				encryptedFile.delete();
-		        network.log("Send success: " + filePath);
+		        Network.log("Send success: " + filePath);
 				return true;
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-		    network.log("Send failed: " + filePath);
+		    Network.log("Send failed: " + filePath);
 			return false;
 		}
 	}

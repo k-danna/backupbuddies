@@ -56,5 +56,7 @@ public interface IInterface {
 	//Returns an array of up to Properties.LOG_MESSAGE_COUNT error messages
 	List<String> getEventLog();
 
+	boolean networkExists();
+
 	
 }

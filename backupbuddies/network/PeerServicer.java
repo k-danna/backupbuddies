@@ -77,7 +77,7 @@ final class PeerServicer implements Runnable {
 
 				}
 			}catch(IOException e){
-				peer.network.log("Connection lost to "+peer.url);
+				Network.log("Connection lost to "+peer.url);
 				peer.kill(e);
 				return;
 			}
