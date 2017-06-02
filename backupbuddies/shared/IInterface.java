@@ -23,7 +23,7 @@ public interface IInterface {
 	void login(String ip, String pass);
 
 	/*trigger:  */
-	void uploadFile(File[] files, String peerName);
+	boolean uploadFile(File[] files, String peerName);
 
 	void downloadFile(String fileName, String fileDir);
 
