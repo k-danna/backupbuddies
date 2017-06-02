@@ -37,11 +37,12 @@ public class InterfaceDummy implements IInterface {
 	}
 
 	@Override
-	public void uploadFile(File[] files, String peerName) {
+	public boolean uploadFile(File[] files, String peerName) {
 	    for (File f : files) {
             System.out.printf("[+] uploading '%s'\n", 
                     f.toString());
 	    }
+	    return true;
 	}
 
 	@Override
