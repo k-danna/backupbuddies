@@ -105,6 +105,7 @@ public class Network implements Serializable {
 	//We have to do these things ourselves
 	//This functions like a constructor
 	public void init(){
+		encryptionKey="";
 		connections = new HashMap<>();
 		fileStorageLock = new Object();
 		downloadingFileLocs = new HashMap<>();
