@@ -499,8 +499,8 @@ public class GuiMain extends JFrame {
         panel.setPreferredSize(new Dimension(280, 50));
 
     	int min = 0;
-        int max = 100;
-        int init = 1;
+        int max = IInterface.INSTANCE.getStorageSpaceLimit();
+        int init = IInterface.INSTANCE.getStorageSpace();
         final JLabel sliderLabel = new JLabel("Storage:");
         final JLabel positionLabel = new JLabel("");
         sliderLabel.setForeground(textColor);
@@ -664,7 +664,7 @@ public class GuiMain extends JFrame {
         //create components
         final JLabel nameLabel = new JLabel("Enter Device Name: ");
         final JButton lockNameButton = new JButton("set");
-        final JTextField nameField = new JTextField("name...",10);
+        final JTextField nameField = new JTextField(IInterface.INSTANCE.getDisplayName(),10);
         nameField.setEnabled(false);
         nameField.setBackground(listColor);
 
