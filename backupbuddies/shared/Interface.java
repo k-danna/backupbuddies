@@ -85,8 +85,10 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void login(String ip, String pass) {
-		if(network == null || !pass.equals(network.password))               //if loc net not defined OR pw differ from current loc net pw:
-			network = new Network(pass);									//create a new loc net with given password. 
+		if(network == null || !pass.equals(network.password)) {            //if loc net not defined OR pw differ from current loc net pw:
+			network = new Network();									//create a new loc net with given password. 
+			network.setPassword(pass);;
+		}
 		network.connect(ip);									//try and connect to ip given.
 	}
 
@@ -215,6 +217,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void setEncryptKey(String key) {
+		if(network==null)return;
 		network.encryptionKey=key;
 		System.out.printf("[+] set encrypt key to: %s\n", key);
 		network.log("Set encrypt key to: "+ key);
@@ -226,6 +229,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void setStorageSpace(int amount) {
+		if(network==null)return;
 		network.setBytesLimit(gibibytesToBytes(amount));
 		network.log("Set available storage to: "+ amount + " GB");
 	}
