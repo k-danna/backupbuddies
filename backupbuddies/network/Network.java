@@ -128,11 +128,12 @@ public class Network implements Serializable {
 			try{
 				Peer peer=new Peer(url, this);
 				killPeerIfDuplicate(peer);
+                this.log("connected to " + url);
 			} catch(ConnectException e){
 				this.log("Could not connnect to "+url);
 			} catch(IOException e){
 				e.printStackTrace();
-                this.log("successfully connected to " + url);
+				this.log("Could not connnect to "+url);
 			}
 		}
 	}
