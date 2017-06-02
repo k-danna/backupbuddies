@@ -120,20 +120,12 @@ public class GuiMain extends JFrame {
                 	selectedUsers[i] = Integer.parseInt(lastUserState.getElementAt(i));
                 }
                 allUsers.setSelectedIndices(selectedUsers);
-             //   fileSearch(globalSearch);
                 
-                //FIXME: this gets slower as more events are added
-                    //prevArray --> int (length of last returned array)
-                    //change to check length of returned array
-                    //append the last (len(events) - prevLength) elements to log
-                        //if this is negative they cleared the event log
-                            //only reset prevArraysize variable
-
                 List<String> events = IInterface.INSTANCE.getEventLog();
             	log.setText("");
                 for (String event : events) {
                     log.append(event + "\n");
-                    log.setCaretPosition(log.getDocument().getLength());
+                    log.setCaretPosition(0);
                 }
                 prevEvents = events;
 
@@ -321,6 +313,7 @@ public class GuiMain extends JFrame {
         //TODO: renders images
     public static JScrollPane userListPanel() {
     	usertest = (IInterface.INSTANCE.fetchUserList());    	
+        allUsers.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     	allUsers.setModel(usertest);
     	
         allUsers.addMouseListener(new MouseAdapter(){
@@ -356,6 +349,7 @@ public class GuiMain extends JFrame {
         //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
     	filetest = (IInterface.INSTANCE.fetchFileList());   	
+        allFiles.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     	//allFiles.setModel(filetest);
         allFiles.setModel(files);
         for(int i=0; i< files.size(); i++){
