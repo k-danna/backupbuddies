@@ -133,6 +133,7 @@ public class Network implements Serializable {
 				} catch(ConnectException e){
 					this.log("conn. failed: "+url);
 				} catch(IOException e){
+					this.log("conn. failed: "+url);
 					e.printStackTrace();
 				}
 			}
