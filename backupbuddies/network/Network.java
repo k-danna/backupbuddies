@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -125,16 +126,22 @@ public class Network implements Serializable {
 					return;
 			}
 			
-			try{
-				Peer peer=new Peer(url, this);
-				killPeerIfDuplicate(peer);
-                this.log("connected to " + url);
-			} catch(ConnectException e){
-				this.log("Could not connnect to "+url);
-			} catch(IOException e){
-				e.printStackTrace();
-				this.log("Could not connnect to "+url);
+			boolean haveValidConnection=false;
+			for(int i=0; i<3 && !(haveValidConnection); i++){
+				try{
+					Peer peer=new Peer(url, this);
+					haveValidConnection=killPeerIfDuplicate(peer);
+				} catch(SocketTimeoutException e){
+					
+				} catch(IOException e){
+					this.log("conn. failed: "+url);
+					e.printStackTrace();
+				}
 			}
+			if(haveValidConnection)
+				this.log("connected: " + url);
+			else
+				this.log("conn. failed: "+url);
 		}
 	}
 	
@@ -143,15 +150,17 @@ public class Network implements Serializable {
 		connect(peer.url);
 	}
 
-	public void killPeerIfDuplicate(Peer peer) throws IOException {
+	public boolean killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
 			if(connections.containsKey(peer.displayName)) {
 				Debug.dbg("Peer "+peer.displayName+" is already connected!");
 				//Can't use kill() - that removes it from connections
 				peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	//Notifies the network that the given Peer has completed a valid handshake
@@ -175,7 +184,6 @@ public class Network implements Serializable {
 	public void onConnectionDie(Peer peer) {
 		synchronized(connections){
 			connections.remove(peer.displayName);
-            this.log(peer.displayName + " disconnected from network");
 		}
 	}
 
@@ -209,7 +217,6 @@ public class Network implements Serializable {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
 			System.out.println("Failed to guess host name! Making something up...");
-            this.log("display name set randomly, enter a username!");
 			return UUID.randomUUID().toString();
 		}
 
@@ -273,7 +280,6 @@ public class Network implements Serializable {
 	}
 
 	public void setDisplayName(String newName) {
-        this.log("set display name to " + newName);
 		this.displayName=newName;
 	}
 

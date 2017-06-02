@@ -41,44 +41,48 @@ final class PeerServicer implements Runnable {
 	@Override
 	public void run() {
 		try{
-			// If they fail to handshake properly, they're either not Backup
-			// Buddies or don't have the password. Don't take their commands.
 			try{
-				Handshake.checkHandshake(peer, inbound);
-			}catch(IllegalArgumentException e){
-				e.printStackTrace();
-				peer.kill("Bad handshake");
+				// If they fail to handshake properly, they're either not Backup
+				// Buddies or don't have the password. Don't take their commands.
+				try{
+					Handshake.checkHandshake(peer, inbound);
+				}catch(IllegalArgumentException e){
+					e.printStackTrace();
+					peer.kill("Bad handshake");
+					return;
+				}
+
+				//Now that they're auth'd, send them our file list
+				peer.sendStoredFileList();
+
+
+				while(!peer.isDead()){
+					String command=inbound.readUTF();
+					if(command==null){
+						peer.kill("Null command");
+						return;
+					}
+
+					IPacketHandler packetHandler = packets.get(command);
+					if(packetHandler==null){
+						peer.kill("Illegal command: "+command);
+						return;
+					} else {
+						//Acquire a lock on the peer
+						//This is often needed - packets may require replies.
+						synchronized(peer){
+							packetHandler.handlePacket(peer, peer.network, inbound);
+						}
+					}
+
+				}
+			}catch(IOException e){
+				peer.network.log("Connection lost to "+peer.url);
+				peer.kill(e);
 				return;
 			}
-			
-			//Now that they're auth'd, send them our file list
-			peer.sendStoredFileList();
+		}catch(ThreadDeath ignored){
 
-
-			while(!peer.isDead()){
-				String command=inbound.readUTF();
-				if(command==null){
-					peer.kill("Null command");
-					return;
-				}
-				
-				IPacketHandler packetHandler = packets.get(command);
-				if(packetHandler==null){
-					peer.kill("Illegal command: "+command);
-					return;
-				} else {
-					//Acquire a lock on the peer
-					//This is often needed - packets may require replies.
-					synchronized(peer){
-						packetHandler.handlePacket(peer, peer.network, inbound);
-					}
-				}
-				
-			}
-		}catch(IOException e){
-			peer.network.log("Connection lost to "+peer.url);
-			peer.kill(e);
-			return;
 		}
 	}
 	
