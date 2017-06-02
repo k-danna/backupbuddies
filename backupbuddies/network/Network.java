@@ -125,15 +125,19 @@ public class Network implements Serializable {
 					return;
 			}
 			
-			try{
-				Peer peer=new Peer(url, this);
-				killPeerIfDuplicate(peer);
-			} catch(ConnectException e){
-				this.log("Could not connnect to "+url);
-			} catch(IOException e){
-				e.printStackTrace();
-                this.log("successfully connected to " + url);
+			boolean haveValidConnection=false;
+			for(int i=0; i<3 && !(haveValidConnection); i++){
+				try{
+					Peer peer=new Peer(url, this);
+					haveValidConnection=killPeerIfDuplicate(peer);
+				} catch(ConnectException e){
+					this.log("conn. failed: "+url);
+				} catch(IOException e){
+					e.printStackTrace();
+				}
 			}
+			if(haveValidConnection)
+				this.log("connected: " + url);
 		}
 	}
 	
@@ -142,15 +146,17 @@ public class Network implements Serializable {
 		connect(peer.url);
 	}
 
-	public void killPeerIfDuplicate(Peer peer) throws IOException {
+	public boolean killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
 			if(connections.containsKey(peer.displayName)) {
 				Debug.dbg("Peer "+peer.displayName+" is already connected!");
 				//Can't use kill() - that removes it from connections
 				peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	//Notifies the network that the given Peer has completed a valid handshake
