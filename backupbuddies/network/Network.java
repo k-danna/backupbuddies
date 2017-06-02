@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -130,8 +131,8 @@ public class Network implements Serializable {
 				try{
 					Peer peer=new Peer(url, this);
 					haveValidConnection=killPeerIfDuplicate(peer);
-				} catch(ConnectException e){
-					this.log("conn. failed: "+url);
+				} catch(SocketTimeoutException e){
+					
 				} catch(IOException e){
 					this.log("conn. failed: "+url);
 					e.printStackTrace();
@@ -139,6 +140,8 @@ public class Network implements Serializable {
 			}
 			if(haveValidConnection)
 				this.log("connected: " + url);
+			else
+				this.log("conn. failed: "+url);
 		}
 	}
 	
