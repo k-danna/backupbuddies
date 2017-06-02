@@ -95,7 +95,7 @@ public class Interface implements IInterface {
 	 * @see backupbuddies.shared.IInterface#uploadFile(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void uploadFile(File[] files, String peerDisplayName) {
+	public boolean uploadFile(File[] files, String peerDisplayName) {
 	    for (File f : files) {
             Path filePath = f.toPath();
 
@@ -106,6 +106,7 @@ public class Interface implements IInterface {
             peer.uploadFile(filePath);
             peer.requestUpdatedFileList();
         }
+        return true;
 	}
 
 	/* (non-Javadoc)
