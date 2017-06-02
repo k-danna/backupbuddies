@@ -109,11 +109,17 @@ public class GuiMain extends JFrame {
                 	fileSearch("");
                 	firstSearch = true;
                 }
-                int[] selected = new int[lastFileState.getSize()];
+                int[] selectedFiles = new int[lastFileState.getSize()];
                 for(int i=0; i<lastFileState.getSize(); i++){
-                	selected[i] = Integer.parseInt(lastFileState.getElementAt(i));
+                	selectedFiles[i] = Integer.parseInt(lastFileState.getElementAt(i));
                 }
-                allFiles.setSelectedIndices(selected);
+                allFiles.setSelectedIndices(selectedFiles);
+                
+                int[] selectedUsers = new int[lastUserState.getSize()];
+                for(int i=0; i<lastUserState.getSize(); i++){
+                	selectedUsers[i] = Integer.parseInt(lastUserState.getElementAt(i));
+                }
+                allUsers.setSelectedIndices(selectedUsers);
              //   fileSearch(globalSearch);
                 
                 //FIXME: this gets slower as more events are added
@@ -316,12 +322,24 @@ public class GuiMain extends JFrame {
     public static JScrollPane userListPanel() {
     	usertest = (IInterface.INSTANCE.fetchUserList());    	
     	allUsers.setModel(usertest);
-   
+    	
         allUsers.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
         		int selectedItem = allUsers.getSelectedIndex();
-        		lastUserState.addElement(Integer.toString(selectedItem));
+        		boolean already = false;
+        		int where = 0;
+        		for(int i=0; i<lastUserState.getSize(); i++){
+        			if(selectedItem == Integer.parseInt(lastUserState.getElementAt(i))){
+        				already = true;
+        				where = i;
+        			}
+        		}
+        		if(already == true){
+        			lastUserState.removeElementAt(where);
+        		}else{
+        		    lastUserState.addElement(Integer.toString(selectedItem));
+        	    }
         	}
         });
     	
@@ -350,7 +368,19 @@ public class GuiMain extends JFrame {
         	@Override
         	public void mouseClicked(MouseEvent e){
         		int selectedItem = allFiles.getSelectedIndex();
-        		lastFileState.addElement(Integer.toString(selectedItem));
+        		boolean already = false;
+        		int where = 0;
+        		for(int i=0; i<lastFileState.getSize(); i++){
+        			if(selectedItem == Integer.parseInt(lastFileState.getElementAt(i))){
+        				already = true;
+        				where = i;
+        			}
+        		}
+        		if(already == true){
+        			lastFileState.removeElementAt(where);
+        		}else{
+        		    lastFileState.addElement(Integer.toString(selectedItem));
+        	    }
         	}
         });
         allFiles.setCellRenderer(new ListRenderer());
@@ -407,12 +437,14 @@ public class GuiMain extends JFrame {
 			public void insertUpdate(DocumentEvent arg0) {
 				fileSearch(search.getText());
 				globalSearch = search.getText();
+				lastFileState.clear();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
 				fileSearch(search.getText());	
 				globalSearch = search.getText();
+				lastFileState.clear();
 			}
         });
         label.setForeground(textColor);
