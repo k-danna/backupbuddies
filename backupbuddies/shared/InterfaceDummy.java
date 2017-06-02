@@ -51,9 +51,14 @@ public class InterfaceDummy implements IInterface {
 	            fileName, fileDir);
 	}
 	
-	private void maybeAdd(DefaultListModel<ListModel> users, ListModel a){
-		if(Math.random() < 0.75)
-			users.addElement(a);
+	private void maybeAdd(DefaultListModel<ListModel> users, ListModel a, boolean maybe){
+	    if (!maybe) {
+            users.addElement(a);
+	    }
+	    else {
+		    if(Math.random() < 0.75)
+			    users.addElement(a);
+		}
 	}
 
 	@Override
@@ -67,12 +72,13 @@ public class InterfaceDummy implements IInterface {
         ListModel e = new ListModel("onlineUser2","1");
         ListModel f = new ListModel("onlineUser3","1");
         
-        maybeAdd(users,a);
-        maybeAdd(users,b);
-        maybeAdd(users,c);
-        maybeAdd(users,d);
-        maybeAdd(users,e);
-        maybeAdd(users,f);
+        boolean maybe = false;
+        maybeAdd(users,a, maybe);
+        maybeAdd(users,b, maybe);
+        maybeAdd(users,c, maybe);
+        maybeAdd(users,d, maybe);
+        maybeAdd(users,e, maybe);
+        maybeAdd(users,f, maybe);
         return users;
 	}
 
@@ -90,15 +96,16 @@ public class InterfaceDummy implements IInterface {
         ListModel h = new ListModel("availableFile3","1");
         ListModel i = new ListModel("fileInTransit3","2");
         
-        maybeAdd(files,a);
-        maybeAdd(files,b);
-        maybeAdd(files,c);
-        maybeAdd(files,d);
-        maybeAdd(files,e);
-        maybeAdd(files,f);
-        maybeAdd(files,g);
-        maybeAdd(files,h);
-        maybeAdd(files,i);
+        boolean maybe = false;
+        maybeAdd(files,a, maybe);
+        maybeAdd(files,b, maybe);
+        maybeAdd(files,c, maybe);
+        maybeAdd(files,d, maybe);
+        maybeAdd(files,e, maybe);
+        maybeAdd(files,f, maybe);
+        maybeAdd(files,g, maybe);
+        maybeAdd(files,h, maybe);
+        maybeAdd(files,i, maybe);
         return files;    
 	}
 
