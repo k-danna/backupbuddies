@@ -94,7 +94,6 @@ public class ReplyRestoreFile implements IPacketHandler {
 				}
 			}
 			fout.close();
-            network.log("successfully downloaded " + fileName);
 
 			// Encrypt File
 			// Key can only be 16 chars for now
@@ -108,11 +107,12 @@ public class ReplyRestoreFile implements IPacketHandler {
 					// decompress compressed file into encryptedFile
 					decompress(compressedFile,outputFile);
 					compressedFile.delete();
+		            network.log("Restored " + fileName);
 				} catch (Exception e) {
 					network.log("Decompression failed: "+e.getMessage());
 				}
 			} catch (Exception e) {
-				network.log("Decryption failed: "+e.getMessage());
+				network.log("Decryption failed: "+fileName+" (key:"+key+")");
 			}
 		}
 	}

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.FileStore;
@@ -130,11 +131,14 @@ public class Network implements Serializable {
 			for(int i=0; i<3 && !(haveValidConnection); i++){
 				try{
 					Peer peer=new Peer(url, this);
-					haveValidConnection=killPeerIfDuplicate(peer);
+					haveValidConnection=!killPeerIfDuplicate(peer);
 				} catch(SocketTimeoutException e){
-					
+					Debug.dbg("Trying "+url+": Timeout");
+				} catch(NoRouteToHostException e){
+					Debug.dbg("Trying "+url+": No route");
+				} catch(ConnectException e){
+					Debug.dbg("Trying "+url+": Connection refused");
 				} catch(IOException e){
-					this.log("conn. failed: "+url);
 					e.printStackTrace();
 				}
 			}
@@ -150,6 +154,10 @@ public class Network implements Serializable {
 		connect(peer.url);
 	}
 
+	/**
+	 * @return whether the peer was killed for being a duplicate
+	 * @throws IOException
+	 */
 	public boolean killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){

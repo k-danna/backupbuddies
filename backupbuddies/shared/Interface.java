@@ -114,15 +114,17 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public void downloadFile(String fileName, String fileDir) {
-		network.setFileLoc(fileName, fileDir);
+		String fileNameNetFormat=fileName.replaceAll(" : ","/");
+		network.setFileLoc(fileNameNetFormat, fileDir);
 
 		for(Peer peer:network.getPeers()){
 			//Only download once
-			if(peer.getKnownFiles().contains(fileName)){
-				peer.downloadFile(fileName);
+			if(peer.getKnownFiles().contains(fileNameNetFormat)){
+				peer.downloadFile(fileNameNetFormat);
 				return;
 			}
 		}
+		network.log("Cannot find file: "+fileName);
 	}
 
 	/* (non-Javadoc)
