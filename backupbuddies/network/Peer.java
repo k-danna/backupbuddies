@@ -3,6 +3,7 @@ package backupbuddies.network;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -39,12 +40,18 @@ public class Peer {
 	
 	//This is the UUID we generate
 	public final String token;
+	
+	private static Socket openSocket(String ipAddress, int port) throws IOException {
+		Socket sock=new Socket();
+		sock.connect(new InetSocketAddress(ipAddress, port), 2000);
+		return sock;
+	}
 
 	/**
 	 * This always opens a new Socket, so it always has to send the handshake
 	 */
 	Peer(String url, Network net) throws IOException{
-		this(new Socket(url, Protocol.DEFAULT_PORT), net);
+		this(openSocket(url, Protocol.DEFAULT_PORT), net);
 	}
 
 	Peer(Socket socket, Network net) {
