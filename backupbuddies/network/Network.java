@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.FileStore;
@@ -23,8 +24,7 @@ import backupbuddies.Properties;
 
 public class Network implements Serializable {
 
-
-	private static final long serialVersionUID = 3;
+	private static final long serialVersionUID = 4;
 
 	public final String password;
 
@@ -63,37 +63,48 @@ public class Network implements Serializable {
 	transient HashMap<String, String> downloadingFileLocs = new HashMap<>();
 	
 	//The currently active encryption key
-	public String encryptionKey = "";
+	//Transient so it doesn't get saved
+	public transient String encryptionKey = "";
 	
-	public final String storagePath;
+	public static final String storagePath;
+	
+	static{
+		File f = new File(Properties.BUB_HOME, "files");
+		f.mkdirs();
+		storagePath=f.getAbsolutePath();
+	}
 	
 	//Number of bytes already stored
 	private long bytesStored;
 	
-	private long bytesLimit;
+	private long bytesLimit=0;
 	
 	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
 	String displayName;
 	
+	private static Thread ich;
+	
 	public Network(String password){
 		Debug.mark();
 		this.password=password;
-		File f = new File(Properties.BUB_HOME, "files");
-		f.mkdirs();
-		storagePath=f.getAbsolutePath();
+
 		
 		//Set the initial limit to 5% of your initial hard drive space
 		long freeBytes = getFileSystemFreeBytes();
 		setBytesLimit(freeBytes / 20);
 		
-		new Thread(new IncomingConnectionHandler(this)).start();
+		if(ich != null)
+			ich.stop();
+		ich=new Thread(new IncomingConnectionHandler(this));
+		ich.start();
 		
 		displayName = guessComputerName();
 	}
 	
 	//Apparently transient things don't get auto-created
 	//We have to do these things ourselves
+	//This functions like a constructor
 	public void init(){
 		connections = new HashMap<>();
 		fileStorageLock = new Object();
@@ -110,6 +121,7 @@ public class Network implements Serializable {
 				seenConnections.remove(s);
 			}
 		}
+		new Thread(new IncomingConnectionHandler(this)).start();
 	}
 	/*
 	 * Creates a connection to a URL
@@ -130,17 +142,20 @@ public class Network implements Serializable {
 			for(int i=0; i<3 && !(haveValidConnection); i++){
 				try{
 					Peer peer=new Peer(url, this);
-					haveValidConnection=killPeerIfDuplicate(peer);
+					haveValidConnection=!killPeerIfDuplicate(peer);
 				} catch(SocketTimeoutException e){
-					
+					Debug.dbg("Trying "+url+": Timeout");
+				} catch(NoRouteToHostException e){
+					Debug.dbg("Trying "+url+": No route");
+				} catch(ConnectException e){
+					Debug.dbg("Trying "+url+": Connection refused");
 				} catch(IOException e){
-					this.log("conn. failed: "+url);
 					e.printStackTrace();
 				}
 			}
-			if(haveValidConnection)
+			if(haveValidConnection) {
 				this.log("connected: " + url);
-			else
+			} else
 				this.log("conn. failed: "+url);
 		}
 	}
@@ -150,6 +165,10 @@ public class Network implements Serializable {
 		connect(peer.url);
 	}
 
+	/**
+	 * @return whether the peer was killed for being a duplicate
+	 * @throws IOException
+	 */
 	public boolean killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
@@ -167,6 +186,10 @@ public class Network implements Serializable {
 	public void onValidHandshake(Peer peer) throws IOException{
 		// Send new peer a list of peers we are already connected to
 		for(Peer i: connections.values() ){
+			//Don't introduce people to themselves
+			//Not that this should be possible...
+			if(i.displayName.equals(peer.displayName))
+				continue;
 			peer.notifyNewPeer(i);
 			i.notifyNewPeer(peer);
 			Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
@@ -212,7 +235,7 @@ public class Network implements Serializable {
 		}
 	}
 
-	public String guessComputerName(){
+	public static String guessComputerName(){
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
@@ -283,7 +306,7 @@ public class Network implements Serializable {
 		this.displayName=newName;
 	}
 
-	public long getFileSystemFreeBytes() {
+	public static long getFileSystemFreeBytes() {
 		try {
 			FileStore store = Files.getFileStore(new File(storagePath).toPath());
 			return store.getUsableSpace();

@@ -27,8 +27,11 @@ public class Handshake {
 		if(!(magicNumber.equals(Protocol.MAGIC_NUMBER)))
 			throw new IllegalArgumentException();
 
-		//Their display name
+		//Reject anyone who tries to use the same display name as us
+		//Chances are they __are__ us.
 		peer.displayName=inbound.readUTF();
+		if(peer.displayName.equals(peer.getNetwork().getDisplayName()))
+			throw new IllegalArgumentException();
 		
 		//Check password
 		String theirToken=inbound.readUTF();

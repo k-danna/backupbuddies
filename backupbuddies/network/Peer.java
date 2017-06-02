@@ -87,10 +87,12 @@ public class Peer {
 
 	// Call this if the connection is broken/shouldn't be used further
 	public synchronized void kill(Object error){
+		/*
 		Debug.dbg(error);
 		Debug.caller();
 		if(error instanceof Exception)
 			((Exception) error).printStackTrace();
+		 */
 		network.onConnectionDie(this);
 		cleanup(error);
 	}
@@ -98,7 +100,6 @@ public class Peer {
 	@SuppressWarnings("deprecation")
 	public synchronized void cleanup(Object error){
 		if(peerServicer != null){
-			network.log("unknown connection error: " +error);
 			peerServicer.stop();
 			peerServicer=null;
 		}
