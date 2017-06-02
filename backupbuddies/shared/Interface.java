@@ -261,16 +261,20 @@ public class Interface implements IInterface {
 
 	@Override
 	public String getDisplayName() {
+		if(network==null)
+			return Network.guessComputerName();
 		return network.getDisplayName();
 	}
 
 	@Override
 	public int getStorageSpaceLimit(){
-		return bytesToGibibytes(network.getFileSystemFreeBytes());
+		return bytesToGibibytes(Network.getFileSystemFreeBytes());
 	}
 	
 	@Override
 	public int getStorageSpace() {
+		if(network==null)
+			return (int)bytesToGibibytes(Network.getFileSystemFreeBytes() / 20);
 		return bytesToGibibytes(network.getBytesLimit());
 	}
 	

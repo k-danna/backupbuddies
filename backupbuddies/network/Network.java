@@ -24,8 +24,7 @@ import backupbuddies.Properties;
 
 public class Network implements Serializable {
 
-
-	private static final long serialVersionUID = 3;
+	private static final long serialVersionUID = 4;
 
 	public final String password;
 
@@ -64,31 +63,41 @@ public class Network implements Serializable {
 	transient HashMap<String, String> downloadingFileLocs = new HashMap<>();
 	
 	//The currently active encryption key
-	public String encryptionKey = "";
+	//Transient so it doesn't get saved
+	public transient String encryptionKey = "";
 	
-	public final String storagePath;
+	public static final String storagePath;
+	
+	static{
+		File f = new File(Properties.BUB_HOME, "files");
+		f.mkdirs();
+		storagePath=f.getAbsolutePath();
+	}
 	
 	//Number of bytes already stored
 	private long bytesStored;
 	
-	private long bytesLimit;
+	private long bytesLimit=0;
 	
 	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
 	String displayName;
 	
+	private static Thread ich;
+	
 	public Network(String password){
 		Debug.mark();
 		this.password=password;
-		File f = new File(Properties.BUB_HOME, "files");
-		f.mkdirs();
-		storagePath=f.getAbsolutePath();
+
 		
 		//Set the initial limit to 5% of your initial hard drive space
 		long freeBytes = getFileSystemFreeBytes();
 		setBytesLimit(freeBytes / 20);
 		
-		new Thread(new IncomingConnectionHandler(this)).start();
+		if(ich != null)
+			ich.stop();
+		ich=new Thread(new IncomingConnectionHandler(this));
+		ich.start();
 		
 		displayName = guessComputerName();
 	}
@@ -144,9 +153,9 @@ public class Network implements Serializable {
 					e.printStackTrace();
 				}
 			}
-			if(haveValidConnection)
+			if(haveValidConnection) {
 				this.log("connected: " + url);
-			else
+			} else
 				this.log("conn. failed: "+url);
 		}
 	}
@@ -226,7 +235,7 @@ public class Network implements Serializable {
 		}
 	}
 
-	public String guessComputerName(){
+	public static String guessComputerName(){
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
@@ -297,7 +306,7 @@ public class Network implements Serializable {
 		this.displayName=newName;
 	}
 
-	public long getFileSystemFreeBytes() {
+	public static long getFileSystemFreeBytes() {
 		try {
 			FileStore store = Files.getFileStore(new File(storagePath).toPath());
 			return store.getUsableSpace();
