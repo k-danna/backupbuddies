@@ -175,6 +175,10 @@ public class Network implements Serializable {
 	public void onValidHandshake(Peer peer) throws IOException{
 		// Send new peer a list of peers we are already connected to
 		for(Peer i: connections.values() ){
+			//Don't introduce people to themselves
+			//Not that this should be possible...
+			if(i.displayName.equals(peer.displayName))
+				continue;
 			peer.notifyNewPeer(i);
 			i.notifyNewPeer(peer);
 			Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
