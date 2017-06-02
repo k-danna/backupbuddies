@@ -174,6 +174,7 @@ public class Network implements Serializable {
 	public void onConnectionDie(Peer peer) {
 		synchronized(connections){
 			connections.remove(peer.displayName);
+            this.log(peer.displayName + " disconnected from network");
 		}
 	}
 
@@ -207,6 +208,7 @@ public class Network implements Serializable {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
 			System.out.println("Failed to guess host name! Making something up...");
+            this.log("display name set randomly, enter a username!");
 			return UUID.randomUUID().toString();
 		}
 
@@ -270,6 +272,7 @@ public class Network implements Serializable {
 	}
 
 	public void setDisplayName(String newName) {
+        this.log("set display name to " + newName);
 		this.displayName=newName;
 	}
 
