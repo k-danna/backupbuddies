@@ -37,6 +37,7 @@ public class GuiMain extends JFrame {
 
     //load assets, lists etc before creating the gui
     static JFrame frame = new JFrame("BackupBuddies");
+    static JFrame firstClick = new JFrame("first click");
     static JTextField saveDir = new JTextField();
     static final DefaultListModel<String> userModel = new DefaultListModel<String>();
     static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
@@ -67,6 +68,7 @@ public class GuiMain extends JFrame {
     static String globalSearch = "";
     static int fileListSize = 0;
     static int userListSize = 0;
+    static int listClicked = 0;
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -337,6 +339,15 @@ public class GuiMain extends JFrame {
         allUsers.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
+        		if(listClicked == 0){
+                	//if (allUsers.getSelectedIndex() == -1){
+                	    String upError = "ctrl-click to select/deselect multiple users\n "
+                	    		         + "Hold shift to select intervals\n";
+                		System.out.printf(upError);
+                		JOptionPane.showMessageDialog(firstClick, upError);
+                		listClicked = 1;
+                	//}
+        		}
         		/*int selectedItem = allUsers.getSelectedIndex();
         		boolean already = false;
         		int where = 0;
@@ -380,7 +391,16 @@ public class GuiMain extends JFrame {
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
-        		int selectedItem = allFiles.getSelectedIndex();
+        		if(listClicked == 0){
+                	//if (allUsers.getSelectedIndex() == -1){
+                	    String upError = "ctrl-click to select/deselect multiple files\n "
+                	    		         + "Hold shift to select intervals\n";
+                		System.out.printf(upError);
+                		JOptionPane.showMessageDialog(firstClick, upError);
+                		listClicked = 1;
+                	//}
+        		}
+        		/*int selectedItem = allFiles.getSelectedIndex();
         		boolean already = false;
         		int where = 0;
         		for(int i=0; i<lastFileState.getSize(); i++){
@@ -393,7 +413,7 @@ public class GuiMain extends JFrame {
         			lastFileState.removeElementAt(where);
         		}else{
         		    lastFileState.addElement(Integer.toString(selectedItem));
-        	    }
+        	    }*/
         	}
         });
         allFiles.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
