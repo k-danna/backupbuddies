@@ -48,7 +48,9 @@ public class BackupFile implements IPacketHandler {
 		try {
 			encrypt(key, compressedFile, encryptedFile);
 		} catch (Exception e) {
+			network.log("Encryption failed!");
 			e.printStackTrace();
+			return false;
 		}
 		
 		long length;
@@ -136,8 +138,12 @@ public class BackupFile implements IPacketHandler {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] hashBytes = md.digest(key.getBytes());
 		
+		byte[] hashBytesCut = new byte[16];
+		for(int i=0; i<hashBytesCut.length; i++)
+			hashBytesCut[i]=hashBytes[i];
+		
 		int cipherMode = Cipher.ENCRYPT_MODE;
-		Key secretKey = new SecretKeySpec(hashBytes, Properties.ALGORITHM);
+		Key secretKey = new SecretKeySpec(hashBytesCut, Properties.ALGORITHM);
 		Cipher cipher = Cipher.getInstance(Properties.TRANSFORMATION);
 		cipher.init(cipherMode, secretKey);
              
