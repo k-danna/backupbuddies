@@ -95,6 +95,7 @@ public class Network implements Serializable {
 	
 	//Apparently transient things don't get auto-created
 	//We have to do these things ourselves
+	//This functions like a constructor
 	public void init(){
 		connections = new HashMap<>();
 		fileStorageLock = new Object();
@@ -111,6 +112,7 @@ public class Network implements Serializable {
 				seenConnections.remove(s);
 			}
 		}
+		new Thread(new IncomingConnectionHandler(this)).start();
 	}
 	/*
 	 * Creates a connection to a URL
