@@ -63,6 +63,7 @@ public class GuiMain extends JFrame {
     static JList<ListModel> fileMap = fetchAndProcess("files");
     static boolean firstSearch = false;
     static String globalSearch = "";
+    static JFrame failedUpload = new JFrame();
     
     //populate the window
     static Container contentPane = frame.getContentPane();
@@ -190,7 +191,6 @@ public class GuiMain extends JFrame {
     //upload, download, save control buttons
     public static JPanel controlPanel() {
         //create panel
-    	JFrame failedUpload = new JFrame();
         JPanel controlPanel = new JPanel();
         GridLayout layout = new GridLayout(2, 1, 0, 10);
         controlPanel.setLayout(layout);
@@ -467,15 +467,29 @@ public class GuiMain extends JFrame {
         lockPassButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                IInterface.INSTANCE.setEncryptKey(keyField.getText());
+                if (!IInterface.INSTANCE.networkExists()) {
+                    String upError = "Please connect to a network\n";
+                    System.out.printf(upError);
+                    JOptionPane.showMessageDialog(failedUpload, upError);
+                }
+                else {
+                    IInterface.INSTANCE.setEncryptKey(keyField.getText());
+                }
             }
         });
         keyField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                keyField.setText("");
-                keyField.setEnabled(true);
-                keyField.requestFocus();
+                if (!IInterface.INSTANCE.networkExists()) {
+                    String upError = "Please connect to a network\n";
+                    System.out.printf(upError);
+                    JOptionPane.showMessageDialog(failedUpload, upError);
+                }
+                else {
+                    keyField.setText("");
+                    keyField.setEnabled(true);
+                    keyField.requestFocus();
+                }
             }
         });
 
@@ -518,9 +532,16 @@ public class GuiMain extends JFrame {
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (!slider.getValueIsAdjusting()) {
-                    currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
-                    IInterface.INSTANCE.setStorageSpace(slider.getValue());
+                if (!IInterface.INSTANCE.networkExists()) {
+                    String upError = "Please connect to a network\n";
+                    System.out.printf(upError);
+                    JOptionPane.showMessageDialog(failedUpload, upError);
+                }
+                else {
+                    if (!slider.getValueIsAdjusting()) {
+                        currStorageLabel.setText(String.valueOf(slider.getValue()) + " GB");
+                        IInterface.INSTANCE.setStorageSpace(slider.getValue());
+                    }
                 }
             }
         });
@@ -674,15 +695,29 @@ public class GuiMain extends JFrame {
         lockNameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                IInterface.INSTANCE.setDisplayName(nameField.getText());
+                if (!IInterface.INSTANCE.networkExists()) {
+                    String upError = "Please connect to a network\n";
+                    System.out.printf(upError);
+                    JOptionPane.showMessageDialog(failedUpload, upError);
+                }
+                else {
+                    IInterface.INSTANCE.setDisplayName(nameField.getText());
+                }
             }
         });
         nameField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                nameField.setText("");
-                nameField.setEnabled(true);
-                nameField.requestFocus();
+                if (!IInterface.INSTANCE.networkExists()) {
+                    String upError = "Please connect to a network\n";
+                    System.out.printf(upError);
+                    JOptionPane.showMessageDialog(failedUpload, upError);
+                }
+                else {
+                    nameField.setText("");
+                    nameField.setEnabled(true);
+                    nameField.requestFocus();
+                }
             }
         });
 
