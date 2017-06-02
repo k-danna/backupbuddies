@@ -26,7 +26,7 @@ public class Network implements Serializable {
 
 	private static final long serialVersionUID = 4;
 
-	public final String password;
+	public String password="";
 
 	//You can look up peers by their hostname
 	//TODO is this what the GUI team needs?
@@ -75,20 +75,18 @@ public class Network implements Serializable {
 	}
 	
 	//Number of bytes already stored
-	private long bytesStored;
+	private long bytesStored=0;
 	
 	private long bytesLimit=0;
 	
 	transient ArrayDeque<String> log=new ArrayDeque<>();
 	
-	String displayName;
+	String displayName=Network.guessComputerName();
 	
 	private static Thread ich;
 	
-	public Network(String password){
+	public Network(){
 		Debug.mark();
-		this.password=password;
-
 		
 		//Set the initial limit to 5% of your initial hard drive space
 		long freeBytes = getFileSystemFreeBytes();
@@ -315,6 +313,10 @@ public class Network implements Serializable {
 			//1 GB
 			return 1024*1024*1024;
 		}
+	}
+	
+	public void setPassword(String password){
+		this.password=password;
 	}
 
 }
