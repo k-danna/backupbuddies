@@ -140,13 +140,17 @@ public class Interface implements IInterface {
 		}
 		
 		ArrayList<ListModel> things=new ArrayList<>();
-		HashSet<String> onlineUsers = new HashSet<String>();
-
-		for(Peer peer:network.connections.values()){
-			ListModel a = new ListModel(peer.displayName,"1");
-			things.add(a);
-			onlineUsers.add(peer.url);
-			//System.out.println("ho");
+		HashSet<String> usersAlreadyAccountedFor = new HashSet<String>();
+		
+		for(Peer peer:network.getPeers()){
+			if(usersAlreadyAccountedFor.contains(peer.displayName)){
+				System.err.println("Duplicate peer!");
+			} else {
+				ListModel a = new ListModel(peer.displayName,"1");
+				things.add(a);
+				usersAlreadyAccountedFor.add(peer.displayName);
+				//System.out.println("ho");
+			}
 		}
 		for(String someIP:network.seenConnections.keySet()){
 			OfflinePeer offlineData = network.offlinePeers.get(someIP);
@@ -155,10 +159,11 @@ public class Interface implements IInterface {
 				ListModel a = new ListModel(someIP,"0");
 				things.add(a);
 			}
-			if(onlineUsers.contains(offlineData.url))
+			if(usersAlreadyAccountedFor.contains(offlineData.displayName))
 				continue;
 			ListModel a = new ListModel(offlineData.displayName,"0");
 			things.add(a);
+			usersAlreadyAccountedFor.add(offlineData.displayName);
 			//System.out.println("hi");
 		}
 		
@@ -180,21 +185,24 @@ public class Interface implements IInterface {
 		}
 		
 		ArrayList<ListModel> things=new ArrayList<>();
-		HashSet<String> onlineFiles = new HashSet<String>();
+		HashSet<String> filesAlreadyAccountedFor = new HashSet<String>();
 		
-		for(Peer peer:network.connections.values()){
+		for(Peer peer:network.getPeers()){
 			for(String file:peer.getKnownFiles()){
-				ListModel a = new ListModel(file.replaceAll("/", " : "), "1");
-				things.add(a);
-				onlineFiles.add(file.replaceAll("/", " : "));
+				if(!filesAlreadyAccountedFor.contains(file)){
+					ListModel a = new ListModel(file.replaceAll("/", " : "), "1");
+					things.add(a);
+					filesAlreadyAccountedFor.add(file);
+				}
 			}
 		}
 		
 		for(String file :network.getKnownFiles()){
-			if(onlineFiles.contains(file.replaceAll("/", " : ")))
+			if(filesAlreadyAccountedFor.contains(file))
 				continue;
 			ListModel a = new ListModel(file.replaceAll("/", " : "), "0");
 			things.add(a);
+			filesAlreadyAccountedFor.add(file);
 		}
 		
 		files.clear();
