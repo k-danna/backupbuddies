@@ -126,7 +126,7 @@ public class Interface implements IInterface {
 				return;
 			}
 		}
-		Network.log("Cannot find file: "+fileName);
+		Network.log("Cannot find file");
 	}
 
 	/* (non-Javadoc)
@@ -220,7 +220,7 @@ public class Interface implements IInterface {
 		if(network==null)return;
 		network.encryptionKey=key;
 		System.out.printf("[+] set encrypt key to: %s\n", key);
-		Network.log("Set encrypt key to: "+ key);
+		Network.log("Set new encrypt key");
 	}
 
 	//FIXME: pass storage amount
@@ -231,7 +231,7 @@ public class Interface implements IInterface {
 	public void setStorageSpace(int amount) {
 		if(network==null)return;
 		network.setBytesLimit(gibibytesToBytes(amount));
-		Network.log("Set available storage to: "+ amount + " GB");
+		Network.log("Set new storage amount");
 	}
 
 	//Gets the event list
@@ -250,7 +250,7 @@ public class Interface implements IInterface {
 	}
 
 	public static IInterface make() {
-		boolean DEBUG = false;
+		boolean DEBUG = true;
 		if(DEBUG) {
 			return new InterfaceDummy();
 		} else {

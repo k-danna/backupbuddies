@@ -39,7 +39,7 @@ public class NotifyNewPeer implements IPacketHandler {
 			Debug.dbg("Trying to connect to "+newPeer);
 			network.connect(newPeer);
 		}catch(Exception e){
-			Network.log("Failed to connect to "+newPeer);
+			Network.log("Failed to connect to peer");
 			e.printStackTrace();
 		}
 	}

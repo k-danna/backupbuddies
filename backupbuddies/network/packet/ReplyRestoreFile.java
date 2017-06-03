@@ -59,7 +59,7 @@ public class ReplyRestoreFile implements IPacketHandler {
 			} else {
 				fileName=fileNameWhole;
 			}
-            Network.log("downloading file " + fileName);
+            Network.log("downloading file");
 			long length=inbound.readLong();
 
 			//If we don't have it, we didn't request the file
@@ -89,7 +89,7 @@ public class ReplyRestoreFile implements IPacketHandler {
 				    fout.write(inbound.readByte());
 				}
 				catch (Exception e) {
-                    Network.log("download failed " + fileName);
+                    Network.log("download failed");
 				}
 			}
 			fout.close();
@@ -108,10 +108,10 @@ public class ReplyRestoreFile implements IPacketHandler {
 					compressedFile.delete();
 		            Network.log("Restored " + fileName);
 				} catch (Exception e) {
-					Network.log("Decompression failed: "+e.getMessage());
+					Network.log("Decompression failed");
 				}
 			} catch (Exception e) {
-				Network.log("Decryption failed: "+fileName+" (key:"+key+")");
+				Network.log("Decryption failed");
 			}
 		}
 	}
