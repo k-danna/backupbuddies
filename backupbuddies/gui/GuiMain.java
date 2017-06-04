@@ -593,7 +593,7 @@ public class GuiMain extends JFrame {
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (!IInterface.INSTANCE.networkExists() && popCount % 3 == 0) {
+                if (!IInterface.INSTANCE.networkExists() && popCount == 0) {
                     String upError = "Please connect to a network\n";
                     System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
