@@ -30,7 +30,7 @@ public class Network implements Serializable {
 
 	//You can look up peers by their hostname
 	//TODO is this what the GUI team needs?
-	public transient HashMap<String, Peer> connections = new HashMap<>();
+	private transient HashMap<String, Peer> connections = new HashMap<>();
 	
 	//All connections we have ever seen, with timeouts
 	//Format is IP -> time
