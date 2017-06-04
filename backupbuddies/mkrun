@@ -1,6 +1,5 @@
 #!/bin/bash
 javac -sourcepath .. Main.java
 #java -cp .. backupbuddies.Main
-cp Main.class backupbuddies
 jar -cfm BackupBuddies.jar manifest.mf Main.class
 java -jar BackupBuddies.jar
