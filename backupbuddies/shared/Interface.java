@@ -105,6 +105,8 @@ public class Interface implements IInterface {
             System.out.println(filePath);
 
             Peer peer = network.getPeerByDisplayName(peerDisplayName);
+            if(peer == null)
+            	return false;
             peer.uploadFile(filePath);
             peer.requestUpdatedFileList();
         }
