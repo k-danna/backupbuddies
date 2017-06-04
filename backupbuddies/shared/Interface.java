@@ -89,7 +89,8 @@ public class Interface implements IInterface {
 			network = new Network();									//create a new loc net with given password. 
 			network.setPassword(pass);;
 		}
-		network.connect(ip);									//try and connect to ip given.
+		if(!ip.equals(""))
+			network.connect(ip);									//try and connect to ip given.
 	}
 
 	/*trigger:  */
@@ -105,6 +106,8 @@ public class Interface implements IInterface {
             System.out.println(filePath);
 
             Peer peer = network.getPeerByDisplayName(peerDisplayName);
+            if(peer == null)
+            	return false;
             peer.uploadFile(filePath);
             peer.requestUpdatedFileList();
         }
