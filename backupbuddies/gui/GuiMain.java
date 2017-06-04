@@ -87,6 +87,8 @@ public class GuiMain extends JFrame {
     
     static Map<Component, List<Integer>> panelLocs = new HashMap<Component, List<Integer>>();
 
+    static int popCount = 0;
+
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
@@ -591,7 +593,7 @@ public class GuiMain extends JFrame {
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (!IInterface.INSTANCE.networkExists()) {
+                if (!IInterface.INSTANCE.networkExists() && popCount % 3 == 0) {
                     String upError = "Please connect to a network\n";
                     System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
@@ -602,6 +604,7 @@ public class GuiMain extends JFrame {
                         IInterface.INSTANCE.setStorageSpace(slider.getValue());
                     }
                 }
+                popCount += 1;
             }
         });
         
