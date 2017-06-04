@@ -1,5 +1,9 @@
 #!/bin/bash
-javac -sourcepath .. Main.java
-#java -cp .. backupbuddies.Main
-jar -cfm BackupBuddies.jar manifest.mf ./*.class ./cli/*.class ./gui/*.class ./network/*.class ./network/packet/*.class ./shared/*.class
+cd ..
+javac -sourcepath . backupbuddies/Main.java
+#java -cp . backupbuddies.Main
+mkdir META-INF
+cp backupbuddies/MANIFEST.MF META-INF
+zip -r bub.zip META-INF backupbuddies
+mv bub.zip BackupBuddies.jar
 java -jar BackupBuddies.jar
