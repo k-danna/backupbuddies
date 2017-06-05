@@ -17,9 +17,9 @@ public class UnitTest {
     public static void testLogin() {
         //unit: void IInterface.INSTANCE.login(String ip, String pass);
         //inputs = known, unknown, blank ip
-        List<String> ips = Arrays.asList("", 
+        List<String> ips = Arrays.asList(
                 "unknownipadress", "planetguy.sandcats.io");
-        List<String> passwords = Arrays.asList("", 
+        List<String> passwords = Arrays.asList( 
                 "incorrectpass", "walrus");
         //execute with test input
         for (String ip : ips) {
