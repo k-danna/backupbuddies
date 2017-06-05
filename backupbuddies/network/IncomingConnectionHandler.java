@@ -39,7 +39,7 @@ class IncomingConnectionHandler implements Runnable {
 				Debug.dbg(peer.url);
 				network.killPeerIfDuplicate(peer);
 			} catch (IOException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}

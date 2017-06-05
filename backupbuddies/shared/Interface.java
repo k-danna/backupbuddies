@@ -51,9 +51,9 @@ public class Interface implements IInterface {
 			System.out.println("Save format changed!");
 			networkFile.delete();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return false;
 	}
@@ -74,7 +74,7 @@ public class Interface implements IInterface {
 			return true;
 		}catch(IOException | ClassCastException e){
 			//Mostly for debugging
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 	}

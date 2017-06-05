@@ -49,7 +49,7 @@ public class BackupFile implements IPacketHandler {
 			encrypt(key, compressedFile, encryptedFile);
 		} catch (Exception e) {
 			Network.log("Encryption failed!");
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		
@@ -76,7 +76,7 @@ public class BackupFile implements IPacketHandler {
 				return true;
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		    Network.log("Send failed");
 			return false;
 		}

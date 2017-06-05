@@ -27,7 +27,7 @@ public class NotifyNewPeer implements IPacketHandler {
 			outbound.writeUTF(peerToAnnounce.url);
 			Debug.dbg(peerToAnnounce.url);
 		}catch(IOException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 			sendingPeer.kill("Failed to send packet NotifyNewPeer");
 		}
 	}
@@ -40,7 +40,7 @@ public class NotifyNewPeer implements IPacketHandler {
 			network.connect(newPeer);
 		}catch(Exception e){
 			Network.log("Failed to connect to peer");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 

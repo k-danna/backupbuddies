@@ -139,7 +139,7 @@ public class Peer {
 				RequestListOfFiles.send(outbound);
 			}
 		}catch(IOException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 			kill(e);
 		}
 	}
@@ -163,7 +163,7 @@ public class Peer {
 				RequestRestoreFile.send(outbound, fileName);
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 

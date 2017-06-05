@@ -47,7 +47,7 @@ final class PeerServicer implements Runnable {
 				try{
 					Handshake.checkHandshake(peer, inbound);
 				}catch(IllegalArgumentException e){
-					e.printStackTrace();
+					//e.printStackTrace();
 					peer.kill("Bad handshake");
 					return;
 				}

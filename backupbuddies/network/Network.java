@@ -155,7 +155,7 @@ public class Network implements Serializable {
 				} catch(ConnectException e){
 					Debug.dbg("Trying "+url+": Connection refused");
 				} catch(IOException e){
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 			if(haveValidConnection) {
@@ -316,7 +316,7 @@ public class Network implements Serializable {
 			FileStore store = Files.getFileStore(new File(storagePath).toPath());
 			return store.getUsableSpace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			//1 GB
 			return 1024*1024*1024;
 		}

@@ -16,8 +16,8 @@ public abstract class Debug {
 	//Prints a message, prepending the caller's caller's class name and line number
 	//Mostly useful for debugging purposes.
 	public static void printWithCaller(Object o) {
-		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-		System.out.println(trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber() + "   " + o);
+		//StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+		//System.out.println(trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber() + "   " + o);
 	}
 	
 	public static void dbg(Object o) {
@@ -45,13 +45,13 @@ public abstract class Debug {
 	}
 
 	public static void mark() {
-		printWithCaller("executed");
+		//printWithCaller("executed");
 	}
 
 	public static void caller() {
-		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-		String caller=trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber();
-		printWithCaller("Called from "+caller);
+		//StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+		//String caller=trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "") + "@" + trace[3].getLineNumber();
+		//printWithCaller("Called from "+caller);
 	}
 	
 }

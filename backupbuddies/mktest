@@ -8,4 +8,4 @@ zip -r bub.zip META-INF backupbuddies >build.log
 mv bub.zip BackupBuddies.jar
 rm ./backupbuddies/*.class ./backupbuddies/*cli/*.class ./backupbuddies/*gui/*.class ./backupbuddies/*shared/*.class ./backupbuddies/*network/*.class ./backupbuddies/*network/packet/*.class 
 rm -r META-INF
-java -jar BackupBuddies.jar
+java -jar BackupBuddies.jar testUnits
