@@ -8,19 +8,14 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.HashMap;
-import java.lang.*;
 
 import backupbuddies.gui.ListModel;
 import backupbuddies.shared.IInterface;
-
-import static backupbuddies.Debug.*;
 
 @SuppressWarnings("serial")
 public class GuiMain extends JFrame {
@@ -95,7 +90,6 @@ public class GuiMain extends JFrame {
     public static JList<ListModel> fetchAndProcess(String type) {
         //get data
         JList<ListModel> map = new JList<ListModel>(); 
-        //debug = new DefaultListModel<>();
         if (type.equals("users")) debugUser = IInterface.INSTANCE.fetchUserList();
         else if (type.equals("files")) debugFile = IInterface.INSTANCE.fetchFileList();
   
@@ -110,9 +104,6 @@ public class GuiMain extends JFrame {
             	IInterface.INSTANCE.saveNetwork();
                 userMap = fetchAndProcess("users");
                 fileMap = fetchAndProcess("files");
-            	//updateFileSelection();
-            	//updateUserSelection();  
-            	//fileSearch(globalSearch);
           
                 if(firstSearch == false){
                 	fileSearch("");
@@ -127,22 +118,9 @@ public class GuiMain extends JFrame {
                 
                 if(userListSize != debugUser.getSize()){
                 	userListSize = debugUser.getSize();
-                	//System.out.printf("user %d debug %d\n", userListSize, debugUser.getSize());
                 	usertest = debugUser;
                 	userSearch("");
                 }
-              	//System.out.println(usertest.getElementAt(0));
-                /*int[] selectedFiles = new int[lastFileState.getSize()];
-                for(int i=0; i<lastFileState.getSize(); i++){
-                	selectedFiles[i] = Integer.parseInt(lastFileState.getElementAt(i));
-                }
-                allFiles.setSelectedIndices(selectedFiles);
-                
-                int[] selectedUsers = new int[lastUserState.getSize()];
-                for(int i=0; i<lastUserState.getSize(); i++){
-                	selectedUsers[i] = Integer.parseInt(lastUserState.getElementAt(i));
-                }
-                allUsers.setSelectedIndices(selectedUsers);*/
                 
                 List<String> events = IInterface.INSTANCE.getEventLog();
             	log.setText("");
@@ -181,31 +159,22 @@ public class GuiMain extends JFrame {
         if (browser.showOpenDialog(frame) == 
                 JFileChooser.APPROVE_OPTION) {
 
-            //File[] files = browser.getSelectedFiles();
-            //for (File f : files) {
-            //    System.out.printf("%s\n", f.toPath());
-            //}
-
         	int[] selected = allUsers.getSelectedIndices();
         	for( int i=0; i<selected.length; i++){       		        	
         		IInterface.INSTANCE.uploadFile(browser.getSelectedFiles(),
                     allUsers.getModel().getElementAt(selected[i]).getName());
         	}
         }
-        //fileSearch("");
     }
 
     //user downloads a file to save directory (and chooses if not set)
     public static void setDirAndDownload() {
-        //FIXME: need to have a list of uploaded files to choose from
-        //String fileToGet = "test.txt";
         if (saveDir.getText().equals("")) {
             setSaveDir();
         }
 
 		int[] selected = allFiles.getSelectedIndices();
         for(int i=0; i<selected.length; i++){
-        	//System.out.printf("Index: %d %s\n", i, hi.getModel().getElementAt(selected[i]).getName());
         	IInterface.INSTANCE.downloadFile(allFiles.getModel().getElementAt(selected[i]).getName(), saveDir.getText());
         }
     }
@@ -218,19 +187,12 @@ public class GuiMain extends JFrame {
         controlPanel.setLayout(layout);
         
         //create components
-        JLabel fileLabel = new JLabel("backup your files");
         JButton uploadButton = new JButton("upload");
         JButton downloadButton = new JButton("download");
         JButton pathButton = new JButton("save to...");
 
         downloadButton.setForeground(buttonTextColor);
         uploadButton.setForeground(buttonTextColor);
-    
-        //set button colors
-        //uploadButton.setForeground(colorGreen); //text color
-        //uploadButton.setBackground(backgroundColor);
-        //uploadButton.setContentAreaFilled(false);
-        //uploadButton.setOpaque(true);
         
         //bind methods to buttons
         uploadButton.addActionListener(new ActionListener() {
@@ -260,12 +222,8 @@ public class GuiMain extends JFrame {
 
         //add components to panel and specify orientation
         controlPanel.setPreferredSize(new Dimension(250, 150));
-        //controlPanel.add(fileLabel);
         controlPanel.add(uploadButton);
         controlPanel.add(downloadButton);
-        //controlPanel.add(pathButton);
-        //controlPanel.setComponentOrientation(
-        //        ComponentOrientation.LEFT_TO_RIGHT);
 
         return controlPanel;
     }
@@ -313,13 +271,6 @@ public class GuiMain extends JFrame {
             }
         });
 
-       // loginButton.setBorder(new RoundedBorder(10));
-        //add components to panel and specify orientation
-       // loginButton.setOpaque(false);
-       // loginButton.setBorderPainted(false);
-       // loginButton.setFocusPainted(false);
-        //loginButton.setForeground(Color.BLUE);
-        //loginButton.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
         loginLabel.setForeground(textColor);
         loginLabel.setFont(font);
         loginPanel.add(loginLabel);
@@ -331,10 +282,7 @@ public class GuiMain extends JFrame {
     }
 
     //list of peers in the network
-        //TODO: multiple selection
-        //TODO: renders images
-    public static JScrollPane userListPanel() {
-    	//usertest = debugUser;    	
+    public static JScrollPane userListPanel() {   	
     	
         allUsers.setModel(users);
     	
@@ -342,28 +290,12 @@ public class GuiMain extends JFrame {
         	@Override
         	public void mouseClicked(MouseEvent e){
         		if(listClicked == 0){
-                	//if (allUsers.getSelectedIndex() == -1){
-                	    String upError = "ctrl-click to select/deselect multiple users\n "
-                	    		         + "Hold shift to select intervals\n";
-                		System.out.printf(upError);
+        			String upError = "ctrl-click to select/deselect multiple users\n "
+                	    		      + "Hold shift to select intervals\n";
+        			System.out.printf(upError);
                 		JOptionPane.showMessageDialog(firstClick, upError);
                 		listClicked = 1;
-                	//}
         		}
-        		/*int selectedItem = allUsers.getSelectedIndex();
-        		boolean already = false;
-        		int where = 0;
-        		for(int i=0; i<lastUserState.getSize(); i++){
-        			if(selectedItem == Integer.parseInt(lastUserState.getElementAt(i))){
-        				already = true;
-        				where = i;
-        			}
-        		}
-        		if(already == true){
-        			lastUserState.removeElementAt(where);
-        		}else{
-        		    lastUserState.addElement(Integer.toString(selectedItem));
-        	    }*/
         	}
         });
         
@@ -371,58 +303,29 @@ public class GuiMain extends JFrame {
         allUsers.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allUsers);
         pane.setPreferredSize(new Dimension(250, 440));
-        //allUsers.setSelectionBackground(Color.green);
         allUsers.setBackground(listColor);
         return pane;
     }
 
     //list of files you can recover
-        //TODO: multiple selection
-        //TODO: renders images
     public static JScrollPane fileListPanel(String search) {
-    	//filetest = files;  	
-       
-        //allFiles.setModel(filetest);
         allFiles.setModel(files);
-        //for(int i=0; i< files.size(); i++){
-        //	System.out.printf("%s\n", files.getElementAt(i));
-        //}
-    	/*for(int i=0; i< filetest.size(); i++){
-        	System.out.printf("%s\n", filetest.getElementAt(i));
-        }*/
         allFiles.addMouseListener(new MouseAdapter(){
         	@Override
         	public void mouseClicked(MouseEvent e){
         		if(listClicked == 0){
-                	//if (allUsers.getSelectedIndex() == -1){
-                	    String upError = "ctrl-click to select/deselect multiple files\n "
-                	    		         + "Hold shift to select intervals\n";
-                		System.out.printf(upError);
-                		JOptionPane.showMessageDialog(firstClick, upError);
-                		listClicked = 1;
-                	//}
+        			String upError = "ctrl-click to select/deselect multiple files\n "
+                	  		         + "Hold shift to select intervals\n";
+        			System.out.printf(upError);
+                	JOptionPane.showMessageDialog(firstClick, upError);
+                	listClicked = 1;
         		}
-        		/*int selectedItem = allFiles.getSelectedIndex();
-        		boolean already = false;
-        		int where = 0;
-        		for(int i=0; i<lastFileState.getSize(); i++){
-        			if(selectedItem == Integer.parseInt(lastFileState.getElementAt(i))){
-        				already = true;
-        				where = i;
-        			}
-        		}
-        		if(already == true){
-        			lastFileState.removeElementAt(where);
-        		}else{
-        		    lastFileState.addElement(Integer.toString(selectedItem));
-        	    }*/
         	}
         });
         allFiles.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         allFiles.setCellRenderer(new ListRenderer());
         JScrollPane pane = new JScrollPane(allFiles);
         pane.setPreferredSize(new Dimension(250, 440));
-        //allFiles.setSelectionBackground(Color.green);
         allFiles.setBackground(listColor);
        
         return pane;
@@ -431,17 +334,13 @@ public class GuiMain extends JFrame {
 
     public static void userSearch(String search){
     	int cap = usertest.getSize();
-    	//int cap = filetest.getSize();
-    	//filetest = debugFile;
         users.clear();
         for(int i=0; i<cap; i++){
-        	//ListModel model = filetest.elementAt(i);
         	ListModel model = usertest.elementAt(i);
         	String name = model.getName();
       
        	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	   // filetest.addElement(add);
                 users.addElement(add);
         	}
         }
@@ -449,17 +348,13 @@ public class GuiMain extends JFrame {
     
     public static void fileSearch(String search){
     	int cap = filetest.getSize();
-    	//int cap = filetest.getSize();
-    	//filetest = debugFile;
         files.clear();
         for(int i=0; i<cap; i++){
-        	//ListModel model = filetest.elementAt(i);
         	ListModel model = filetest.elementAt(i);
         	String name = model.getName();
       
        	if(name.indexOf(search) != -1){
         	    ListModel add = new ListModel(model.getName(), model.getStatus());
-        	   // filetest.addElement(add);
                 files.addElement(add);
         	}
         }
@@ -470,7 +365,6 @@ public class GuiMain extends JFrame {
     	JLabel label = new JLabel("Search:");
         JTextField search = new JTextField("search...", 12);
         search.setEnabled(false);
-       // fileSearch(search.getText());
         search.setBackground(listColor);
         search.addMouseListener(new MouseAdapter() {
             @Override
@@ -633,20 +527,14 @@ public class GuiMain extends JFrame {
         selectAllButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.out.printf("[*] selecting all\n");
             	int start = 0;
             	int end = allUsers.getModel().getSize() - 1;
             	allUsers.setSelectionInterval(start, end);
-                //for(int i=0; i < (allUsers.getModel().getSize()); i++){
-                //	lastUserState.addElement(Integer.toString(i));
-                //}
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.out.printf("[*] selecting none\n");
-                //lastUserState.clear();
             	allUsers.clearSelection();
             }
         });
@@ -676,17 +564,11 @@ public class GuiMain extends JFrame {
             	int start = 0;
             	int end = allFiles.getModel().getSize() - 1;
             	allFiles.setSelectionInterval(start, end);
-               /* System.out.printf("[*] selecting all\n");
-                for(int i=0; i < (allFiles.getModel().getSize()); i++){
-                	lastFileState.addElement(Integer.toString(i));
-                }*/
             }
         });
         selectNoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.out.printf("[*] selecting none\n");
-                //lastFileState.clear();
             	allFiles.clearSelection();
             }
         });
@@ -724,8 +606,6 @@ public class GuiMain extends JFrame {
         logLabel.setFont(font);
         log.setEditable(false);
 
-        //log.append(text + newline)
-
         log.setBackground(listColor);
 
         panel.add(logLabel);
@@ -749,8 +629,6 @@ public class GuiMain extends JFrame {
     public static JPanel namePanel() {
         //create panel
         final JPanel panel = new JPanel();
-        //BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-        //panel.setLayout(layout);
         
         //create components
         final JLabel nameLabel = new JLabel("Enter Device Name: ");
@@ -844,7 +722,7 @@ public class GuiMain extends JFrame {
                 panelLocs.put(controlPanel,     Arrays.asList(30, 210));
                 panelLocs.put(logPanel,         Arrays.asList(30, 425));
                 panelLocs.put(storagePanel,     Arrays.asList(30, 365));
-                //middle column locatinos
+                //middle column locations
                 panelLocs.put(userListPanel,    Arrays.asList(370, 80));
                 panelLocs.put(selectUsersPanel, Arrays.asList(350, 40));
                 //right column locations
@@ -864,7 +742,6 @@ public class GuiMain extends JFrame {
                 }
                 contentPane.add(leftColorPanel());
                 contentPane.add(linePanel());
-                //contentPane.add(topColorPanel());
 
                 //set background color
                 Color globalColor = colorBlue;
