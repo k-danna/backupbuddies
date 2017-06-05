@@ -200,7 +200,6 @@ public class GuiMain extends JFrame {
             public void actionPerformed(ActionEvent e) {
             	if (allUsers.getSelectedIndex() == -1){
             	    String upError = "Please select at least one user\n";
-            		System.out.printf(upError);
             		JOptionPane.showMessageDialog(failedUpload, upError);
             	}else{
                     chooseAndUpload();
@@ -292,7 +291,6 @@ public class GuiMain extends JFrame {
         		if(listClicked == 0){
         			String upError = "ctrl-click to select/deselect multiple users\n "
                 	    		      + "Hold shift to select intervals\n";
-        			System.out.printf(upError);
                 		JOptionPane.showMessageDialog(firstClick, upError);
                 		listClicked = 1;
         		}
@@ -316,7 +314,6 @@ public class GuiMain extends JFrame {
         		if(listClicked == 0){
         			String upError = "ctrl-click to select/deselect multiple files\n "
                 	  		         + "Hold shift to select intervals\n";
-        			System.out.printf(upError);
                 	JOptionPane.showMessageDialog(firstClick, upError);
                 	listClicked = 1;
         		}
@@ -379,7 +376,6 @@ public class GuiMain extends JFrame {
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
-				System.out.printf("changed\n");
 			}
 
 			@Override
@@ -424,7 +420,6 @@ public class GuiMain extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!IInterface.INSTANCE.networkExists()) {
                     String upError = "Please connect to a network\n";
-                    System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
                 }
                 else {
@@ -437,7 +432,6 @@ public class GuiMain extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 if (!IInterface.INSTANCE.networkExists()) {
                     String upError = "Please connect to a network\n";
-                    System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
                 }
                 else {
@@ -489,7 +483,6 @@ public class GuiMain extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 if (!IInterface.INSTANCE.networkExists() && popCount == 0) {
                     String upError = "Please connect to a network\n";
-                    System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
                 }
                 else {
@@ -645,7 +638,6 @@ public class GuiMain extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!IInterface.INSTANCE.networkExists()) {
                     String upError = "Please connect to a network\n";
-                    System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
                 }
                 else {
@@ -658,7 +650,6 @@ public class GuiMain extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 if (!IInterface.INSTANCE.networkExists()) {
                     String upError = "Please connect to a network\n";
-                    System.out.printf(upError);
                     JOptionPane.showMessageDialog(failedUpload, upError);
                 }
                 else {
