@@ -70,6 +70,11 @@ public class Peer {
 			Handshake.sendHandshake(outbound, token, network);
 
 			peerServicer = new Thread(new PeerServicer(this, inbound));
+			peerServicer.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){
+				public void uncaughtException(Thread thread, Throwable exception) {
+					//System.out.println("Connection to "+url+" lost");
+				}
+			} );
 			peerServicer.start();
 		} catch(Exception e) {
 			this.kill(e);
