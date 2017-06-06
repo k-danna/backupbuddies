@@ -137,6 +137,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public DefaultListModel<ListModel> fetchUserList(){
+		DefaultListModel<ListModel> users=new DefaultListModel<>();
 		if(network==null) {
 			users.clear();
 			return users;
@@ -182,6 +183,7 @@ public class Interface implements IInterface {
 	 */
 	@Override
 	public DefaultListModel<ListModel> fetchFileList(){
+		DefaultListModel<ListModel> files=new DefaultListModel<>();
 		if(network==null) {
 			files.clear();
 			return files;

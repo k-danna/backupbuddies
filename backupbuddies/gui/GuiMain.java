@@ -34,8 +34,6 @@ public class GuiMain extends JFrame {
     static JFrame frame = new JFrame("BackupBuddies");
     static JFrame firstClick = new JFrame("first click");
     static JTextField saveDir = new JTextField();
-    static final DefaultListModel<String> userModel = new DefaultListModel<String>();
-    static final DefaultListModel<String> fileModel = new DefaultListModel<String>();
     static final DefaultListModel<ListModel> files = new DefaultListModel<ListModel>();
     static final DefaultListModel<ListModel> users = new DefaultListModel<ListModel>();
     
@@ -57,8 +55,6 @@ public class GuiMain extends JFrame {
     static ImageIcon statusRed = new ImageIcon("bin/backupbuddies/gui/assets/RedderCircle.png");
     static ImageIcon statusYellow = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/YellowerCircle.png");
     static ImageIcon statusGreen = new ImageIcon("bin/backupbuddies/backupbuddies/gui/assets/GreenerCircle.png");
-    static JList<ListModel> userMap = fetchAndProcess("users");
-    static JList<ListModel> fileMap = fetchAndProcess("files");
     static boolean firstSearch = false;
     static String globalSearch = "";
     static JFrame failedUpload = new JFrame();
@@ -87,13 +83,10 @@ public class GuiMain extends JFrame {
     //process lists returned from networking
         //NOTE: to speed this up we can just do it in the interface methods
             //iteration already occurs there
-    public static JList<ListModel> fetchAndProcess(String type) {
+    public static void fetchAndProcess(String type) {
         //get data
-        JList<ListModel> map = new JList<ListModel>(); 
         if (type.equals("users")) debugUser = IInterface.INSTANCE.fetchUserList();
         else if (type.equals("files")) debugFile = IInterface.INSTANCE.fetchFileList();
-  
-        return map;
     }
 
     //updates ui on interval
@@ -102,21 +95,21 @@ public class GuiMain extends JFrame {
         ActionListener updateUI = new ActionListener() {       
             public void actionPerformed(ActionEvent e) {
             	IInterface.INSTANCE.saveNetwork();
-                userMap = fetchAndProcess("users");
-                fileMap = fetchAndProcess("files");
+                fetchAndProcess("users");
+                fetchAndProcess("files");
           
                 if(firstSearch == false){
                 	fileSearch("");
                 	firstSearch = true;
                 }
                 
-                if(fileListSize != debugFile.getSize()){
-                	fileListSize = debugFile.getSize();
+                if(!deepEquals(filetest,debugFile)){
+                	fileListSize++;
                 	filetest = debugFile;
                 	fileSearch(globalSearch);
                 }
                 
-                if(userListSize != debugUser.getSize()){
+                if(!deepEquals(usertest,debugUser)){
                 	userListSize = debugUser.getSize();
                 	usertest = debugUser;
                 	userSearch("");
@@ -136,6 +129,23 @@ public class GuiMain extends JFrame {
         Timer timer = new Timer(interval, updateUI);
         timer.setRepeats(true);
         timer.start();
+    }
+    
+    
+    private static boolean deepEquals(DefaultListModel<ListModel> a, DefaultListModel<ListModel> b){
+    	int i;
+    	for(i=0; i<a.size(); i++){
+    		//Going out of b's bounds while still within a
+    		if(i>b.size())
+    			return false;
+    		//Something is different
+    		if(!b.getElementAt(i).equals(a.getElementAt(i)))
+    			return false;
+    	}
+    	//i is at the end of a - must also be at the end of b
+    	if(i != b.size())
+    		return false;
+    	return true;
     }
     
     //user chooses directory to save to

@@ -25,12 +25,26 @@ public class ListModel implements Comparable<ListModel> {
 		this.status = status;
 	}
 	
+	@Override
 	public String toString(){
-		return name;
+		return name +" ("+status+")";
 	}
 
 	@Override
 	public int compareTo(ListModel other) {
 		return name.compareTo(other.name);
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(!(o instanceof ListModel))
+			return false;
+		ListModel other=(ListModel) o;
+		return other.name.equals(name) && other.status.equals(status);
+	}
+	
+	@Override
+	public int hashCode(){
+		return name.hashCode() * status.hashCode();
 	}
 }
