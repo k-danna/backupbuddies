@@ -128,7 +128,7 @@ public class InterfaceDummy implements IInterface {
 	
 	@Override
 	public List<String> getEventLog() {
-		ls.add("Event "+Math.random());
+		ls.add(0, "Event "+Math.random());
 		return ls;
 	}
 
