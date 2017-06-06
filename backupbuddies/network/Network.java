@@ -132,7 +132,7 @@ public class Network implements Serializable {
 	 * Creates a connection to a URL
 	 */
 	public void connect(String url){
-		synchronized(this){
+		synchronized(connections){
 			if(url.equals(""))
 				return;
 			
@@ -204,8 +204,9 @@ public class Network implements Serializable {
 					Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
 				}
 				//Connect with peer
-				if(connections.get(peer.displayName) != null)
-					connections.get(peer.displayName).kill("Duplicate connection to same host");
+				if(connections.get(peer.displayName) != null) {
+					peer.cleanup("Already connected");
+				}
 				connections.put(peer.displayName, peer);
 				seenConnections.put(peer.url, System.currentTimeMillis());
 				OfflinePeer offline = peer.getPersistentData();
