@@ -46,6 +46,7 @@ final class PeerServicer implements Runnable {
 				// Buddies or don't have the password. Don't take their commands.
 				try{
 					Handshake.checkHandshake(peer, inbound);
+					Thread.currentThread().setName(">> "+ peer.displayName);
 				}catch(IllegalArgumentException e){
 					//e.printStackTrace();
 					peer.kill("Bad handshake");

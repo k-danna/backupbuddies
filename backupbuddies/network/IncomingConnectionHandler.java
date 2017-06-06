@@ -24,6 +24,8 @@ class IncomingConnectionHandler implements Runnable {
 	@SuppressWarnings("resource")
 	@Override
 	public void run() {
+		Thread.currentThread().setName("Incoming Connection Handler");
+		
 		ServerSocket serverSocket;
 		try{
 			serverSocket = new ServerSocket(Protocol.DEFAULT_PORT);
