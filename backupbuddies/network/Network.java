@@ -28,7 +28,7 @@ public class Network implements Serializable {
 
 	public String password="";
 
-	//You can look up peers by their hostname
+	//You can look up peers by their display name
 	//TODO is this what the GUI team needs?
 	private transient HashMap<String, Peer> connections = new HashMap<>();
 	
@@ -132,7 +132,7 @@ public class Network implements Serializable {
 	 * Creates a connection to a URL
 	 */
 	public void connect(String url){
-		synchronized(connections){
+		synchronized(this){
 			if(url.equals(""))
 				return;
 			
@@ -177,11 +177,13 @@ public class Network implements Serializable {
 	public boolean killPeerIfDuplicate(Peer peer) throws IOException {
 		Debug.dbg(peer.url);
 		synchronized(connections){
-			if(connections.containsKey(peer.displayName)) {
-				Debug.dbg("Peer "+peer.displayName+" is already connected!");
-				//Can't use kill() - that removes it from connections
-				peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
-				return true;
+			synchronized(peer){
+				if(connections.containsKey(peer.displayName)) {
+					Debug.dbg("Peer "+peer.displayName+" is already connected!");
+					//Can't use kill() - that removes it from connections
+					peer.cleanup("Duplicate peers with display name "+peer.displayName+": "+peer.url+", "+connections.get(peer.displayName).url);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -189,29 +191,37 @@ public class Network implements Serializable {
 	
 	//Notifies the network that the given Peer has completed a valid handshake
 	public void onValidHandshake(Peer peer) throws IOException{
-		// Send new peer a list of peers we are already connected to
-		for(Peer i: connections.values() ){
-			//Don't introduce people to themselves
-			//Not that this should be possible...
-			if(i.displayName.equals(peer.displayName))
-				continue;
-			peer.notifyNewPeer(i);
-			i.notifyNewPeer(peer);
-			Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
+		synchronized(connections){
+			synchronized(peer){
+				// Send new peer a list of peers we are already connected to
+				for(Peer i: connections.values() ){
+					//Don't introduce people to themselves
+					//Not that this should be possible...
+					if(i.displayName.equals(peer.displayName))
+						continue;
+					peer.notifyNewPeer(i);
+					i.notifyNewPeer(peer);
+					Debug.dbg("Introducing "+i.displayName + " to "+peer.displayName);
+				}
+				//Connect with peer
+				if(connections.get(peer.displayName) != null)
+					connections.get(peer.displayName).kill("Duplicate connection to same host");
+				connections.put(peer.displayName, peer);
+				seenConnections.put(peer.url, System.currentTimeMillis());
+				OfflinePeer offline = peer.getPersistentData();
+				offlinePeers.put(peer.url, offline);
+				// Inform list of peers connected to about new peer
+			}
 		}
-		//Connect with peer
-		connections.put(peer.displayName, peer);
-		seenConnections.put(peer.url, System.currentTimeMillis());
-		OfflinePeer offline = peer.getPersistentData();
-		offlinePeers.put(peer.url, offline);
-		// Inform list of peers connected to about new peer
 	}
 
 	//If a Peer/connection fails, we shouldn't keep it around in connections
 	//Remove it
 	public void onConnectionDie(Peer peer) {
 		synchronized(connections){
-			connections.remove(peer.displayName);
+			synchronized(peer){
+				connections.remove(peer.displayName);
+			}
 		}
 	}
 

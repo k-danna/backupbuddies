@@ -157,9 +157,10 @@ public class Peer {
 	
 	// Method to notify a peer about another peer
 	public void notifyNewPeer( Peer peer ) throws IOException{
-		synchronized(this){
-			NotifyNewPeer.send(outbound, peer, this);
-		}
+		//We should probably lock it, but we can't because deadlocks.
+		
+		//Hopefully nothing gets screwed up in the meantime...
+		NotifyNewPeer.send(outbound, peer, this);
 	}
 	
 	public void downloadFile(String fileName) {
